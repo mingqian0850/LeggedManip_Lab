@@ -35,10 +35,10 @@ B2W_Z1_ARM_HOME_JOINT_POS = {
     "joint6": 0.0,
 }
 
-# Hardware-like stacked Z-fold reconstructed from ``IMG_5219.jpg``. Unlike the
-# arm's all-zero pose, this keeps the return link and gripper above the lidar.
-# These values are a photo-matched starting point; replace them with encoder
-# readback from the real robot when it is available.
+# Provisional stacked Z-fold reconstructed from the tracked reference image at
+# ``reference/user_b2w_z1_mount_side.jpg``. Unlike the arm's all-zero pose,
+# this keeps the return link and gripper above the lidar. Replace these
+# photo-matched values with encoder readback from the real robot when available.
 B2W_Z1_ARM_STOW_JOINT_POS = {
     "joint1": 0.0,
     "joint2": 0.15,
@@ -82,7 +82,7 @@ B2W_Z1_CFG = ArticulationCfg(
             "RR_thigh_joint": 1.0,
             ".*_calf_joint": -1.5,
             ".*_wheel_joint": 0.0,
-            # Safe hardware-like folded pose for display and generic resets.
+            # Safe photo-matched provisional fold for display and generic resets.
             **B2W_Z1_ARM_STOW_JOINT_POS,
             "gripper_joint": -1.0,
         },

@@ -41,6 +41,13 @@
 | GO2-ARX5 | Unitree Go2 | ARX-X5 | <img src="./docs/imgs/go2_arx5.png" alt="go2_arx5" width="75"> |
 | GO2-PIPER | Unitree Go2 | Agilex Piper | <img src="./docs/imgs/go2_piper.png" alt="go2_piper" width="75"> |
 | ... | ... | ... | ... |
+
+仓库中还提供了实验性的
+[B2-W + Z1 资产](source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/README.md)：
+它由锁定版本的宇树官方 B2-W/Z1 描述生成，保留四个轮关节和夹爪，包含名义 TCP，
+并按照实机照片采用 35 mm 垫高安装。当前完成的是机器人资产基础，尚未注册
+B2-W 专用的强化学习任务和奖励函数。
+
 每个平台支持以下 **2** 种训练模式：
 
 - **Flat** — 平坦地形上的移动操作

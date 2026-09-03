@@ -2,6 +2,9 @@
 """Load the B2-W + Z1 USD as an Isaac Lab articulation and smoke-test it."""
 
 import argparse
+import os
+import sys
+import traceback
 
 from isaaclab.app import AppLauncher
 
@@ -33,6 +36,32 @@ from LeggedManip_Lab.assets.b2w_z1.b2w_z1_articulation_cfg import (  # noqa: E40
 
 
 EXPECTED_WHEEL_JOINTS = {f"{leg}_wheel_joint" for leg in ("FL", "FR", "RL", "RR")}
+EXPECTED_MOUNT_POSITION = (0.211, 0.0, 0.110)
+EXPECTED_TCP_POSITION = (0.145, 0.0, 0.0)
+
+
+def _quaternion_wxyz(quaternion) -> tuple[float, float, float, float]:
+    imaginary = quaternion.GetImaginary()
+    return (
+        float(quaternion.GetReal()),
+        float(imaginary[0]),
+        float(imaginary[1]),
+        float(imaginary[2]),
+    )
+
+
+def _assert_identity_quaternion(quaternion, label: str) -> None:
+    actual = _quaternion_wxyz(quaternion)
+    expected = (1.0, 0.0, 0.0, 0.0)
+    if any(abs(value - target) > 1.0e-6 for value, target in zip(actual, expected)):
+        raise AssertionError(f"Unexpected {label} rotation quaternion: {actual}")
+
+
+def _relationship_targets(joint, relationship_name: str) -> list[str]:
+    relationship = (
+        joint.GetBody0Rel() if relationship_name == "body0" else joint.GetBody1Rel()
+    )
+    return [path.pathString for path in relationship.GetTargets()]
 
 
 def validate_arm_presets() -> float:
@@ -99,9 +128,31 @@ def validate_usd_structure() -> None:
     if not mount:
         raise AssertionError("Missing fixed z1_mount_joint")
     mount_position = mount.GetLocalPos0Attr().Get()
-    expected_position = (0.211, 0.0, 0.110)
-    if any(abs(float(actual) - expected) > 1.0e-6 for actual, expected in zip(mount_position, expected_position)):
+    if any(
+        abs(float(actual) - expected) > 1.0e-6
+        for actual, expected in zip(mount_position, EXPECTED_MOUNT_POSITION)
+    ):
         raise AssertionError(f"Unexpected Z1 mount position: {mount_position}")
+    _assert_identity_quaternion(mount.GetLocalRot0Attr().Get(), "Z1 mount")
+    if _relationship_targets(mount, "body0") != ["/b2w_z1/base_link"]:
+        raise AssertionError(f"Unexpected Z1 mount parent: {mount.GetBody0Rel().GetTargets()}")
+    if _relationship_targets(mount, "body1") != ["/b2w_z1/link0"]:
+        raise AssertionError(f"Unexpected Z1 mount child: {mount.GetBody1Rel().GetTargets()}")
+
+    tcp = UsdPhysics.FixedJoint.Get(stage, "/b2w_z1/joints/tcp_fixed_joint")
+    if not tcp:
+        raise AssertionError("Missing nominal tcp_fixed_joint")
+    tcp_position = tcp.GetLocalPos0Attr().Get()
+    if any(
+        abs(float(actual) - expected) > 1.0e-6
+        for actual, expected in zip(tcp_position, EXPECTED_TCP_POSITION)
+    ):
+        raise AssertionError(f"Unexpected nominal TCP position: {tcp_position}")
+    _assert_identity_quaternion(tcp.GetLocalRot0Attr().Get(), "nominal TCP")
+    if _relationship_targets(tcp, "body0") != ["/b2w_z1/gripper_stator"]:
+        raise AssertionError(f"Unexpected TCP parent: {tcp.GetBody0Rel().GetTargets()}")
+    if _relationship_targets(tcp, "body1") != ["/b2w_z1/tcp_frame"]:
+        raise AssertionError(f"Unexpected TCP child: {tcp.GetBody1Rel().GetTargets()}")
 
     usd_stow = {**B2W_Z1_ARM_STOW_JOINT_POS, "gripper_joint": -1.0}
     for joint_name, expected_radians in usd_stow.items():
@@ -144,7 +195,13 @@ def main() -> None:
     if len(arm_names) != 6 or not torch.allclose(
         robot.data.default_joint_pos[:, arm_ids], expected_arm_stow
     ):
-        raise AssertionError(f"Z1 does not have the expected hardware-like stow: {arm_names}")
+        raise AssertionError(f"Z1 does not have the expected photo-matched stow: {arm_names}")
+    base_body_ids, base_body_names = robot.find_bodies("base_link")
+    tcp_body_ids, tcp_body_names = robot.find_bodies("tcp_frame")
+    if base_body_names != ["base_link"] or tcp_body_names != ["tcp_frame"]:
+        raise AssertionError(
+            f"Unexpected base/TCP bodies: base={base_body_names}, tcp={tcp_body_names}"
+        )
 
     robot.write_joint_state_to_sim(robot.data.default_joint_pos, robot.data.default_joint_vel)
     robot.reset()
@@ -170,8 +227,29 @@ def main() -> None:
     if not math.isfinite(upright) or upright < 0.7:
         raise AssertionError(f"Robot tipped during smoke test: upright={upright:.3f}")
 
+    # The photo-matched fold returns the gripper toward the robot front.  Check
+    # the semantic direction in simulation instead of relying only on an RPY
+    # literal in the source URDF. Quaternion ordering is (w, x, y, z).
+    def local_x_axis_world(quaternion: torch.Tensor) -> torch.Tensor:
+        w, x, y, z = quaternion.unbind()
+        return torch.stack(
+            (
+                1.0 - 2.0 * (y * y + z * z),
+                2.0 * (x * y + w * z),
+                2.0 * (x * z - w * y),
+            )
+        )
+
+    base_x = local_x_axis_world(robot.data.body_quat_w[0, base_body_ids[0]])
+    tcp_x = local_x_axis_world(robot.data.body_quat_w[0, tcp_body_ids[0]])
+    forward_alignment = float(torch.dot(base_x, tcp_x))
+    if not math.isfinite(forward_alignment) or forward_alignment < 0.90:
+        raise AssertionError(
+            f"Photo-matched TCP does not face robot front: dot={forward_alignment:.3f}"
+        )
+
     print(f"PASS: one articulation, {robot.num_joints} movable joints, four wheels", flush=True)
-    print("PASS: Z1 default is the hardware-like stacked stow", flush=True)
+    print("PASS: Z1 default is the photo-matched provisional stacked stow", flush=True)
     print("PASS: direct-open USD wrapper authors the same stow state", flush=True)
     print("PASS: separate TCP-training config uses the raised ready pose", flush=True)
     print(
@@ -179,6 +257,11 @@ def main() -> None:
         flush=True,
     )
     print("PASS: Z1 mounting plane is 0.035 m above the B2-W deck", flush=True)
+    print(
+        "PASS: mount/TCP parents, positions, rotations, and forward direction are consistent "
+        f"(dot={forward_alignment:.3f})",
+        flush=True,
+    )
     print(
         f"PASS: {args_cli.steps} steps, base z={float(root_position[2]):.3f} m, upright={upright:.3f}",
         flush=True,
@@ -188,5 +271,10 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    finally:
+    except BaseException:  # Keep Kit's fast shutdown from hiding validation failures.
+        traceback.print_exc()
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(1)
+    else:
         simulation_app.close(wait_for_replicator=False, skip_cleanup=True)

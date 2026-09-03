@@ -42,6 +42,12 @@ Legged robots with manipulation arms present unique challenges — coordinating 
 | GO2-PIPER | Unitree Go2 | Agilex Piper | <img src="./docs/imgs/go2_piper.png" alt="go2_piper" width="75"> |
 | ... | ... | ... | ... |
 
+An experimental [B2-W + Z1 asset](source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/README.md)
+is also available. It is generated from pinned official Unitree B2-W/Z1
+descriptions, includes all four wheel joints, the gripper, and a nominal TCP,
+and follows the photographed 35 mm raised mount. It is an asset foundation;
+a B2-W-specific RL task and rewards are not registered yet.
+
 Each platform supports the following **2** training modes:
 
 - **Flat** — Locomotion + manipulation on flat terrain

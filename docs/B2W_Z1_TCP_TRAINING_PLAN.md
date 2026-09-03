@@ -20,17 +20,26 @@ Completed work:
   selectors cannot confuse wheels with feet.
 - Added the real-hardware 35 mm Z1 adapter height. The adapter XY footprint,
   mass, inertia and exact XY mounting position remain provisional.
+- Tracked the user-provided installation photograph in the asset directory and
+  documented what it can and cannot establish. The default mount is
+  `(0.211, 0.0, 0.110) m`, identity RPY: front-half, centered and upright.
+- Added a geometry-free nominal `tcp_frame` 0.145 m forward of
+  `gripper_stator`, or 0.196 m forward of `link6`. It is suitable for
+  simulation-only controller development and remains explicitly configurable.
 - Added independent actuator groups for legs, wheels, arm and gripper.
 - Added two explicit arm presets:
-  - hardware-like stow: `[0.00, 0.15, -0.45, 0.30, 0.00, 0.00] rad`;
+  - photo-matched provisional stow:
+    `[0.00, 0.15, -0.45, 0.30, 0.00, 0.00] rad`;
   - raised TCP-training ready pose:
     `[0.00, 1.35, -1.65, 0.30, 0.00, 0.00] rad`.
 - Added `b2w_z1_stow.usda`, a direct-open Isaac Sim wrapper that authors the
-  same hardware-like stow state without modifying the generated base USD.
-- Added a validator for USD structure, wheel axes, mounting height, arm
-  presets, lidar clearance and dynamic stability.
+  same photo-matched provisional stow state without modifying the generated
+  base USD.
+- Added a validator for USD structure, wheel axes, mounting height and
+  rotation, nominal TCP parent/pose/forward direction, arm presets, lidar
+  clearance and dynamic stability.
 
-The stow pose was reconstructed from one side photograph of the real robot.
+The stow pose was reconstructed from the tracked side photograph of the real robot.
 It produces the correct stacked Z-fold instead of folding the gripper through
 the lidar. Exact transformed collision-mesh checking gives the limiting distal
 gripper-stator vertical clearance above the modeled lidar as approximately
@@ -38,9 +47,9 @@ gripper-stator vertical clearance above the modeled lidar as approximately
 and upright score 1.000.
 
 This does not yet make the model sim-to-real calibrated. Encoder readback of
-the real stow pose should replace the photo estimate. The real mount XY pose,
-adapter mass/inertia, wheel radius under load, actuator parameters, payload and
-flange-to-TCP transform must also be measured.
+the real stow pose should replace the photo estimate. The real mount pose,
+adapter geometry/mass/inertia, wheel radius under load, actuator parameters,
+payload and gripper-to-TCP transform must also be measured.
 
 ## What comes next
 
@@ -68,8 +77,9 @@ source/LeggedManip_Lab/LeggedManip_Lab/tasks/manager_based/
       b2w_actions.py
 ```
 
-The task must use `base_link`, `.*_wheel`, and a calibrated virtual TCP based
-on `gripper_stator`. It must not reuse the old `base`, `.*_foot`, or
+The task must use `base_link`, `.*_wheel`, and the explicit `tcp_frame` (after
+replacing its nominal transform with a calibrated value for sim-to-real). It
+must not reuse the old `base`, `.*_foot`, or
 `end_effector` selectors.
 
 ## Target and controller definition

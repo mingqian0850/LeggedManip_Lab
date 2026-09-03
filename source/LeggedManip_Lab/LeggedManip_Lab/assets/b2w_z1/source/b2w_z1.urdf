@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot name="b2w_z1">
-  <!-- Generated from unitreerobotics/unitree_ros commit 7d6075f7f58588b189b940130e3edab3c839b2df; adapter height is user-measured hardware data. -->
+  <!-- Generated from unitreerobotics/unitree_ros commit 7d6075f7f58588b189b940130e3edab3c839b2df; adapter height is user-measured hardware data; mount direction is matched to reference/user_b2w_z1_mount_side.jpg. -->
   <link name="base_link">
     <inertial>
       <origin xyz="0.000458 0.005261 0.000665" rpy="0 0 0" />
@@ -927,7 +927,7 @@
     </inertial>
   </link>
   <joint name="z1_mount_joint" type="fixed">
-    <origin xyz="0.211000 0.000000 0.110000" rpy="0 0 0" />
+    <origin xyz="0.211000 0.000000 0.110000" rpy="0.000000 0.000000 0.000000" />
     <parent link="base_link" />
     <child link="link0" />
   </joint>
@@ -978,4 +978,19 @@
       <inertia ixx="0.00017716" ixy="0.00001683" ixz="-0.00001786" iyy="0.00026787" iyz="0.00000262" izz="0.00035728" />
     </inertial>
   </link>
+  <link name="tcp_frame">
+    <visual name="converter_placeholder_visual">
+      <geometry>
+        <sphere radius="0.000001" />
+      </geometry>
+      <material name="converter_placeholder_transparent">
+        <color rgba="0 0 0 0" />
+      </material>
+    </visual>
+  </link>
+  <joint name="tcp_fixed_joint" type="fixed">
+    <origin xyz="0.145000 0.000000 0.000000" rpy="0.000000 0.000000 0.000000" />
+    <parent link="gripper_stator" />
+    <child link="tcp_frame" />
+  </joint>
 </robot>

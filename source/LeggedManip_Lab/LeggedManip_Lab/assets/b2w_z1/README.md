@@ -11,6 +11,9 @@ replace or modify the existing footed `assets/b2_z1` model.
 - The Z1 links and gripper also come from that repository.
 - The four official wheel links and continuous joints are retained, but are
   renamed from Unitree's `*_foot` convention to `*_wheel` for clarity.
+- The generated model preserves the official geometry and dynamics. The only
+  structural additions are the photo-matched mount/adapter and a massless,
+  geometry-free nominal `tcp_frame` for controller development.
 - The B2-W body collision box has its upper surface at `z = 0.075 m` in the
   `base_link` frame. The adapter occupies `z = 0.075...0.110 m`, so the Z1
   mounting plane is exactly `0.035 m` above that surface.
@@ -19,19 +22,55 @@ replace or modify the existing footed `assets/b2_z1` model.
   placement and the simplified `130 x 120 mm` adapter footprint should be
   updated after measuring the real adapter or obtaining its CAD.
 
+The tracked installation reference is
+[`reference/user_b2w_z1_mount_side.jpg`](reference/user_b2w_z1_mount_side.jpg),
+SHA-256
+`8c50c2e766b5bf78c983dc1bf93f3e48333c24979b8a667c3b78aa0d537ab2ba`.
+In Unitree's B2-W frame, `+x` points toward the lidar/front, `+y` points left,
+and `+z` points up. The photograph therefore supports a forward-half,
+laterally centered, upright Z1 with `rpy = (0, 0, 0)`. A rough side-view scale
+check places the mount around `x = 0.20...0.23 m`, consistent with the selected
+`0.211 m`, but this is not a metric calibration. The side view cannot establish
+a millimetre-scale lateral offset or independently separate mount yaw from the
+Z1 `joint1` encoder zero.
+
+The generator exposes `--mount-x`, `--mount-y`, `--mount-roll`,
+`--mount-pitch`, and `--mount-yaw`. Mount Z is intentionally derived as
+`--deck-z + --adapter-height`, keeping the measured spacer height separate
+from the chosen deck datum. Update these values only from CAD or an explicit
+base-to-Z1 measurement, not by trying to extract millimetres from this image.
+
+![User-provided B2-W and Z1 side-view installation reference](reference/user_b2w_z1_mount_side.jpg)
+
 The adapter is currently a base-attached visual and collision box. Its mass is
 not added to the base inertia because the real adapter mass and center of mass
-are not yet known.
+are not yet known. It is only a conservative placeholder: the photograph shows
+a flanged/channel-like bracket rather than a solid box, and the official body
+mesh has raised rails above the central `z = 0.075 m` datum. Replace this proxy
+before enabling full arm/body self-collision or studying contact loads.
 
-There is not yet a calibrated TCP frame. Before training pose tracking, measure
-the transform from `link6` (or the gripper stator) to the real tool center and
-add it as a fixed frame; using `link6` silently as the TCP would introduce a
-systematic tracking offset.
+The model contains a nominal fixed `tcp_frame` at
+`gripper_stator -> tcp_frame = (0.145, 0, 0) m`, with identity rotation. Together
+with the official `link6 -> gripper_stator = (0.051, 0, 0) m`, this makes the
+nominal `link6 -> tcp_frame` offset `0.196 m`. It is suitable for consistent
+simulation-only pose tracking and lies near the center of the official gripper
+tips. It is **not** a measured real-robot TCP: measure the actual grasp center
+and regenerate with `--tcp-x/y/z` and `--tcp-roll/pitch/yaw` before sim-to-real.
+
+The generator uses the following explicit naming map while preserving the
+official source values:
+
+- Z1 `link00...link06` -> project `link0...link6`;
+- Z1 `gripperStator` / `jointGripper` -> project `gripper_stator` /
+  `gripper_joint`;
+- B2-W `*_foot` / `*_foot_joint` -> project `*_wheel` /
+  `*_wheel_joint`.
 
 ## Runtime configuration
 
 `b2w_z1_articulation_cfg.py` exposes two configurations. `B2W_Z1_CFG` uses the
-hardware-like stacked Z-fold `[0.0, 0.15, -0.45, 0.30, 0.0, 0.0] rad` for
+photo-matched provisional stacked Z-fold
+`[0.0, 0.15, -0.45, 0.30, 0.0, 0.0] rad` for
 joints 1--6. This keeps the returning arm and gripper above the lidar. The pose
 was reconstructed from a side photograph and is provisional; replace it with
 encoder readback from the real robot when available. The arm's all-zero pose is

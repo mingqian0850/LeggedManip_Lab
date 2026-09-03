@@ -3,7 +3,9 @@
 
 The generated URDF keeps the official B2-W dynamics, adds the official Z1 arm
 and gripper, renames the four misleading ``*_foot`` wheel links/joints, and
-places the Z1 mounting plane 35 mm above the B2-W deck datum.
+places the Z1 mounting plane 35 mm above the B2-W deck datum.  The default
+mount direction and folded pose follow the tracked side photograph; dimensions
+that cannot be recovered from one photograph remain explicit parameters.
 """
 
 from __future__ import annotations
@@ -38,10 +40,28 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--mount-x", type=float, default=0.211)
     parser.add_argument("--mount-y", type=float, default=0.0)
+    parser.add_argument("--mount-roll", type=float, default=0.0)
+    parser.add_argument("--mount-pitch", type=float, default=0.0)
+    parser.add_argument("--mount-yaw", type=float, default=0.0)
     parser.add_argument("--deck-z", type=float, default=0.075)
     parser.add_argument("--adapter-height", type=float, default=0.035)
     parser.add_argument("--adapter-size-x", type=float, default=0.130)
     parser.add_argument("--adapter-size-y", type=float, default=0.120)
+    parser.add_argument(
+        "--tcp-x",
+        type=float,
+        default=0.145,
+        help=(
+            "Simulation-only gripper_stator-to-TCP x offset. The default puts "
+            "the frame near the center of the official gripper tips and makes "
+            "link6-to-TCP 0.196 m; replace it with a measured transform."
+        ),
+    )
+    parser.add_argument("--tcp-y", type=float, default=0.0)
+    parser.add_argument("--tcp-z", type=float, default=0.0)
+    parser.add_argument("--tcp-roll", type=float, default=0.0)
+    parser.add_argument("--tcp-pitch", type=float, default=0.0)
+    parser.add_argument("--tcp-yaw", type=float, default=0.0)
     return parser.parse_args()
 
 
@@ -148,7 +168,9 @@ def _append_z1(robot: ET.Element, z1_robot: ET.Element, args: argparse.Namespace
         "origin",
         {
             "xyz": f"{args.mount_x:.6f} {args.mount_y:.6f} {mount_z:.6f}",
-            "rpy": "0 0 0",
+            "rpy": (
+                f"{args.mount_roll:.6f} {args.mount_pitch:.6f} {args.mount_yaw:.6f}"
+            ),
         },
     )
     ET.SubElement(mount_joint, "parent", {"link": "base_link"})
@@ -217,6 +239,28 @@ def _append_gripper(robot: ET.Element) -> None:
     robot.extend((stator_joint, stator_link, mover_joint, mover_link))
 
 
+def _append_tcp_frame(robot: ET.Element, args: argparse.Namespace) -> None:
+    """Add a geometry-free nominal TCP without changing official robot bodies.
+
+    A fixed frame is useful for simulation and controller development, but its
+    transform is deliberately configurable because a side photograph cannot
+    calibrate the real grasp center.
+    """
+    tcp_link = ET.Element("link", {"name": "tcp_frame"})
+    tcp_joint = ET.Element("joint", {"name": "tcp_fixed_joint", "type": "fixed"})
+    ET.SubElement(
+        tcp_joint,
+        "origin",
+        {
+            "xyz": f"{args.tcp_x:.6f} {args.tcp_y:.6f} {args.tcp_z:.6f}",
+            "rpy": f"{args.tcp_roll:.6f} {args.tcp_pitch:.6f} {args.tcp_yaw:.6f}",
+        },
+    )
+    ET.SubElement(tcp_joint, "parent", {"link": "gripper_stator"})
+    ET.SubElement(tcp_joint, "child", {"link": "tcp_frame"})
+    robot.extend((tcp_link, tcp_joint))
+
+
 def _resolve_mesh_paths(robot: ET.Element, unitree_root: Path) -> None:
     packages = {
         "package://b2w_description/": unitree_root / "robots" / "b2w_description",
@@ -261,12 +305,39 @@ def _validate(robot: ET.Element, args: argparse.Namespace) -> None:
     expected_arm_joints = {f"joint{index}" for index in range(1, 7)} | {"gripper_joint"}
     if not expected_arm_joints.issubset(joints):
         raise ValueError(f"Missing Z1 joints: {sorted(expected_arm_joints.difference(joints))}")
+    if "tcp_frame" not in links:
+        raise ValueError("Missing nominal tcp_frame link")
 
     mount = next(joint for joint in robot.findall("joint") if joint.get("name") == "z1_mount_joint")
     actual_mount = tuple(float(value) for value in mount.find("origin").get("xyz").split())
     expected_mount = (args.mount_x, args.mount_y, args.deck_z + args.adapter_height)
     if any(abs(actual - expected) > 1.0e-9 for actual, expected in zip(actual_mount, expected_mount)):
         raise ValueError(f"Unexpected Z1 mount position: {actual_mount} != {expected_mount}")
+    actual_mount_rpy = tuple(float(value) for value in mount.find("origin").get("rpy").split())
+    expected_mount_rpy = (args.mount_roll, args.mount_pitch, args.mount_yaw)
+    if any(
+        abs(actual - expected) > 1.0e-9
+        for actual, expected in zip(actual_mount_rpy, expected_mount_rpy)
+    ):
+        raise ValueError(f"Unexpected Z1 mount rotation: {actual_mount_rpy} != {expected_mount_rpy}")
+
+    tcp = next(joint for joint in joint_elements if joint.get("name") == "tcp_fixed_joint")
+    if (
+        tcp.find("parent").get("link") != "gripper_stator"
+        or tcp.find("child").get("link") != "tcp_frame"
+    ):
+        raise ValueError("TCP frame must be fixed to gripper_stator")
+    actual_tcp = tuple(float(value) for value in tcp.find("origin").get("xyz").split())
+    expected_tcp = (args.tcp_x, args.tcp_y, args.tcp_z)
+    if any(abs(actual - expected) > 1.0e-9 for actual, expected in zip(actual_tcp, expected_tcp)):
+        raise ValueError(f"Unexpected TCP position: {actual_tcp} != {expected_tcp}")
+    actual_tcp_rpy = tuple(float(value) for value in tcp.find("origin").get("rpy").split())
+    expected_tcp_rpy = (args.tcp_roll, args.tcp_pitch, args.tcp_yaw)
+    if any(
+        abs(actual - expected) > 1.0e-9
+        for actual, expected in zip(actual_tcp_rpy, expected_tcp_rpy)
+    ):
+        raise ValueError(f"Unexpected TCP rotation: {actual_tcp_rpy} != {expected_tcp_rpy}")
 
     base_link = next(link for link in link_elements if link.get("name") == "base_link")
     adapter_visual = next(
@@ -295,7 +366,8 @@ def main() -> None:
         0,
         ET.Comment(
             " Generated from unitreerobotics/unitree_ros commit "
-            f"{UNITREE_ROS_COMMIT}; adapter height is user-measured hardware data. "
+            f"{UNITREE_ROS_COMMIT}; adapter height is user-measured hardware data; "
+            "mount direction is matched to reference/user_b2w_z1_mount_side.jpg. "
         ),
     )
     _rename_b2w_wheels(robot)
@@ -303,6 +375,7 @@ def main() -> None:
     _add_adapter_geometry(base_link, args)
     _append_z1(robot, ET.parse(z1_path).getroot(), args)
     _append_gripper(robot)
+    _append_tcp_frame(robot, args)
     _ensure_converter_visuals(robot)
     if args.resolve_mesh_paths:
         _resolve_mesh_paths(robot, unitree_root)

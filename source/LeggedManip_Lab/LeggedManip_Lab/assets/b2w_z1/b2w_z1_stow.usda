@@ -6,7 +6,8 @@
 )
 
 # This lightweight wrapper keeps the generated asset immutable while giving
-# direct Isaac Sim users the same hardware-like stow used by B2W_Z1_CFG.
+# direct Isaac Sim users the same photo-matched provisional stow used by
+# B2W_Z1_CFG.
 def Xform "b2w_z1" (
     prepend references = @b2w_z1.usd@</b2w_z1>
 )

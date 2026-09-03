@@ -98,7 +98,7 @@ parser.add_argument(
     default=0.05,
     help="Maximum forward/reverse radius mismatch.",
 )
-parser.add_argument("--max_brake_time", type=float, default=1.0, help="Maximum stopping time in seconds.")
+parser.add_argument("--max_brake_time", type=float, default=1.2, help="Maximum stopping time in seconds.")
 parser.add_argument("--max_brake_distance", type=float, default=0.25, help="Maximum travel after braking starts in m.")
 parser.add_argument(
     "--brake_speed_threshold",

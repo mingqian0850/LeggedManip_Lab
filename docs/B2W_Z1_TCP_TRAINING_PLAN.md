@@ -2,6 +2,9 @@
 
 Last updated: 2026-09-03 (Europe/Berlin)
 
+Chinese step-by-step explanation:
+[`B2W_Z1_TCP_TRAINING_STEPS_ZH.md`](B2W_Z1_TCP_TRAINING_STEPS_ZH.md).
+
 ## Current outcome
 
 The project now has a separate B2-W + Z1 Isaac Lab asset. It does not replace

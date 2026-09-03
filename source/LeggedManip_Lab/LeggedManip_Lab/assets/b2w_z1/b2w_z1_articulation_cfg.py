@@ -100,7 +100,9 @@ B2W_Z1_CFG = ArticulationCfg(
             friction=0.01,
         ),
         # Velocity targets should drive this group. The limits come from the
-        # official B2-W description; damping is a provisional tracking gain.
+        # official B2-W description. The 10 N m/(rad/s) simulation gain is a
+        # provisional value validated for nominal straight/reverse tracking;
+        # it is not a measured real-robot motor-loop gain.
         "wheels": DelayedPDActuatorCfg(
             joint_names_expr=[".*_wheel_joint"],
             effort_limit=20.0,
@@ -108,7 +110,7 @@ B2W_Z1_CFG = ArticulationCfg(
             velocity_limit=50.0,
             velocity_limit_sim=50.0,
             stiffness=0.0,
-            damping=1.2,
+            damping=10.0,
             armature=0.01,
             min_delay=0,
             max_delay=4,

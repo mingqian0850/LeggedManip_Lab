@@ -1,4 +1,4 @@
-# B2 + Z1 Isaac Lab machine handoff
+# B2-W + Z1 Isaac Lab machine handoff
 
 Last updated: 2026-09-03 (Europe/Berlin)
 
@@ -8,6 +8,83 @@ Last updated: 2026-09-03 (Europe/Berlin)
 > [`docs/B2W_Z1_TCP_TRAINING_PLAN.md`](docs/B2W_Z1_TCP_TRAINING_PLAN.md).
 
 ## Start here
+
+### 2026-09-03 latest gate status and real-turning investigation
+
+The selected platform for this branch is now unambiguously **B2-W + Z1**.
+The branch is `codex/b2w-z1-tcp-foundation-20260903`; the verified baseline
+before this handoff update is commit `1703525e51d258dbf88a26ca290bd6f49e7bb005`.
+Do not return to the old footed `B2-Z1-WBC` task as the implementation target.
+It remains useful only as an upstream comparison baseline.
+
+Current gates, in the order they were completed:
+
+| Gate | Result | Evidence | Meaning |
+| --- | --- | --- | --- |
+| Reproducible B2-W + Z1 asset | PASS | `source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/` | 23 movable joints and the photo-matched provisional mount/stow are available |
+| Fixed-base 6D TCP DIK, 64 environments | PASS | [`docs/B2W_Z1_TCP_DIK_GATE_ZH.md`](docs/B2W_Z1_TCP_DIK_GATE_ZH.md) | Nominal arm-only tracking works with gravity compensation |
+| Moving-root fixed-world TCP harness, 64 environments | PASS | [`docs/B2W_Z1_WORLD_FRAME_GATE_ZH.md`](docs/B2W_Z1_WORLD_FRAME_GATE_ZH.md) | The world target no longer follows the base; this is kinematic, not wheel-driven WBC |
+| Wheel forward/reverse subset, 16 environments | PASS | [`docs/B2W_Z1_WHEEL_GATE_ZH.md`](docs/B2W_Z1_WHEEL_GATE_ZH.md) | Longitudinal wheel execution, contact and braking have a usable nominal baseline |
+| Complete wheel gate, one environment | **FAIL** | [`docs/validation/b2w_z1_wheel_gate_1env_gpu.json`](docs/validation/b2w_z1_wheel_gate_1env_gpu.json) | Left/right signs are correct, but the robot turns only 1.960/2.026 degrees instead of at least 25 degrees |
+
+The world-frame gate's worst moving RMS was `8.712 mm / 2.017 deg`; its
+worst displaced-hold RMS was `1.149 mm / 0.136 deg`, with `0.654 mm` worst
+terminal jitter. The wheel straight subset reached at least `0.683 m` forward
+and `0.670 m` reverse across 16 environments. These are validated intermediate
+results, not evidence that a whole-body policy has been trained.
+
+Official-source investigation now resolves the real robot's basic turning
+mechanism:
+
+- The official URDF and MuJoCo model contain no steering/swivel joint. Each
+  leg has hip, thigh, calf and one fixed-plane wheel rolling joint; all four
+  wheel axes are parallel.
+- Unitree's public B2-W client accepts body commands `Move(vx, vy, vyaw)` and
+  its example uses `Move(0, 0, 0.5)` for turn-in-place.
+- Unitree's official wheel-motion tutorial visibly shows normal in-place yaw
+  with all four wheels on the floor, no stepping and no deliberate large body
+  lean. Small leg corrections remain visible and may stabilize the body.
+- Consequently, normal flat-ground yaw is mechanically differential/skid
+  steering: the two sides use different longitudinal wheel speeds while the
+  tires scrub laterally. Unitree does not use this term in the public manual,
+  and it has not published the internal `wheeled_sport` wheel mixing, slip
+  control or leg-load control. Do not claim an exact proprietary algorithm.
+
+The evidence and links are recorded in
+[`docs/research/B2W_REAL_TURNING_OFFICIAL_ZH.md`](docs/research/B2W_REAL_TURNING_OFFICIAL_ZH.md).
+One mapping detail must remain explicit: official real/simulator motor indices
+are `[12: FR, 13: FL, 14: RR, 15: RL]`, whereas the current Isaac gate's local
+joint list is `[FL, FR, RL, RR]`. Always map by joint name. Under the current
+axis convention, pure positive yaw has signs `[+, -, +, -]` in official motor
+index order and `[-, +, -, +]` in the local gate order.
+
+The failed yaw gate is therefore a simulation-model blocker, not evidence that
+the real B2-W needs to lift wheels to turn. The leading mismatch is a rigid
+`convexHull` tire/contact approximation with isotropic friction and a fixed-leg
+stance. It omits the narrow rounded rubber tire's crown, compliance and
+direction-dependent effective scrub behavior. The next session must run
+controlled A/B tests, changing one factor at a time:
+
+1. Add a pure `+/- yaw` regression matching the official turn-in-place
+   behavior, and re-check name-based signs and achieved yaw rate.
+2. Compare the present collision hull against a diagnostic axis-correct
+   analytic cylinder and then a low-face-count crowned convex tire; record
+   yaw, wheel-speed error, longitudinal/lateral slip, contact ratio and body
+   roll/pitch. A flat cylinder is diagnostic only, not a final tire model.
+3. Compare fixed leg targets with an impedance/upright stabilization stance.
+   Do not assume wheel unloading is required; the official ordinary-turn video
+   does not show deliberate lifting.
+4. Change contact/friction parameters only after the geometry A/B, and avoid
+   lowering all friction merely to force a green result.
+5. If possible, collect a low-speed real-robot reference using high-level
+   `Move(0, 0, +/-wz)` while logging wheel motors 12--15, leg joints, IMU yaw
+   rate and body attitude. Keep Z1 folded, clear the area and keep emergency
+   stop ready.
+
+Only after a stable and physically credible complete wheel gate passes should
+the project build the formal `B2W-Z1-TCP` task and run 1/16/64-environment task
+smokes plus checkpoint save/load. Long PPO training, door contact and cameras
+remain No-Go for now.
 
 ### 2026-09-03 B2-W + Z1 implementation update
 
@@ -50,11 +127,13 @@ be replaced with encoder readback. Self-collisions remain disabled, `link1` and
 `link5` have no collision geometry, and the simplified lidar/adapter envelopes
 do not include cables or hardware tolerances.
 
-The next work item is task/controller implementation followed by staged
-training, not an immediate 4,096-environment run. The detailed current plan is
-[`docs/B2W_Z1_TCP_TRAINING_PLAN.md`](docs/B2W_Z1_TCP_TRAINING_PLAN.md). In
-particular, train on a nominal plane first; deployment-matched mild terrain is
-a late curriculum stage after flat tracking and dynamics randomization pass.
+The asset, fixed-base DIK and prescribed-root world-frame gates have since
+passed. The next work item is now the wheel-turning physics/execution blocker
+described in the latest section above, followed by formal task integration and
+staged training, not an immediate 4,096-environment run. The detailed current
+plan is [`docs/B2W_Z1_TCP_TRAINING_PLAN.md`](docs/B2W_Z1_TCP_TRAINING_PLAN.md).
+Deployment-matched mild terrain remains a late curriculum stage after nominal
+flat tracking and dynamics randomization pass.
 
 This file records the state found on the native Ubuntu RTX 4090 experiment
 machine. It is intentionally separate from `HANDOFF.md`: that document records
@@ -63,10 +142,11 @@ Isaac installation, the existing `LeggedManip_Lab` baseline, and the robot
 model gates that must be resolved before another training run.
 
 The immediate task for the next Codex session is **not long training**. B2-W is
-now selected and the first asset gate has passed. Next calibrate the TCP and
-wheel conventions, implement the separate world-frame TCP task and prove it at
-1/16/64 environments before starting a longer PPO run. Do not silently guess
-remaining hardware measurements.
+selected; the asset, DIK, world-frame and longitudinal wheel gates have passed.
+Next resolve the yaw gate with controlled tire/contact/stance tests, then
+implement the formal fixed-world TCP task and prove it at 1/16/64 environments
+before starting a longer PPO run. Do not silently guess remaining hardware
+measurements or use PPO to compensate for an invalid turn model.
 
 ## Safety and repository rules
 
@@ -168,13 +248,15 @@ Downgrading individual packages in place could break other installed tools.
 
 Checkout: `$HOME/LeggedManip_Lab`
 
-- Branch: `master` at `4e12109d1eccb1d9da2e4a35f189fabea3f13677`.
-- Several GO1/GO2 USD files are modified.
-- `scripts/rsl_rl/teleop_b2_z1.py` is untracked.
+- Active branch: `codex/b2w-z1-tcp-foundation-20260903`; verified baseline
+  before this handoff update: `1703525e51d258dbf88a26ca290bd6f49e7bb005`.
+- The branch contains the dedicated B2-W + Z1 asset and the DIK, world-frame
+  and wheel execution gates described at the top of this document.
+- Several GO1/GO2 USD files are modified by pre-existing work.
+- `scripts/rsl_rl/teleop_b2_z1.py` and the root master-handoff pointer are
+  untracked.
 - These edits are user work and must be preserved. Do not reset or overwrite
-  them.
-- The B2-Z1 USD files themselves did not appear as modified in `git status` at
-  audit time.
+  them, and do not stage them with `git add -A`.
 
 Registered tasks include:
 
@@ -229,12 +311,18 @@ Use WheelRL as the MuJoCo/control-requirements reference and use
 LeggedManip_Lab as the currently functioning Isaac Lab baseline unless the user
 chooses a different repository layout.
 
-## Critical model mismatch findings
+## Historical audit findings and remaining calibration risks
 
-Training must remain blocked until the first group below is answered with the
-user and the subsequent checks pass.
+The first audit below predates the dedicated B2-W + Z1 asset and is retained
+for provenance. Where it conflicts with the latest status table above, the
+latest section supersedes it. Mount, TCP, payload, contact, collision and
+real-robot interface warnings remain active.
 
-### 1. Robot identity: B2 versus B2-W
+Long training remains blocked by the current yaw/contact, calibration and task
+integration gates listed at the top. The historical items below explain why
+the old upstream task cannot simply be reused.
+
+### 1. Robot identity: resolved for this branch as B2-W
 
 The existing Isaac/LeggedManip task is a **footed B2 + Z1**:
 
@@ -243,11 +331,11 @@ The existing Isaac/LeggedManip task is a **footed B2 + Z1**:
 - 18 direct joint-position actions;
 - no wheel joints and no wheel rolling constraints.
 
-The historical WheelRL objective is **B2-W + Z1**, with four wheel joints. The
-user previously considered beginning with the footed robot because it is
-simpler, but that choice must be confirmed explicitly. Ask which physical
-robot will be deployed and whether the first Isaac experiment should be B2 or
-B2-W.
+The historical WheelRL objective and the user's selected physical platform are
+**B2-W + Z1**, with four wheel joints. The dedicated asset at
+`assets/b2w_z1/` now represents that selection. The old footed task must remain
+unchanged as a comparison baseline and must not be mistaken for the current
+implementation target.
 
 ### 2. Three incompatible Z1 mounting transforms
 
@@ -264,9 +352,10 @@ will invalidate TCP tracking and collision geometry.
 
 ### 3. Gripper and TCP are not equivalent
 
-- The existing LeggedManip action space contains only the 12 legs and 6 arm
+- The old footed LeggedManip action space contains only the 12 legs and 6 arm
   joints. Its model contains Z1 gripper meshes, but the mover is fixed and no
-  gripper joint/action is configured.
+  gripper joint/action is configured. The new B2-W + Z1 asset has one movable
+  gripper joint, but the formal TCP/door task and gripper action are not built.
 - WheelRL uses a separate one-DoF approximate gripper.
 - WheelRL's MuJoCo TCP site is roughly 0.196 m beyond `link06`, while its MPC
   model tracks `arm_link06` itself.
@@ -398,26 +487,26 @@ single photograph.
 
 ## Recommended order for the next session
 
-1. Read this file, `WheelRL/HANDOFF.md`, and
-   `WheelRL/docs/research/ISAACLAB_TCP_TRACKING_HANDOFF_2026-09-02.md`.
-2. Re-run `git status` in WheelRL, IsaacLab and LeggedManip_Lab; preserve all
-   dirty/untracked files.
-3. Ask the user to confirm B2 versus B2-W and enumerate/photograph the known
-   real-model differences. Build a calibration table before editing USD.
-4. Reproduce one maintained official headless example with a clean exit, then
-   run a local GUI example. Investigate the observed slow shutdown.
-5. Inspect the existing USD articulation at runtime: enumerate body/joint names,
-   action mapping, limits, masses and fixed gripper state.
-6. Select one canonical calibrated asset. Do not import the incomplete MPC URDF.
-7. Compare canonical Isaac FK with the calibrated MuJoCo model at the home pose
-   and randomized joint configurations.
-8. Implement tests for left/right signs, quaternion convention, TCP definition,
-   mount transform and a world target invariant under base translation/yaw/
-   height/tilt.
-9. Implement a minimal state-only fixed-world 6D target environment at 1, 16
-   and 64 environments. Do not add cameras, doors or long training yet.
-10. Only after the asset/frame gates pass, run a one-iteration save/load smoke
-    test and benchmark 256/512/1024/2048/4096 environments.
+1. Read the latest status at the top of this file, then read
+   [`docs/B2W_Z1_WHEEL_GATE_ZH.md`](docs/B2W_Z1_WHEEL_GATE_ZH.md) and
+   [`docs/research/B2W_REAL_TURNING_OFFICIAL_ZH.md`](docs/research/B2W_REAL_TURNING_OFFICIAL_ZH.md).
+2. Re-run `git status` in WheelRL, IsaacLab and LeggedManip_Lab. Preserve the
+   existing GO1/GO2 USD modifications, the untracked teleoperation script,
+   checkpoints and handoff pointer; never use `git add -A`, reset or clean.
+3. Treat B2-W + Z1 as selected. Preserve the reproducible asset and the passed
+   DIK/world-frame/straight-wheel reports as regression baselines.
+4. Add and execute the pure-yaw sign test, followed by the tire collision
+   geometry A/B and impedance-stance A/B described above. Change only one
+   factor per run and save a machine-readable report for every variant.
+5. Do not tune PPO rewards to hide the current yaw failure. If no physically
+   credible tire/contact model passes, restrict the first TCP task to validated
+   forward/reverse relocation and connect yaw to a separately validated
+   locomotion controller.
+6. Once the complete wheel gate passes, implement the formal fixed-world
+   `B2W-Z1-TCP` task, then verify one environment, 16 environments and 64
+   environments, including clean exit and checkpoint save/reload.
+7. Only then profile 256/512/1024/2048/4096 environments and begin PPO. Door
+   contact and vision are later curricula after free-space tracking passes.
 
 ## Go/no-go gates before real training
 

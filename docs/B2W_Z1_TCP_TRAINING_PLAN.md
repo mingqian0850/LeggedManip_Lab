@@ -10,6 +10,8 @@ Completed standalone world-frame harness and measurements:
 [`B2W_Z1_WORLD_FRAME_GATE_ZH.md`](B2W_Z1_WORLD_FRAME_GATE_ZH.md).
 Current wheel execution status and the remaining blocker:
 [`B2W_Z1_WHEEL_GATE_ZH.md`](B2W_Z1_WHEEL_GATE_ZH.md).
+Official-source investigation of real B2-W turning:
+[`research/B2W_REAL_TURNING_OFFICIAL_ZH.md`](research/B2W_REAL_TURNING_OFFICIAL_ZH.md).
 
 ## Current outcome
 
@@ -85,11 +87,22 @@ reverse motion, but the current fixed-leg, four-wheel model barely turns under
 differential arc commands. This is the blocking issue, not a reason to begin a
 long PPO run.
 
+Official model, SDK, manual and tutorial checks now establish that the real
+B2-W has no steering joint and supports four-wheel-grounded turn-in-place. The
+mechanism is necessarily differential/skid steering with lateral tire scrub;
+the video does not show deliberate wheel lifting or large body lean. Unitree's
+internal `wheeled_sport` mixing, slip compensation and possible small leg-load
+corrections remain proprietary. The present approximately two-degree response
+therefore points to an unvalidated rigid tire/contact and stance model, not to
+the need to redesign the robot as Ackermann steering or immediately train PPO.
+
 The next sequence is:
 
 ```text
-execution-layer turn diagnosis
-  -> steering-posture and collision/contact controlled A/B tests
+name-mapped pure-yaw regression matching official turn-in-place
+  -> tire collision-geometry controlled A/B tests
+  -> fixed-target versus impedance/upright stance A/B
+  -> contact-model A/B and, where possible, low-speed real reference data
   -> complete wheel gate
   -> integrate the B2W-Z1-TCP production task
   -> 1/16/64-environment task smoke and checkpoint save/load

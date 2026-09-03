@@ -9,7 +9,9 @@
 [`B2W_Z1_TCP_DIK_GATE_ZH.md`](B2W_Z1_TCP_DIK_GATE_ZH.md)。
 固定世界坐标测试见
 [`B2W_Z1_WORLD_FRAME_GATE_ZH.md`](B2W_Z1_WORLD_FRAME_GATE_ZH.md)，轮子执行层
-状态见 [`B2W_Z1_WHEEL_GATE_ZH.md`](B2W_Z1_WHEEL_GATE_ZH.md)。
+状态见 [`B2W_Z1_WHEEL_GATE_ZH.md`](B2W_Z1_WHEEL_GATE_ZH.md)，真实 B2-W 转向
+的官方资料核对见
+[`research/B2W_REAL_TURNING_OFFICIAL_ZH.md`](research/B2W_REAL_TURNING_OFFICIAL_ZH.md)。
 
 ## 总体结论
 
@@ -104,8 +106,15 @@ base_linear_velocity ~= wheel_angular_velocity * effective_radius
 
 左右转向仍是红灯。官方轮胎碰撞已经是凸包，不是逐三角形接触；主要矛盾是
 四个不可转向轮在各向同性摩擦下转弯必须横向侧滑。下一实验要在相同 gain、
-摩擦和官方力矩限制下，分别测试腿部转向姿态和受控的轮胎碰撞/接触表示，
-而不是靠无限增益或降低摩擦制造一个表面通过结果。
+摩擦和官方力矩限制下，先增加按关节名映射的纯正/负 yaw 原地旋转回归，再
+依次测试轮胎碰撞表示、阻抗稳定站姿和接触模型，而不是靠无限增益或降低摩擦
+制造一个表面通过结果。
+
+官方 URDF/MuJoCo 模型确认轮子没有转向舵机，SDK 示例用
+`Move(0,0,0.5)` 原地旋转；官方普通转向视频中四轮始终着地，没有明显抬轮或
+大幅倾斜。因此不能先假设真机靠抬起或强制卸载内侧轮转向。真实平地 yaw 从
+机械上属于左右差速并伴随横向轮胎 scrub；腿可能小幅稳定本体，但
+`wheeled_sport` 的具体混控没有公开。
 
 ## 第 3 步：固定世界坐标 TCP 目标
 
@@ -315,12 +324,14 @@ Actor 有意义，对当前 state-only controller 没有作用。
 ## 紧接着应该实施什么
 
 1. 保留 64 环境 world-frame harness，作为每次修改后的坐标回归测试；
-2. 在相同轮速 gain、摩擦和官方力矩限制下完成转向执行层、腿部转向姿态以及
-   碰撞/接触配置的受控 A/B；
-3. 左右转向和制动都通过后，才把完整 wheel gate 标成通过；
-4. 注册并集成 `B2W-Z1-TCP` 与 `B2W-Z1-TCP-Play`；
-5. 通过正式 task 的 1、16、64 环境测试和 checkpoint 保存/加载测试；
-6. 最后才从标称平地的静态目标开始 Stage 1 PPO 训练。
+2. 新增与官方 turn-in-place 行为对应的纯正/负 yaw 测试，并核对官方电机顺序
+   `[FR,FL,RR,RL]` 与本 gate 顺序 `[FL,FR,RL,RR]` 的按名映射；
+3. 在相同轮速 gain、摩擦和官方力矩限制下，依次完成 convex hull/诊断圆柱/
+   圆冠低面数凸包、固定腿/阻抗稳定腿和接触模型的受控 A/B；
+4. 左右转向和制动都通过后，才把完整 wheel gate 标成通过；
+5. 注册并集成 `B2W-Z1-TCP` 与 `B2W-Z1-TCP-Play`；
+6. 通过正式 task 的 1、16、64 环境测试和 checkpoint 保存/加载测试；
+7. 最后才从标称平地的静态目标开始 Stage 1 PPO 训练。
 
 Stage 3 的底盘 relocation 仍未完成。能够直行或倒车不等于已经学会在目标后方
 时自然倒车、在低位目标时安全倾斜，也不等于能在 TCP 到位后无振荡停住。

@@ -84,8 +84,11 @@ configurations have independent actuator groups for the 12 leg joints, four
 continuous wheel joints, six Z1 joints, and the gripper. The PD gains,
 armature, joint friction, and command delay are safe starting values inherited
 from the existing project and WheelRL model; they are not identified B2-W + Z1
-hardware parameters. Calibrate and/or randomize them before sim-to-real
-deployment.
+hardware parameters. In particular, the wheel velocity-error gain of
+`10 N m/(rad/s)` is a nominal simulation value that passed straight/reverse
+execution tests while preserving the official 20 N m effort limit. It has not
+been measured on the real robot. Calibrate and/or randomize these parameters
+before sim-to-real deployment.
 
 For direct use in Isaac Sim, open `b2w_z1_stow.usda`. It is a lightweight USD
 wrapper around the generated `b2w_z1.usd` and authors the same stow joint state
@@ -137,3 +140,18 @@ ACCEPT_EULA=Y /home/mingqian/miniforge3/envs/env_isaaclab51/bin/python \
 ```
 
 The upstream Unitree license is preserved at `source/LICENSE.unitree_ros`.
+
+## Validation gates
+
+Do not infer production whole-body-control readiness from the asset smoke test
+alone. The validation sequence and current status are recorded in:
+
+- [fixed-base TCP DIK gate](../../../../../docs/B2W_Z1_TCP_DIK_GATE_ZH.md): passed;
+- [standalone world-frame TCP harness](../../../../../docs/B2W_Z1_WORLD_FRAME_GATE_ZH.md):
+  passed, but it prescribes root motion and is not a wheel/contact WBC;
+- [wheel execution gate](../../../../../docs/B2W_Z1_WHEEL_GATE_ZH.md):
+  straight/reverse subset passed, complete gate failed at turning.
+
+The mount, adapter mass/inertia, loaded wheel radius, tire/contact behavior,
+motor-loop parameters, gripper geometry and TCP remain provisional until they
+are measured on the real B2-W + Z1 assembly.

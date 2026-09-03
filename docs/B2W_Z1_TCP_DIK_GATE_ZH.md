@@ -13,8 +13,11 @@
 - 无关节限位夹紧、NaN/Inf 或本体漂移。
 
 这说明当前官方派生模型中的 Z1 关节映射、`tcp_frame`、固定本体 Jacobian、
-四元数顺序和微分 IK 数据通路是正确的，可以进入“固定世界目标 + 浮动本体”
-测试。它还不能说明轮子、全身协调、门接触或 sim-to-real 已经完成。
+四元数顺序和微分 IK 数据通路是正确的。后续“固定世界目标 + 浮动本体”独立
+harness 也已经通过，见
+[`B2W_Z1_WORLD_FRAME_GATE_ZH.md`](B2W_Z1_WORLD_FRAME_GATE_ZH.md) 和
+[`validation/b2w_z1_world_frame_gate_64env_gpu.json`](validation/b2w_z1_world_frame_gate_64env_gpu.json)。
+它仍不能说明轮子、全身协调、门接触或 sim-to-real 已经完成。
 
 ## 测试配置
 
@@ -86,19 +89,24 @@ ACCEPT_EULA=Y /home/mingqian/miniforge3/envs/env_isaaclab51/bin/python \
 
 脚本失败时返回非零状态，不会把未达标结果伪装成成功。
 
-## 下一道门槛
+## 后续门槛当前进度
 
-下一步不是立即启动 PPO，而是解除固定本体，验证固定世界坐标 TCP 目标：
+修复多环境 reset 时漏加 `scene.env_origins` 后，64 环境 world-frame harness
+已经通过。七类正负本体激励的最坏动态 RMS 为 8.712 mm / 2.017°，最坏
+位移端保持 RMS 为 1.149 mm / 0.136°，最大保持抖动为 0.654 mm。目标没有
+随本体移动、降低或倾斜而漂移。
 
-1. 浮动本体 Jacobian 使用 `tcp_frame` body row，并给六个 Z1 joint column
-   加上 floating-base 的 6 列偏移；
-2. 每一步把同一个 `T_world_tcp_target` 重新表达进当前 root/heading frame，
-   禁止用“当前本体 + 偏移”重新生成目标；
-3. 先让本体做小幅前后运动、升降和俯仰，检查机械臂是否同步反向补偿；
-4. 再验证四轮正负方向、有效半径、制动和侧滑；
-5. 上述测试通过后，才加入“目标超出舒适工作空间时底盘后退/转向”的
-   reachability coordinator；
-6. 最后才把 coordinator 替换或扩展为 PPO Actor。
+这个结果是 standalone kinematic DLS harness：重力关闭，root pose/velocity
+由脚本直接写入，机械臂只使用六个关节列。它不是轮子闭环、动态全身控制或
+生产 WBC。
 
-浮动本体阶段的初始验收建议为：运动期间不高于 10 mm / 5 度，停止后的
-终端误差恢复到 5 mm / 2 度，并且目标不随本体移动、降低或倾斜而漂移。
+剩余顺序是：
+
+1. 保留 gain 10 下已经可用的直行/倒车基线，但完整 wheel gate 因左右转向
+   失败仍保持红灯；
+2. 在官方力矩限制不变的前提下，对执行层、腿部转向姿态和轮胎碰撞/接触表示
+   做受控 A/B；
+3. 左右转向和完整 wheel gate 通过；
+4. 把相同固定世界目标语义接入正式 `B2W-Z1-TCP` task，完成 1/16/64 环境
+   smoke test 和 checkpoint 保存/加载；
+5. 此后才允许启动 PPO，学习不可达目标时的倒车、转向、升降和倾斜协调。

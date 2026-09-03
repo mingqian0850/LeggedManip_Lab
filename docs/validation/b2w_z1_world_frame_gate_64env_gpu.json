@@ -1,0 +1,900 @@
+{
+  "actuator_delay_steps": 0,
+  "arm_jacobian_columns": [
+    14,
+    19,
+    24,
+    25,
+    26,
+    27
+  ],
+  "arm_joint_ids": [
+    8,
+    13,
+    18,
+    19,
+    20,
+    21
+  ],
+  "arm_joint_names": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "joint6"
+  ],
+  "base_excitations": [
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.1576468358409106,
+            "orientation_error_rms_worst_env_deg": 0.15874582928662154,
+            "position_error_rms_m": 0.0017787391552701592,
+            "position_error_rms_worst_env_m": 0.0017894298071041703
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.1554495693210028,
+            "orientation_error_rms_worst_env_deg": 0.15768739008910757,
+            "position_error_rms_m": 0.001832849346101284,
+            "position_error_rms_worst_env_m": 0.0018396819941699505
+          }
+        },
+        "orientation_error_max_deg": 0.28292914046483314,
+        "orientation_error_p95_deg": 0.2683755014474169,
+        "orientation_error_rms_deg": 0.15655205790257806,
+        "orientation_error_rms_worst_env_deg": 0.15874582928662154,
+        "position_error_max_m": 0.0030838516540825367,
+        "position_error_p95_m": 0.0027795378118753433,
+        "position_error_rms_m": 0.0018059968715533614,
+        "position_error_rms_worst_env_m": 0.0018396819941699505
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 0,
+      "maximum_arm_joint_speed_radps": 0.12916336953639984,
+      "minimum_arm_counter_motion_rad": 0.16971534490585327,
+      "minimum_jacobian_singular_value": 0.10280223190784454,
+      "name": "base_longitudinal",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.002408878179267049,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.025769570026730863,
+            "orientation_error_rms_worst_env_deg": 0.028386442948398195,
+            "position_error_rms_m": 0.00015216367319226265,
+            "position_error_rms_worst_env_m": 0.0001569453888805583
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.025636558095740815,
+            "orientation_error_rms_worst_env_deg": 0.03357510887620011,
+            "position_error_rms_m": 0.00016157336358446628,
+            "position_error_rms_worst_env_m": 0.00016533052257727832
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0013688247418031096,
+        "orientation_error_max_deg": 0.037413455076229105,
+        "orientation_error_p95_deg": 0.034379700491352985,
+        "orientation_error_rms_deg": 0.02570315244014844,
+        "orientation_error_rms_worst_env_deg": 0.03357510887620011,
+        "position_error_max_m": 0.00024107967328745872,
+        "position_error_p95_m": 0.00021525716874748468,
+        "position_error_rms_m": 0.00015693905879743397,
+        "position_error_rms_worst_env_m": 0.00016533052257727832,
+        "position_jitter_max_m": 0.0001359343877993524
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0024637237656861544,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.025225937995113423,
+            "orientation_error_rms_worst_env_deg": 0.029234396926631392,
+            "position_error_rms_m": 0.00013391424727160484,
+            "position_error_rms_worst_env_m": 0.00013925698294769973
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.024984786960687018,
+            "orientation_error_rms_worst_env_deg": 0.030548247846506813,
+            "position_error_rms_m": 0.00018831096531357616,
+            "position_error_rms_worst_env_m": 0.00019719805277418345
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0014713546261191368,
+        "orientation_error_max_deg": 0.03839295356199786,
+        "orientation_error_p95_deg": 0.03283943947266222,
+        "orientation_error_rms_deg": 0.025105652627537813,
+        "orientation_error_rms_worst_env_deg": 0.030548247846506813,
+        "position_error_max_m": 0.000331312621710822,
+        "position_error_p95_m": 0.00023882300592958927,
+        "position_error_rms_m": 0.0001633922365726903,
+        "position_error_rms_worst_env_m": 0.00019719805277418345,
+        "position_jitter_max_m": 0.00018371434998698533
+      },
+      "root_delta": [
+        0.05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_orientation_error_max_deg": 7.66836395121795e-06,
+      "root_position_error_max_m": 3.9325518628174905e-06
+    },
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.7321475605666776,
+            "orientation_error_rms_worst_env_deg": 0.8633681944056106,
+            "position_error_rms_m": 0.002324845874682069,
+            "position_error_rms_worst_env_m": 0.0028060432523489
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.15939269622578933,
+            "orientation_error_rms_worst_env_deg": 0.15972741551575964,
+            "position_error_rms_m": 0.001061035436578095,
+            "position_error_rms_worst_env_m": 0.0010654684156179428
+          }
+        },
+        "orientation_error_max_deg": 1.7128835912356717,
+        "orientation_error_p95_deg": 1.3752308417385641,
+        "orientation_error_rms_deg": 0.5298330351218158,
+        "orientation_error_rms_worst_env_deg": 0.8633681944056106,
+        "position_error_max_m": 0.005865250714123249,
+        "position_error_p95_m": 0.004340559709817171,
+        "position_error_rms_m": 0.0018070286605507135,
+        "position_error_rms_worst_env_m": 0.0028060432523489
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 12170,
+      "maximum_arm_joint_speed_radps": 0.2391466498374939,
+      "minimum_arm_counter_motion_rad": 0.25514569878578186,
+      "minimum_jacobian_singular_value": 0.10315977782011032,
+      "name": "base_lateral",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0005763783119618893,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.02183913466729905,
+            "orientation_error_rms_worst_env_deg": 0.022708876548778192,
+            "position_error_rms_m": 0.00013499804481398314,
+            "position_error_rms_worst_env_m": 0.00014268874656409025
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.02132131761579415,
+            "orientation_error_rms_worst_env_deg": 0.026146509424024286,
+            "position_error_rms_m": 7.716761319898069e-05,
+            "position_error_rms_worst_env_m": 0.00010000760084949434
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0003240333462599665,
+        "orientation_error_max_deg": 0.027026806749215877,
+        "orientation_error_p95_deg": 0.025628355532135518,
+        "orientation_error_rms_deg": 0.02158177860886039,
+        "orientation_error_rms_worst_env_deg": 0.026146509424024286,
+        "position_error_max_m": 0.0001442805223632604,
+        "position_error_p95_m": 0.00014164434105623513,
+        "position_error_rms_m": 0.000109952969069127,
+        "position_error_rms_worst_env_m": 0.00014268874656409025,
+        "position_jitter_max_m": 4.0811621147440746e-05
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0005721590714529157,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.02220365932866212,
+            "orientation_error_rms_worst_env_deg": 0.025768014224363766,
+            "position_error_rms_m": 8.386627450818196e-05,
+            "position_error_rms_worst_env_m": 0.00011275464203208685
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.021591050057050153,
+            "orientation_error_rms_worst_env_deg": 0.026075357729274464,
+            "position_error_rms_m": 6.317997758742422e-05,
+            "position_error_rms_worst_env_m": 9.655359463067725e-05
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.00030987555510364473,
+        "orientation_error_max_deg": 0.026856520594955004,
+        "orientation_error_p95_deg": 0.02583379648329146,
+        "orientation_error_rms_deg": 0.02189949746460503,
+        "orientation_error_rms_worst_env_deg": 0.026075357729274464,
+        "position_error_max_m": 0.0001161294276244007,
+        "position_error_p95_m": 0.00010832686530193314,
+        "position_error_rms_m": 7.424709474435076e-05,
+        "position_error_rms_worst_env_m": 0.00011275464203208685,
+        "position_jitter_max_m": 4.021343920612708e-05
+      },
+      "root_delta": [
+        0.0,
+        0.04,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_orientation_error_max_deg": 7.66836395121795e-06,
+      "root_position_error_max_m": 3.43852161677205e-06
+    },
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.35229883619215696,
+            "orientation_error_rms_worst_env_deg": 0.352687996892289,
+            "position_error_rms_m": 0.0013947058469057083,
+            "position_error_rms_worst_env_m": 0.001411694916896522
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.5104383928084473,
+            "orientation_error_rms_worst_env_deg": 0.523172373381437,
+            "position_error_rms_m": 0.0023076708894222975,
+            "position_error_rms_worst_env_m": 0.0023732867557555437
+          }
+        },
+        "orientation_error_max_deg": 0.971492276761881,
+        "orientation_error_p95_deg": 0.8734583048004235,
+        "orientation_error_rms_deg": 0.4385554809512497,
+        "orientation_error_rms_worst_env_deg": 0.523172373381437,
+        "position_error_max_m": 0.004691107664257288,
+        "position_error_p95_m": 0.004028697032481432,
+        "position_error_rms_m": 0.0019066395470872521,
+        "position_error_rms_worst_env_m": 0.0023732867557555437
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 7840,
+      "maximum_arm_joint_speed_radps": 0.23640909790992737,
+      "minimum_arm_counter_motion_rad": 0.25085127353668213,
+      "minimum_jacobian_singular_value": 0.09009534120559692,
+      "name": "base_height",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0029002183582633734,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.023167903280610733,
+            "orientation_error_rms_worst_env_deg": 0.026345812209571145,
+            "position_error_rms_m": 0.00012794809299521148,
+            "position_error_rms_worst_env_m": 0.0001561925746500492
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.030249503776544787,
+            "orientation_error_rms_worst_env_deg": 0.03493810180653458,
+            "position_error_rms_m": 0.00022992934100329876,
+            "position_error_rms_worst_env_m": 0.0002540956484153867
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0016876051668077707,
+        "orientation_error_max_deg": 0.042298587797522054,
+        "orientation_error_p95_deg": 0.04020666894143375,
+        "orientation_error_rms_deg": 0.02694238320983614,
+        "orientation_error_rms_worst_env_deg": 0.03493810180653458,
+        "position_error_max_m": 0.0003565124061424285,
+        "position_error_p95_m": 0.000330669223330915,
+        "position_error_rms_m": 0.00018606209778226912,
+        "position_error_rms_worst_env_m": 0.0002540956484153867,
+        "position_jitter_max_m": 0.00011440470552770421
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0016893581487238407,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.02089240308025851,
+            "orientation_error_rms_worst_env_deg": 0.02445021960395439,
+            "position_error_rms_m": 0.00012034479004796594,
+            "position_error_rms_worst_env_m": 0.00013960112119093537
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.023911720219374377,
+            "orientation_error_rms_worst_env_deg": 0.02805378805642411,
+            "position_error_rms_m": 0.00014182651648297906,
+            "position_error_rms_worst_env_m": 0.0001543554535601288
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.000941674632485956,
+        "orientation_error_max_deg": 0.030697834992426044,
+        "orientation_error_p95_deg": 0.028967025703115806,
+        "orientation_error_rms_deg": 0.02245287118692833,
+        "orientation_error_rms_worst_env_deg": 0.02805378805642411,
+        "position_error_max_m": 0.00021632151037920266,
+        "position_error_p95_m": 0.0001957067142939195,
+        "position_error_rms_m": 0.00013152496831025928,
+        "position_error_rms_worst_env_m": 0.0001543554535601288,
+        "position_jitter_max_m": 6.960755126783624e-05
+      },
+      "root_delta": [
+        0.0,
+        0.0,
+        -0.035,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_orientation_error_max_deg": 7.66836395121795e-06,
+      "root_position_error_max_m": 4.774328317580512e-06
+    },
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 1.6392844609473762,
+            "orientation_error_rms_worst_env_deg": 2.017005661436717,
+            "position_error_rms_m": 0.00568892527371645,
+            "position_error_rms_worst_env_m": 0.007039304357022047
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.3240834581329665,
+            "orientation_error_rms_worst_env_deg": 0.4031228340951772,
+            "position_error_rms_m": 0.001343980198726058,
+            "position_error_rms_worst_env_m": 0.0013982123928144574
+          }
+        },
+        "orientation_error_max_deg": 3.792727206479918,
+        "orientation_error_p95_deg": 3.050030151935891,
+        "orientation_error_rms_deg": 1.1815844133198303,
+        "orientation_error_rms_worst_env_deg": 2.017005661436717,
+        "position_error_max_m": 0.015289331786334515,
+        "position_error_p95_m": 0.010703455656766891,
+        "position_error_rms_m": 0.004133409820497036,
+        "position_error_rms_worst_env_m": 0.007039304357022047
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 29510,
+      "maximum_arm_joint_speed_radps": 0.2501884698867798,
+      "minimum_arm_counter_motion_rad": 0.2969861328601837,
+      "minimum_jacobian_singular_value": 0.10040215402841568,
+      "name": "base_roll",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0014551730128005147,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.01913779818561231,
+            "orientation_error_rms_worst_env_deg": 0.02366968039324201,
+            "position_error_rms_m": 0.00010378232400398701,
+            "position_error_rms_worst_env_m": 0.00013465111260302365
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.016842250979839702,
+            "orientation_error_rms_worst_env_deg": 0.017971671784384902,
+            "position_error_rms_m": 8.74308097991161e-05,
+            "position_error_rms_worst_env_m": 0.00010405018838355318
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0007861639023758471,
+        "orientation_error_max_deg": 0.025519962964647928,
+        "orientation_error_p95_deg": 0.025124555709674354,
+        "orientation_error_rms_deg": 0.018026601779855947,
+        "orientation_error_rms_worst_env_deg": 0.02366968039324201,
+        "position_error_max_m": 0.00015661632642149925,
+        "position_error_p95_m": 0.00015110726235434413,
+        "position_error_rms_m": 9.595551091479138e-05,
+        "position_error_rms_worst_env_m": 0.00013465111260302365,
+        "position_jitter_max_m": 9.000271529657766e-05
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0007864761282689869,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.015695162730407712,
+            "orientation_error_rms_worst_env_deg": 0.01708241984106759,
+            "position_error_rms_m": 8.327439718414098e-05,
+            "position_error_rms_worst_env_m": 0.00010915429447777569
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.016834381921564973,
+            "orientation_error_rms_worst_env_deg": 0.019055143892011232,
+            "position_error_rms_m": 8.493658242514357e-05,
+            "position_error_rms_worst_env_m": 0.00012737425277009606
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.00046259252121672034,
+        "orientation_error_max_deg": 0.020963904955605427,
+        "orientation_error_p95_deg": 0.018825820624133384,
+        "orientation_error_rms_deg": 0.01627474330160697,
+        "orientation_error_rms_worst_env_deg": 0.019055143892011232,
+        "position_error_max_m": 0.0001458858750993386,
+        "position_error_p95_m": 0.000122929981444031,
+        "position_error_rms_m": 8.410959708271548e-05,
+        "position_error_rms_worst_env_m": 0.00012737425277009606,
+        "position_jitter_max_m": 6.189919076859951e-05
+      },
+      "root_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.06981317007977318,
+        0.0,
+        0.0
+      ],
+      "root_orientation_error_max_deg": 9.993230587667107e-05,
+      "root_position_error_max_m": 4.074534444953315e-06
+    },
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.3004950263083572,
+            "orientation_error_rms_worst_env_deg": 0.30206567633276926,
+            "position_error_rms_m": 0.002781334100291133,
+            "position_error_rms_worst_env_m": 0.0027968594804406166
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.3456869195908937,
+            "orientation_error_rms_worst_env_deg": 0.3483594712274992,
+            "position_error_rms_m": 0.003347949357703328,
+            "position_error_rms_worst_env_m": 0.003369463374838233
+          }
+        },
+        "orientation_error_max_deg": 0.5303688848065445,
+        "orientation_error_p95_deg": 0.47211756310923786,
+        "orientation_error_rms_deg": 0.3238801532834528,
+        "orientation_error_rms_worst_env_deg": 0.3483594712274992,
+        "position_error_max_m": 0.006150125525891781,
+        "position_error_p95_m": 0.005647942889481783,
+        "position_error_rms_m": 0.0030777088832110167,
+        "position_error_rms_worst_env_m": 0.003369463374838233
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 0,
+      "maximum_arm_joint_speed_radps": 0.11677044630050659,
+      "minimum_arm_counter_motion_rad": 0.18302933871746063,
+      "minimum_jacobian_singular_value": 0.10119275748729706,
+      "name": "base_pitch",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.006859110202640295,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.047935708338177535,
+            "orientation_error_rms_worst_env_deg": 0.04980590284534496,
+            "position_error_rms_m": 0.00034289437462575734,
+            "position_error_rms_worst_env_m": 0.0003500906750559807
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.057497612990438374,
+            "orientation_error_rms_worst_env_deg": 0.059559736480293814,
+            "position_error_rms_m": 0.000498515903018415,
+            "position_error_rms_worst_env_m": 0.000513788836542517
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.003717493498697877,
+        "orientation_error_max_deg": 0.0927856919558167,
+        "orientation_error_p95_deg": 0.07235652277713583,
+        "orientation_error_rms_deg": 0.052933012242353396,
+        "orientation_error_rms_worst_env_deg": 0.059559736480293814,
+        "position_error_max_m": 0.000834998965729028,
+        "position_error_p95_m": 0.0006382854771800339,
+        "position_error_rms_m": 0.00042784030665643513,
+        "position_error_rms_worst_env_m": 0.000513788836542517,
+        "position_jitter_max_m": 0.00048621639143675566
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.007066512946039438,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.04130408157187778,
+            "orientation_error_rms_worst_env_deg": 0.04337852141359107,
+            "position_error_rms_m": 0.0003391372738406062,
+            "position_error_rms_worst_env_m": 0.00034858350409194827
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.05732030821649572,
+            "orientation_error_rms_worst_env_deg": 0.05870427529706956,
+            "position_error_rms_m": 0.0005168188945390284,
+            "position_error_rms_worst_env_m": 0.0005235343123786151
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0038134490605443716,
+        "orientation_error_max_deg": 0.09350376895316717,
+        "orientation_error_p95_deg": 0.07249496750996082,
+        "orientation_error_rms_deg": 0.049958204724655,
+        "orientation_error_rms_worst_env_deg": 0.05870427529706956,
+        "position_error_max_m": 0.0008590386714786291,
+        "position_error_p95_m": 0.000653910159599036,
+        "position_error_rms_m": 0.0004371017566882074,
+        "position_error_rms_worst_env_m": 0.0005235343123786151,
+        "position_jitter_max_m": 0.0004949361900798976
+      },
+      "root_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.08726646259971647,
+        0.0
+      ],
+      "root_orientation_error_max_deg": 1.8851668902668775e-05,
+      "root_position_error_max_m": 3.851770088658668e-06
+    },
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.12771970832205184,
+            "orientation_error_rms_worst_env_deg": 0.1289797048011473,
+            "position_error_rms_m": 0.0017043553525581956,
+            "position_error_rms_worst_env_m": 0.001720630913041532
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.15127042736388058,
+            "orientation_error_rms_worst_env_deg": 0.15310182519594315,
+            "position_error_rms_m": 0.0019925099331885576,
+            "position_error_rms_worst_env_m": 0.002010480035096407
+          }
+        },
+        "orientation_error_max_deg": 0.2510134540619354,
+        "orientation_error_p95_deg": 0.24071075402920586,
+        "orientation_error_rms_deg": 0.1399911837026111,
+        "orientation_error_rms_worst_env_deg": 0.15310182519594315,
+        "position_error_max_m": 0.0032160193659365177,
+        "position_error_p95_m": 0.0031017072033137083,
+        "position_error_rms_m": 0.0018540391465649009,
+        "position_error_rms_worst_env_m": 0.002010480035096407
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 0,
+      "maximum_arm_joint_speed_radps": 0.19372215867042542,
+      "minimum_arm_counter_motion_rad": 0.18953552842140198,
+      "minimum_jacobian_singular_value": 0.1031072810292244,
+      "name": "base_yaw",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.0006260496447794139,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.019119595464669962,
+            "orientation_error_rms_worst_env_deg": 0.02438410550722278,
+            "position_error_rms_m": 6.960472819628194e-05,
+            "position_error_rms_worst_env_m": 8.274996071122587e-05
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.02238607340426906,
+            "orientation_error_rms_worst_env_deg": 0.028134519691794473,
+            "position_error_rms_m": 7.095491309883073e-05,
+            "position_error_rms_worst_env_m": 0.0001019616611301899
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.0002544994931668043,
+        "orientation_error_max_deg": 0.028225653358425216,
+        "orientation_error_p95_deg": 0.026477143273695134,
+        "orientation_error_rms_deg": 0.020817002527597262,
+        "orientation_error_rms_worst_env_deg": 0.028134519691794473,
+        "position_error_max_m": 0.00010488818952580914,
+        "position_error_p95_m": 9.890879300655797e-05,
+        "position_error_rms_m": 7.028306572465226e-05,
+        "position_error_rms_worst_env_m": 0.0001019616611301899,
+        "position_jitter_max_m": 3.976347215939313e-05
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.000594332639593631,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.016929137456085677,
+            "orientation_error_rms_worst_env_deg": 0.01986056093285726,
+            "position_error_rms_m": 5.592564775724895e-05,
+            "position_error_rms_worst_env_m": 7.213120261440054e-05
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.02388859495975286,
+            "orientation_error_rms_worst_env_deg": 0.031191759722049118,
+            "position_error_rms_m": 9.494943515164778e-05,
+            "position_error_rms_worst_env_m": 0.00012706346751656383
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.00023867131676524878,
+        "orientation_error_max_deg": 0.031310294186639255,
+        "orientation_error_p95_deg": 0.030586570944042272,
+        "orientation_error_rms_deg": 0.020703390601686297,
+        "orientation_error_rms_worst_env_deg": 0.031191759722049118,
+        "position_error_max_m": 0.0001296121336054057,
+        "position_error_p95_m": 0.00011642056779237464,
+        "position_error_rms_m": 7.79200709075667e-05,
+        "position_error_rms_worst_env_m": 0.00012706346751656383,
+        "position_jitter_max_m": 2.9408332920866087e-05
+      },
+      "root_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.08726646259971647
+      ],
+      "root_orientation_error_max_deg": 1.5275377903296338e-05,
+      "root_position_error_max_m": 3.932099843950709e-06
+    },
+    {
+      "dynamic": {
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 1.6224691755410396,
+            "orientation_error_rms_worst_env_deg": 1.721504677350403,
+            "position_error_rms_m": 0.008659792132675648,
+            "position_error_rms_worst_env_m": 0.008711797185242176
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.6729574613844646,
+            "orientation_error_rms_worst_env_deg": 0.6805747764954684,
+            "position_error_rms_m": 0.005276061128824949,
+            "position_error_rms_worst_env_m": 0.0053680045530200005
+          }
+        },
+        "orientation_error_max_deg": 2.9679718323605346,
+        "orientation_error_p95_deg": 2.7375658594373213,
+        "orientation_error_rms_deg": 1.242030200092268,
+        "orientation_error_rms_worst_env_deg": 1.721504677350403,
+        "position_error_max_m": 0.016026373952627182,
+        "position_error_p95_m": 0.014114509336650372,
+        "position_error_rms_m": 0.0071703847497701645,
+        "position_error_rms_worst_env_m": 0.008711797185242176
+      },
+      "joint_limit_clamp_count": 0,
+      "joint_target_rate_limit_count": 45295,
+      "maximum_arm_joint_speed_radps": 0.25590139627456665,
+      "minimum_arm_counter_motion_rad": 0.2633737325668335,
+      "minimum_jacobian_singular_value": 0.05098564922809601,
+      "name": "base_combined",
+      "outbound_hold": {
+        "angular_speed_rms_worst_env_radps": 0.018841400742530823,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.11314520521115533,
+            "orientation_error_rms_worst_env_deg": 0.13587759555326515,
+            "position_error_rms_m": 0.0009685584809631109,
+            "position_error_rms_worst_env_m": 0.0011494039790704846
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.06907475695318355,
+            "orientation_error_rms_worst_env_deg": 0.07143224610400237,
+            "position_error_rms_m": 0.0006260974914766848,
+            "position_error_rms_worst_env_m": 0.0006361515843309462
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.009112928993999958,
+        "orientation_error_max_deg": 0.1995096122126609,
+        "orientation_error_p95_deg": 0.18622752229899095,
+        "orientation_error_rms_deg": 0.09373674910699469,
+        "orientation_error_rms_worst_env_deg": 0.13587759555326515,
+        "position_error_max_m": 0.0016923320945352316,
+        "position_error_p95_m": 0.0015871220966801047,
+        "position_error_rms_m": 0.0008155071409419179,
+        "position_error_rms_worst_env_m": 0.0011494039790704846,
+        "position_jitter_max_m": 0.0006536089349538088
+      },
+      "passed": true,
+      "return_hold": {
+        "angular_speed_rms_worst_env_radps": 0.017013974487781525,
+        "by_sign": {
+          "negative": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.12009048040064015,
+            "orientation_error_rms_worst_env_deg": 0.12549948329518779,
+            "position_error_rms_m": 0.0010139391524717212,
+            "position_error_rms_worst_env_m": 0.0010650957701727748
+          },
+          "positive": {
+            "environment_count": 32,
+            "orientation_error_rms_deg": 0.08690087033604246,
+            "orientation_error_rms_worst_env_deg": 0.08832970722379078,
+            "position_error_rms_m": 0.00079592369729653,
+            "position_error_rms_worst_env_m": 0.0008044388960115612
+          }
+        },
+        "linear_speed_rms_worst_env_mps": 0.008054682984948158,
+        "orientation_error_max_deg": 0.18604453459421544,
+        "orientation_error_p95_deg": 0.17396902694589736,
+        "orientation_error_rms_deg": 0.10481765714817595,
+        "orientation_error_rms_worst_env_deg": 0.12549948329518779,
+        "position_error_max_m": 0.0015771817415952682,
+        "position_error_p95_m": 0.001479739905335009,
+        "position_error_rms_m": 0.0009114732383750379,
+        "position_error_rms_worst_env_m": 0.0010650957701727748,
+        "position_jitter_max_m": 0.0005579606513492763
+      },
+      "root_delta": [
+        -0.035,
+        0.0,
+        0.02,
+        0.0,
+        -0.06981317007977318,
+        0.05235987755982989
+      ],
+      "root_orientation_error_max_deg": 0.0002656314200043931,
+      "root_position_error_max_m": 5.7220458984375e-06
+    }
+  ],
+  "controller": {
+    "damping": 0.03,
+    "joint_target_rate_limit_radps": 3.0,
+    "method": "damped_least_squares",
+    "per_step_gain": 1.0
+  },
+  "device": "cuda:0",
+  "elapsed_wall_time_s": 134.1065920140245,
+  "environment_origin_error_max_m": 5.960464477539063e-08,
+  "environment_origins_applied": true,
+  "gate": "floating_base_kinematic_world_frame_tcp_tracking",
+  "gravity_enabled": false,
+  "initial_base_yaw_deg": 10.0,
+  "initial_yaw_assignment": "indices 0-1 positive, 2-3 negative, repeating",
+  "jacobian_shape": [
+    64,
+    36,
+    6,
+    29
+  ],
+  "maximum_arm_joint_speed_radps": 0.25590139627456665,
+  "minimum_environment_root_separation_m": 2.5,
+  "minimum_jacobian_singular_value": 0.05098564922809601,
+  "num_envs": 64,
+  "passed": true,
+  "physics_dt_s": 0.005,
+  "provenance": {
+    "asset_path": "source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_stow.usda",
+    "asset_sha256": "3325375a20c588a9c5e924fd3a9c33f58596dd2966a672863a547eed1aa4e951",
+    "command": [
+      "/home/mingqian/miniforge3/envs/env_isaaclab51/bin/python",
+      "scripts/standalone/b2w_z1_world_frame_gate.py",
+      "--headless",
+      "--device",
+      "cuda:0",
+      "--num_envs",
+      "64",
+      "--report",
+      "docs/validation/b2w_z1_world_frame_gate_64env_gpu.json"
+    ],
+    "cuda_runtime_version": "12.8",
+    "git_head": "832f90fd12a222a4aaeb90382f0de8c18c69cbef",
+    "gpu_name": "NVIDIA GeForce RTX 4090",
+    "python_version": "3.11.16",
+    "relevant_git_status": [],
+    "script_path": "scripts/standalone/b2w_z1_world_frame_gate.py",
+    "script_sha256": "b2fd3069d75b44c94a98ed195ccf6c4972bb7da893b01ab5052f230f70e797e2",
+    "torch_version": "2.7.0+cu128"
+  },
+  "reference": {
+    "dynamic": {
+      "by_sign": {
+        "negative": {
+          "environment_count": 32,
+          "orientation_error_rms_deg": 0.33213088839869603,
+          "orientation_error_rms_worst_env_deg": 0.3838649289673411,
+          "position_error_rms_m": 0.0016859720926731825,
+          "position_error_rms_worst_env_m": 0.0018776437500491738
+        },
+        "positive": {
+          "environment_count": 32,
+          "orientation_error_rms_deg": 0.3243640561778924,
+          "orientation_error_rms_worst_env_deg": 0.3685956675518074,
+          "position_error_rms_m": 0.0016778011340647936,
+          "position_error_rms_worst_env_m": 0.0018468755297362804
+        }
+      },
+      "orientation_error_max_deg": 0.618303995193315,
+      "orientation_error_p95_deg": 0.5839463293991526,
+      "orientation_error_rms_deg": 0.32827044413546363,
+      "orientation_error_rms_worst_env_deg": 0.3838649289673411,
+      "position_error_max_m": 0.0029669394716620445,
+      "position_error_p95_m": 0.0028142465744167566,
+      "position_error_rms_m": 0.0016818916192278266,
+      "position_error_rms_worst_env_m": 0.0018776437500491738
+    },
+    "goal_delta": [
+      0.03,
+      0.02,
+      0.02,
+      0.05235987755982989,
+      -0.05235987755982989,
+      0.08726646259971647
+    ],
+    "hold_steps": 500,
+    "joint_limit_clamp_count": 0,
+    "joint_target_rate_limit_count": 0,
+    "maximum_arm_joint_speed_radps": 0.12559163570404053,
+    "motion_steps": 400,
+    "passed": true,
+    "profile": "minimum_jerk_10u3_minus_15u4_plus_6u5",
+    "terminal": {
+      "angular_speed_rms_worst_env_radps": 0.00030397408409044147,
+      "by_sign": {
+        "negative": {
+          "environment_count": 32,
+          "orientation_error_rms_deg": 0.02208248016680059,
+          "orientation_error_rms_worst_env_deg": 0.02699695301955017,
+          "position_error_rms_m": 8.798692579148337e-05,
+          "position_error_rms_worst_env_m": 0.00011287011147942394
+        },
+        "positive": {
+          "environment_count": 32,
+          "orientation_error_rms_deg": 0.018296407592284673,
+          "orientation_error_rms_worst_env_deg": 0.020584352544047006,
+          "position_error_rms_m": 7.658830872969702e-05,
+          "position_error_rms_worst_env_m": 9.135914297075942e-05
+        }
+      },
+      "linear_speed_rms_worst_env_mps": 0.00018368651217315346,
+      "orientation_error_max_deg": 0.027689907060349038,
+      "orientation_error_p95_deg": 0.027194263110746887,
+      "orientation_error_rms_deg": 0.020277999549968093,
+      "orientation_error_rms_worst_env_deg": 0.02699695301955017,
+      "position_error_max_m": 0.00012178802717244253,
+      "position_error_p95_m": 0.00011430830636527389,
+      "position_error_rms_m": 8.248475205618888e-05,
+      "position_error_rms_worst_env_m": 0.00011287011147942394,
+      "position_jitter_max_m": 2.796081025735475e-05
+    }
+  },
+  "root_motion": "kinematically prescribed; this is not a wheel-dynamics test",
+  "sign_assignment": "even environment index positive; odd environment index negative",
+  "steps": {
+    "base_hold_each_endpoint": 300,
+    "base_motion_each_direction": 400,
+    "settle": 100,
+    "target_hold": 500,
+    "target_motion": 400,
+    "terminal_window": 100
+  },
+  "tcp_body_id": 35,
+  "tcp_jacobian_id": 35,
+  "thresholds": {
+    "dynamic_orientation_rms_worst_env_deg": 5.0,
+    "dynamic_position_rms_worst_env_m": 0.01,
+    "maximum_arm_joint_speed_radps": 3.1500000000000004,
+    "minimum_arm_counter_motion_rad": 0.03,
+    "root_orientation_error_max_deg": 0.5,
+    "root_position_error_max_m": 0.005,
+    "terminal_angular_speed_rms_worst_env_radps": 0.15,
+    "terminal_linear_speed_rms_worst_env_mps": 0.03,
+    "terminal_orientation_rms_worst_env_deg": 2.0,
+    "terminal_position_jitter_m": 0.002,
+    "terminal_position_rms_worst_env_m": 0.005
+  },
+  "total_joint_limit_clamp_count": 0,
+  "total_joint_target_rate_limit_count": 94815,
+  "total_joint_target_rate_limit_fraction": 0.023076080607476634,
+  "world_target_mutated": false
+}

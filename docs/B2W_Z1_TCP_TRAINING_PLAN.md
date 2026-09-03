@@ -6,6 +6,10 @@ Chinese step-by-step explanation:
 [`B2W_Z1_TCP_TRAINING_STEPS_ZH.md`](B2W_Z1_TCP_TRAINING_STEPS_ZH.md).
 Completed deterministic controller gate and measurements:
 [`B2W_Z1_TCP_DIK_GATE_ZH.md`](B2W_Z1_TCP_DIK_GATE_ZH.md).
+Completed standalone world-frame harness and measurements:
+[`B2W_Z1_WORLD_FRAME_GATE_ZH.md`](B2W_Z1_WORLD_FRAME_GATE_ZH.md).
+Current wheel execution status and the remaining blocker:
+[`B2W_Z1_WHEEL_GATE_ZH.md`](B2W_Z1_WHEEL_GATE_ZH.md).
 
 ## Current outcome
 
@@ -46,6 +50,20 @@ Completed work:
   jitter of 1.63 mm. Gravity remained enabled and was handled with explicit
   Z1 gravity feed-forward; actuator delay was held at zero for this nominal
   gate.
+- Corrected replicated reset semantics by adding `scene.env_origins` to every
+  root state, then passed the standalone 64-environment floating-base
+  world-frame harness. Across seven signed root excitations, the worst moving
+  RMS was 8.71 mm / 2.02 degrees; the worst displaced-hold RMS was
+  1.15 mm / 0.136 degrees and the worst held jitter was 0.654 mm. The immutable
+  world target was never mutated.
+- Established a usable nominal straight/reverse wheel baseline with a
+  provisional simulation velocity gain of 10 N m/(rad/s), while preserving the
+  official 20 N m effort and 50 rad/s velocity limits. The complete wheel gate
+  remains failed because neither left nor right arc reaches the requested yaw.
+
+The world-frame result is a kinematic coordinate/controller harness, not a
+production WBC: gravity was disabled, root pose and velocity were written
+directly, and wheel/contact dynamics were not in the loop.
 
 The stow pose was reconstructed from the tracked side photograph of the real robot.
 It produces the correct stacked Z-fold instead of folding the gripper through
@@ -61,11 +79,25 @@ payload and gripper-to-TCP transform must also be measured.
 
 ## What comes next
 
-The fixed-base arm-only deterministic baseline is now implemented and has
-passed. The next step is the floating-base, fixed-world-target gate and wheel
-validation, not a long PPO run. The proposed task name is
-`B2W-Z1-TCP`; the existing `B2-Z1-WBC` task must remain unchanged as a
-comparison baseline.
+The fixed-base arm gate and standalone moving-root world-frame harness have
+passed. The wheel execution gate has not: gain 10 gives usable straight and
+reverse motion, but the current fixed-leg, four-wheel model barely turns under
+differential arc commands. This is the blocking issue, not a reason to begin a
+long PPO run.
+
+The next sequence is:
+
+```text
+execution-layer turn diagnosis
+  -> steering-posture and collision/contact controlled A/B tests
+  -> complete wheel gate
+  -> integrate the B2W-Z1-TCP production task
+  -> 1/16/64-environment task smoke and checkpoint save/load
+  -> PPO
+```
+
+The proposed task name is `B2W-Z1-TCP`; the existing `B2-Z1-WBC` task must
+remain unchanged as a comparison baseline.
 
 No B2-W TCP task or trained B2-W policy exists yet. The completed work is the
 asset and validation gate needed before that task can be implemented safely.
@@ -195,6 +227,10 @@ not on training reward alone.
 | 7 | Deployment-matched mild terrain | Terrain passes while flat regression remains below 15% |
 | 8 | Frozen held-out evaluation and sim-to-sim test | Select by the complete metric matrix, not a showcase episode |
 
+Passing the standalone world-frame harness does not complete task-level
+Stage 0. Stage 0 still requires real wheel/contact execution, production task
+wiring and a stable 2,000-step run.
+
 Arm behavior in every parallel environment should be consistent:
 
 - reset in the raised ready pose for ordinary tracking episodes;
@@ -284,15 +320,19 @@ policy.
 
 ## Immediate implementation checklist
 
-1. Measure or declare a clearly labeled simulation-only
-   `gripper_stator -> tcp` transform.
-2. Verify all four wheel signs and effective rolling radius.
-3. Add the immutable world-frame command generator and invariance tests.
-4. Add a one-environment batched DIK/OSC arm-tracking baseline.
-5. Register `B2W-Z1-TCP` and `B2W-Z1-TCP-Play` with B2-W-specific actions,
+1. **Done for simulation:** declare the provisional
+   `gripper_stator -> tcp` transform and validate the fixed-base DIK path.
+2. **Done as a standalone regression:** verify immutable world targets across
+   64 separated environments, both signs and non-zero initial yaw.
+3. **Partial:** preserve the verified wheel signs, straight/reverse rolling
+   radius and gain-10 baseline; do not mark the complete wheel gate passed.
+4. Run controlled turn experiments for leg steering posture and
+   collision/contact representations. Do not manufacture a pass by merely
+   lowering friction or increasing torque beyond the official limit.
+5. Pass both left and right turn phases and therefore the complete wheel gate.
+6. Register `B2W-Z1-TCP` and `B2W-Z1-TCP-Play` with B2-W-specific actions,
    observations, rewards, contacts and terminations.
-6. Pass 1/16/64-environment smoke tests and deterministic checkpoint
+7. Pass 1/16/64-environment task smoke tests and deterministic checkpoint
    save/load.
-7. Benchmark 256/512/1,024/2,048 environments before choosing the full PPO
-   scale.
-8. Begin Stage 1 training on a nominal plane. Terrain is intentionally later.
+8. Benchmark 256/512/1,024/2,048 environments, then begin Stage 1 PPO on a
+   nominal plane. Terrain is intentionally later.

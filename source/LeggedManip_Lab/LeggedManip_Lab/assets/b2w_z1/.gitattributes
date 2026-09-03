@@ -1,0 +1,7 @@
+# GitHub public forks cannot add new objects to the upstream repository's LFS
+# store. Keep this self-contained asset as regular Git data; the largest file
+# is 80.6 MB, below GitHub's 100 MiB per-file limit. The repository-wide LFS
+# rules continue to apply to all other assets.
+*.usd -filter -diff -merge -text
+*.usda -filter -diff -merge -text
+configuration/*.usd -filter -diff -merge -text

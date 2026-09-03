@@ -1,0 +1,40 @@
+#usda 1.0
+(
+    defaultPrim = "b2w_z1"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+# This lightweight wrapper keeps the generated asset immutable while giving
+# direct Isaac Sim users the same hardware-like stow used by B2W_Z1_CFG.
+def Xform "b2w_z1" (
+    prepend references = @b2w_z1.usd@</b2w_z1>
+)
+{
+    over "joints"
+    {
+        over "joint2"
+        {
+            float drive:angular:physics:targetPosition = 8.594367
+            float state:angular:physics:position = 8.594367
+        }
+
+        over "joint3"
+        {
+            float drive:angular:physics:targetPosition = -25.783102
+            float state:angular:physics:position = -25.783102
+        }
+
+        over "joint4"
+        {
+            float drive:angular:physics:targetPosition = 17.188734
+            float state:angular:physics:position = 17.188734
+        }
+
+        over "gripper_joint"
+        {
+            float drive:angular:physics:targetPosition = -57.29578
+            float state:angular:physics:position = -57.29578
+        }
+    }
+}

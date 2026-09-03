@@ -4,6 +4,8 @@ Last updated: 2026-09-03 (Europe/Berlin)
 
 Chinese step-by-step explanation:
 [`B2W_Z1_TCP_TRAINING_STEPS_ZH.md`](B2W_Z1_TCP_TRAINING_STEPS_ZH.md).
+Completed deterministic controller gate and measurements:
+[`B2W_Z1_TCP_DIK_GATE_ZH.md`](B2W_Z1_TCP_DIK_GATE_ZH.md).
 
 ## Current outcome
 
@@ -38,6 +40,12 @@ Completed work:
 - Added a validator for USD structure, wheel axes, mounting height and
   rotation, nominal TCP parent/pose/forward direction, arm presets, lidar
   clearance and dynamic stability.
+- Added a reproducible fixed-base 6D TCP differential-IK gate. The final
+  64-environment RTX 4090 run passed all five signed target families with a
+  worst position RMS of 2.19 mm, orientation RMS of 0.24 degrees and terminal
+  jitter of 1.63 mm. Gravity remained enabled and was handled with explicit
+  Z1 gravity feed-forward; actuator delay was held at zero for this nominal
+  gate.
 
 The stow pose was reconstructed from the tracked side photograph of the real robot.
 It produces the correct stacked Z-fold instead of folding the gripper through
@@ -53,8 +61,9 @@ payload and gripper-to-TCP transform must also be measured.
 
 ## What comes next
 
-The next step is to implement the training task and its deterministic control
-baseline, not to start a long PPO run immediately. The proposed task name is
+The fixed-base arm-only deterministic baseline is now implemented and has
+passed. The next step is the floating-base, fixed-world-target gate and wheel
+validation, not a long PPO run. The proposed task name is
 `B2W-Z1-TCP`; the existing `B2-Z1-WBC` task must remain unchanged as a
 comparison baseline.
 

@@ -1,0 +1,126 @@
+{
+  "arm_joint_names": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "joint6"
+  ],
+  "controller": {
+    "actuator_delay_steps": 0,
+    "damping": 0.03,
+    "fixed_base": true,
+    "gravity_feedforward": true,
+    "joint_target_rate_limit_radps": 2.0,
+    "method": "damped_least_squares",
+    "per_step_gain": 0.2
+  },
+  "device": "cuda:0",
+  "elapsed_wall_time_s": 50.40634012798546,
+  "gate": "fixed_base_gravity_compensated_differential_ik",
+  "goal_steps": 800,
+  "goals": [
+    {
+      "angular_speed_rms_radps": 0.019069647416472435,
+      "base_orientation_drift_max_deg": 1.3857924234047693e-09,
+      "base_position_drift_max_m": 0.0,
+      "goal": "forward",
+      "joint_limit_clamp_count": 0,
+      "linear_speed_rms_mps": 0.006756289396435022,
+      "minimum_jacobian_singular_value": 0.09127946943044662,
+      "orientation_error_max_deg": 0.28142372408308003,
+      "orientation_error_rms_deg": 0.2171422124625116,
+      "passed": true,
+      "position_error_max_m": 0.0027549713850021362,
+      "position_error_rms_m": 0.0020799010526388884,
+      "position_jitter_max_m": 0.0008232624386437237
+    },
+    {
+      "angular_speed_rms_radps": 0.016970839351415634,
+      "base_orientation_drift_max_deg": 1.3857924234047693e-09,
+      "base_position_drift_max_m": 0.0,
+      "goal": "lateral",
+      "joint_limit_clamp_count": 0,
+      "linear_speed_rms_mps": 0.004734291695058346,
+      "minimum_jacobian_singular_value": 0.11693571507930756,
+      "orientation_error_max_deg": 0.03391822583039408,
+      "orientation_error_rms_deg": 0.020921374688324865,
+      "passed": true,
+      "position_error_max_m": 0.000304597633657977,
+      "position_error_rms_m": 0.00019887002417817712,
+      "position_jitter_max_m": 9.993804997066036e-05
+    },
+    {
+      "angular_speed_rms_radps": 0.02315329946577549,
+      "base_orientation_drift_max_deg": 1.3857924234047693e-09,
+      "base_position_drift_max_m": 0.0,
+      "goal": "lower",
+      "joint_limit_clamp_count": 0,
+      "linear_speed_rms_mps": 0.009956981986761093,
+      "minimum_jacobian_singular_value": 0.09833621978759766,
+      "orientation_error_max_deg": 0.3698023165182253,
+      "orientation_error_rms_deg": 0.19376528971854795,
+      "passed": true,
+      "position_error_max_m": 0.003457110607996583,
+      "position_error_rms_m": 0.0018084854818880558,
+      "position_jitter_max_m": 0.0016337226843461394
+    },
+    {
+      "angular_speed_rms_radps": 0.017486436292529106,
+      "base_orientation_drift_max_deg": 1.3857924234047693e-09,
+      "base_position_drift_max_m": 0.0,
+      "goal": "yaw",
+      "joint_limit_clamp_count": 0,
+      "linear_speed_rms_mps": 0.004694338887929916,
+      "minimum_jacobian_singular_value": 0.11649293452501297,
+      "orientation_error_max_deg": 0.08552832247798725,
+      "orientation_error_rms_deg": 0.05374260643746478,
+      "passed": true,
+      "position_error_max_m": 0.00023482729739043862,
+      "position_error_rms_m": 0.00014932056365069002,
+      "position_jitter_max_m": 4.662294304580428e-05
+    },
+    {
+      "angular_speed_rms_radps": 0.017482120543718338,
+      "base_orientation_drift_max_deg": 1.3857924234047693e-09,
+      "base_position_drift_max_m": 0.0,
+      "goal": "combined",
+      "joint_limit_clamp_count": 0,
+      "linear_speed_rms_mps": 0.0053338357247412205,
+      "minimum_jacobian_singular_value": 0.10292386263608932,
+      "orientation_error_max_deg": 0.2621293734927196,
+      "orientation_error_rms_deg": 0.23598562382530575,
+      "passed": true,
+      "position_error_max_m": 0.0024580706376582384,
+      "position_error_rms_m": 0.002187273232266307,
+      "position_jitter_max_m": 0.000216311018448323
+    }
+  ],
+  "jacobian_shape": [
+    64,
+    35,
+    6,
+    23
+  ],
+  "num_envs": 64,
+  "passed": true,
+  "physics_dt_s": 0.005,
+  "settle_steps": 100,
+  "tcp_body_id": 35,
+  "tcp_jacobian_id": 34,
+  "terminal_window_steps": 100,
+  "thresholds": {
+    "angular_speed_radps": 0.15,
+    "linear_speed_mps": 0.03,
+    "orientation_error_deg": 2.0,
+    "position_error_m": 0.005,
+    "position_jitter_m": 0.002
+  },
+  "wheel_joint_names": [
+    "FL_wheel_joint",
+    "FR_wheel_joint",
+    "RL_wheel_joint",
+    "RR_wheel_joint"
+  ]
+}

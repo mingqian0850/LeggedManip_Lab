@@ -185,6 +185,7 @@ WHEEL_JOINT_NAMES = [
     "RR_wheel_joint",
 ]
 WHEEL_BODY_NAMES = ["FL_wheel", "FR_wheel", "RL_wheel", "RR_wheel"]
+MIN_VELOCITY_ITERATION_COUNT = 1
 TURN_COMMANDS = (
     (
         "turn_left",
@@ -344,7 +345,14 @@ class WheelGate:
     """Own the simulator state and run repeatable wheel command phases."""
 
     def __init__(self) -> None:
-        sim_cfg = sim_utils.SimulationCfg(dt=0.005, device=args_cli.device)
+        sim_cfg = sim_utils.SimulationCfg(
+            dt=0.005,
+            device=args_cli.device,
+            physx=sim_utils.PhysxCfg(
+                min_velocity_iteration_count=MIN_VELOCITY_ITERATION_COUNT,
+                enable_external_forces_every_iteration=True,
+            ),
+        )
         self.sim = sim_utils.SimulationContext(sim_cfg)
         scene_cfg = B2WZ1WheelGateSceneCfg(num_envs=args_cli.num_envs, env_spacing=3.0)
         for actuator_cfg in scene_cfg.robot.actuators.values():
@@ -806,6 +814,10 @@ def main() -> None:
         "num_envs": args_cli.num_envs,
         "provenance": _provenance(),
         "physics_dt_s": gate.sim.get_physics_dt(),
+        "physx": {
+            "minimum_velocity_iteration_count": MIN_VELOCITY_ITERATION_COUNT,
+            "external_forces_every_iteration": True,
+        },
         "steps": {
             "settle": args_cli.settle_steps,
             "ramp": args_cli.ramp_steps,

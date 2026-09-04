@@ -45,8 +45,11 @@ Legged robots with manipulation arms present unique challenges — coordinating 
 An experimental [B2-W + Z1 asset](source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/README.md)
 is also available. It is generated from pinned official Unitree B2-W/Z1
 descriptions, includes all four wheel joints, the gripper, and a nominal TCP,
-and follows the photographed 35 mm raised mount. It is an asset foundation;
-a B2-W-specific RL task and rewards are not registered yet.
+and follows the photographed 35 mm raised mount. The experimental
+[`B2W-Z1-TCP` task](docs/B2W_Z1_TCP_TASK_MVP_ZH.md) now provides a frozen
+B2-W locomotion layer, 200 Hz Z1 IK and a trainable two-action TCP coordinator.
+Its training pipeline is validated, but no converged or sim-to-real policy is
+claimed yet.
 
 Each platform supports the following **2** training modes:
 
@@ -76,10 +79,12 @@ Each platform supports the following **2** training modes:
 > [!IMPORTANT]
 > This repository currently targets the Isaac Lab `main` branch with the newer RSL-RL config API.
 > Please do **not** use the Isaac Lab `v2.3.2` release tag, since it depends on `rsl-rl-lib==3.1.2` and is incompatible with the current agent configs.
+> The validated checkout is commit `b0542fe2d45bf91c4e1d9ef6952b9c709c80b4e8`
+> (`VERSION` reports 2.3.2); using that commit avoids future `main` API drift.
 >
 > Required:
 > - Isaac Sim: `5.1.0`
-> - Isaac Lab: `main` branch
+> - Isaac Lab: `main` commit `b0542fe2d45bf91c4e1d9ef6952b9c709c80b4e8`
 > - rsl-rl-lib: `>=5.0.1`
 > - Python: `3.11`
 

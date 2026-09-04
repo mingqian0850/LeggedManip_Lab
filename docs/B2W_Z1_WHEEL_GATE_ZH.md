@@ -2,6 +2,13 @@
 
 最后更新：2026-09-04（Europe/Berlin）
 
+> 后续状态：本页保留的是“固定腿 + 开环轮速”的执行层诊断，不再代表生产
+> locomotion 路线。固定版本的公开 `robot_lab` B2-W policy 已通过组合模型的
+> 站立/纵向运动验证并产生双向物理 yaw；详情见
+> [`B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md`](B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md)。
+> 这说明开环 gate 的约 2° 转向失败来自缺少策略中的腿轮协调，而不是 USD
+> 完全不能转弯。
+
 ## 当前结论
 
 轮子执行层现在有两个不同结论，不能混在一起：

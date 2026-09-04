@@ -1,0 +1,181 @@
+{
+  "arm_pose": "stow",
+  "asset_path": "/home/mingqian/LeggedManip_Lab/source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_stow.usda",
+  "checkpoint": "/home/mingqian/LeggedManip_Lab/third_party/rl_sar_b2w/artifacts/policy.pt",
+  "checkpoint_sha256": "38155076408e8eccb22690c6c5be14bd1dcb9149245ca5e493308a9f6ff93b34",
+  "commands": {
+    "forward": [
+      0.3,
+      0.0,
+      0.0
+    ],
+    "reverse": [
+      -0.3,
+      0.0,
+      0.0
+    ],
+    "stand": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "turn_left": [
+      0.0,
+      0.0,
+      0.5
+    ],
+    "turn_right": [
+      0.0,
+      0.0,
+      -0.5
+    ]
+  },
+  "complete_gate_executed": false,
+  "complete_gate_passed": false,
+  "device": "cuda:0",
+  "durations_s": {
+    "phase": 4.0,
+    "ramp": 0.5,
+    "settle": 2.0,
+    "stop": 2.0
+  },
+  "elapsed_wall_time_s": 58.61629771103617,
+  "executed_phases": [
+    "turn_left",
+    "turn_right"
+  ],
+  "expected_checkpoint_sha256": "38155076408e8eccb22690c6c5be14bd1dcb9149245ca5e493308a9f6ff93b34",
+  "gate": "b2w_z1_robot_lab_frozen_locomotion_policy",
+  "num_envs": 16,
+  "passed": false,
+  "phases": [
+    {
+      "base_height_min_m": 0.6014615297317505,
+      "command_vx_vy_wz": [
+        0.0,
+        0.0,
+        0.5
+      ],
+      "final_forward_displacement_min_m": -0.062319718301296234,
+      "final_lateral_displacement_abs_max_m": 0.06396237015724182,
+      "final_yaw_abs_max_deg": 71.39907513021564,
+      "final_yaw_min_deg": 66.55774825405139,
+      "leg_position_target_error_p95_rad": 0.46268051862716675,
+      "name": "turn_left",
+      "passed": false,
+      "raw_action_abs_max": 3.63761305809021,
+      "roll_pitch_abs_max_deg": 2.872959418694015,
+      "signed_steady_wz_mean_min_radps": 0.32751479744911194,
+      "signed_yaw_min_deg": 66.55774825405139,
+      "steady_vx_mean_max_mps": 0.01183023676276207,
+      "steady_vx_mean_min_mps": -0.01937914453446865,
+      "steady_vy_rms_max_mps": 0.08280970901250839,
+      "steady_wz_mean_max_radps": 0.3574081063270569,
+      "steady_wz_mean_min_radps": 0.32751479744911194,
+      "stop_displacement_max_m": 0.14130133390426636,
+      "stop_succeeded_all_envs": true,
+      "stop_time_max_s": 1.1399999856948853,
+      "translation_max_m": 0.15549767017364502,
+      "unintended_contact_ratio_max_env": 0.0,
+      "wheel_contact_ratio_min_env_wheel": 0.8199999928474426,
+      "wheel_velocity_target_error_p95_radps": 11.974371910095215,
+      "wheel_velocity_target_relative_error_p95": 1.3094279766082764,
+      "wz_tracking_rmse_max_radps": 0.17894279956817627
+    },
+    {
+      "base_height_min_m": 0.5939798951148987,
+      "command_vx_vy_wz": [
+        0.0,
+        0.0,
+        -0.5
+      ],
+      "final_forward_displacement_min_m": 0.0663498193025589,
+      "final_lateral_displacement_abs_max_m": 0.034980401396751404,
+      "final_yaw_abs_max_deg": 92.8562715021616,
+      "final_yaw_min_deg": -92.8562715021616,
+      "leg_position_target_error_p95_rad": 0.5328899621963501,
+      "name": "turn_right",
+      "passed": false,
+      "raw_action_abs_max": 3.351071834564209,
+      "roll_pitch_abs_max_deg": 3.713977259783787,
+      "signed_steady_wz_mean_min_radps": 0.41664618253707886,
+      "signed_yaw_min_deg": 90.55470948773159,
+      "steady_vx_mean_max_mps": 0.052787039428949356,
+      "steady_vx_mean_min_mps": 0.02580592781305313,
+      "steady_vy_rms_max_mps": 0.08706580102443695,
+      "steady_wz_mean_max_radps": -0.41664618253707886,
+      "steady_wz_mean_min_radps": -0.4300503134727478,
+      "stop_displacement_max_m": 0.16869407892227173,
+      "stop_succeeded_all_envs": false,
+      "stop_time_max_s": null,
+      "translation_max_m": 0.16412924230098724,
+      "unintended_contact_ratio_max_env": 0.0,
+      "wheel_contact_ratio_min_env_wheel": 0.8999999761581421,
+      "wheel_velocity_target_error_p95_radps": 11.115513801574707,
+      "wheel_velocity_target_relative_error_p95": 1.2030035257339478,
+      "wz_tracking_rmse_max_radps": 0.1063520535826683
+    }
+  ],
+  "physics_dt_s": 0.005,
+  "policy_decimation": 4,
+  "policy_dt_s": 0.02,
+  "policy_joint_names": [
+    "FR_hip_joint",
+    "FR_thigh_joint",
+    "FR_calf_joint",
+    "FL_hip_joint",
+    "FL_thigh_joint",
+    "FL_calf_joint",
+    "RR_hip_joint",
+    "RR_thigh_joint",
+    "RR_calf_joint",
+    "RL_hip_joint",
+    "RL_thigh_joint",
+    "RL_calf_joint",
+    "FR_wheel_joint",
+    "FL_wheel_joint",
+    "RR_wheel_joint",
+    "RL_wheel_joint"
+  ],
+  "provenance": {
+    "files": {
+      "scripts/standalone/b2w_z1_robot_lab_policy_gate.py": "5c224ac613e00a16c985bc1a67f1bcc5901e3fdda038c7fdaa8f03ceae27a2da",
+      "source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_articulation_cfg.py": "c9ab04083d07e891687752574a9b2852f5accc5f4618a6246257f6049cd41616",
+      "source/LeggedManip_Lab/LeggedManip_Lab/controllers/robot_lab_b2w_policy.py": "35d9082b3fa3910bc87a6f06c178e995fd94d6796a572d2bc75d8823e8a455d6"
+    },
+    "git_head": "60bdd63823eed8129dfbd2faf9ce2743d394420f",
+    "relevant_git_status": [
+      " M source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_articulation_cfg.py",
+      "?? scripts/standalone/b2w_z1_robot_lab_policy_gate.py",
+      "?? source/LeggedManip_Lab/LeggedManip_Lab/controllers/robot_lab_b2w_policy.py"
+    ]
+  },
+  "required_phases": [
+    "stand",
+    "forward",
+    "reverse",
+    "turn_left",
+    "turn_right"
+  ],
+  "runtime": {
+    "cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "python": "3.11.16",
+    "torch": "2.7.0+cu128"
+  },
+  "selected_phases_passed": false,
+  "thresholds": {
+    "base_height_min_m": 0.4,
+    "roll_pitch_abs_max_deg": 10.0,
+    "stop_displacement_max_m": 0.25,
+    "stop_time_max_s": 2.0,
+    "straight_signed_mean_velocity_min_mps": 0.15,
+    "straight_signed_travel_min_m": 0.6,
+    "straight_velocity_rmse_max_mps": 0.15,
+    "unintended_contact_ratio_max": 0.01,
+    "wheel_contact_ratio_min": 0.9,
+    "yaw_rate_rmse_max_radps": 0.15,
+    "yaw_signed_mean_rate_min_radps": 0.15,
+    "yaw_signed_travel_min_deg": 30.0
+  }
+}

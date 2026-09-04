@@ -1,0 +1,238 @@
+# Copyright (c) 2025-2026, Junjie Zhu.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+"""World-frame TCP references derived from reachable B2W + Z1 configurations."""
+
+from __future__ import annotations
+
+import math
+from collections.abc import Sequence
+from dataclasses import MISSING
+from typing import TYPE_CHECKING
+
+import torch
+
+from isaaclab.assets import Articulation
+from isaaclab.managers import CommandTerm, CommandTermCfg
+from isaaclab.utils import configclass
+from isaaclab.utils.math import (
+    combine_frame_transforms,
+    compute_pose_error,
+    quat_from_angle_axis,
+    quat_from_euler_xyz,
+    quat_mul,
+    subtract_frame_transforms,
+)
+
+if TYPE_CHECKING:
+    from isaaclab.envs import ManagerBasedRLEnv
+
+
+class FKReachableWorldPoseCommand(CommandTerm):
+    """Generate immutable world TCP goals without a hand-written arm workspace box.
+
+    The arm starts in a valid joint configuration.  Its FK pose relative to the
+    root is measured after every reset.  Each episode then samples a planar *ghost
+    root* displacement and composes that transform with the valid TCP pose.
+    Consequently every final target has a known whole-body solution: move the root
+    to the ghost pose and return the arm to its sampled reset configuration.
+
+    The final pose remains immutable for the episode.  ``command`` exposes a
+    minimum-jerk reference from the initial TCP pose to that final pose so the arm
+    is never hit with a discontinuous Cartesian target.
+    """
+
+    cfg: FKReachableWorldPoseCommandCfg
+
+    def __init__(self, cfg: FKReachableWorldPoseCommandCfg, env: ManagerBasedRLEnv) -> None:
+        super().__init__(cfg, env)
+        self.robot: Articulation = env.scene[cfg.asset_name]
+        body_ids, body_names = self.robot.find_bodies(cfg.body_name)
+        if body_names != [cfg.body_name]:
+            raise ValueError(f"Expected exactly one TCP body named '{cfg.body_name}', found {body_names}.")
+        self.body_idx = body_ids[0]
+
+        self.start_pose_w = torch.zeros((self.num_envs, 7), device=self.device)
+        self.goal_pose_w = torch.zeros_like(self.start_pose_w)
+        self.pose_command_w = torch.zeros_like(self.start_pose_w)
+        self.twist_command_w = torch.zeros((self.num_envs, 6), device=self.device)
+        self.command_buffer = torch.zeros((self.num_envs, 13), device=self.device)
+        self.ghost_root_pose_w = torch.zeros_like(self.start_pose_w)
+        self.sampled_tcp_pose_b = torch.zeros_like(self.start_pose_w)
+        self.start_pose_w[:, 3] = 1.0
+        self.goal_pose_w[:, 3] = 1.0
+        self.pose_command_w[:, 3] = 1.0
+        self.ghost_root_pose_w[:, 3] = 1.0
+        self.sampled_tcp_pose_b[:, 3] = 1.0
+        self.command_buffer[:, :7] = self.pose_command_w
+        self.elapsed_s = torch.zeros(self.num_envs, device=self.device)
+        self.motion_progress = torch.zeros(self.num_envs, device=self.device)
+
+        self.metrics["reference_position_error"] = torch.zeros(self.num_envs, device=self.device)
+        self.metrics["reference_orientation_error"] = torch.zeros(self.num_envs, device=self.device)
+        self.metrics["goal_position_error"] = torch.zeros(self.num_envs, device=self.device)
+        self.metrics["goal_orientation_error"] = torch.zeros(self.num_envs, device=self.device)
+
+    def __str__(self) -> str:
+        return (
+            "FKReachableWorldPoseCommand:\n"
+            f"\tCommand dimension: {self.command.shape[1]}\n"
+            f"\tRadius range: {self.cfg.radius_range}\n"
+            f"\tMotion timing: settle={self.cfg.settle_time_s}s, move={self.cfg.motion_time_s}s"
+        )
+
+    @property
+    def command(self) -> torch.Tensor:
+        """World reference as ``(position, quaternion_wxyz, linear/angular twist)``."""
+        return self.command_buffer
+
+    @property
+    def final_command(self) -> torch.Tensor:
+        """Immutable final world-frame TCP goal for the current episode."""
+        return self.goal_pose_w
+
+    def _update_metrics(self) -> None:
+        tcp_pos_w = self.robot.data.body_pos_w[:, self.body_idx]
+        tcp_quat_w = self.robot.data.body_quat_w[:, self.body_idx]
+        ref_pos_error, ref_rot_error = compute_pose_error(
+            tcp_pos_w,
+            tcp_quat_w,
+            self.pose_command_w[:, :3],
+            self.pose_command_w[:, 3:],
+            rot_error_type="axis_angle",
+        )
+        goal_pos_error, goal_rot_error = compute_pose_error(
+            tcp_pos_w,
+            tcp_quat_w,
+            self.goal_pose_w[:, :3],
+            self.goal_pose_w[:, 3:],
+            rot_error_type="axis_angle",
+        )
+        self.metrics["reference_position_error"] = torch.linalg.vector_norm(ref_pos_error, dim=-1)
+        self.metrics["reference_orientation_error"] = torch.linalg.vector_norm(ref_rot_error, dim=-1)
+        self.metrics["goal_position_error"] = torch.linalg.vector_norm(goal_pos_error, dim=-1)
+        self.metrics["goal_orientation_error"] = torch.linalg.vector_norm(goal_rot_error, dim=-1)
+
+    def _resample_command(self, env_ids: Sequence[int]) -> None:
+        count = len(env_ids)
+        if count == 0:
+            return
+
+        root_pos_w = self.robot.data.root_pos_w[env_ids]
+        root_quat_w = self.robot.data.root_quat_w[env_ids]
+        # Reset events write root/joint state before the command manager is
+        # reset. Accessing body pose here triggers PhysX forward kinematics from
+        # that freshly written state, instead of reusing the pre-reset USD pose.
+        start_pos_w = self.robot.data.body_pos_w[env_ids, self.body_idx]
+        start_quat_w = self.robot.data.body_quat_w[env_ids, self.body_idx]
+        sampled_pos_b, sampled_quat_b = subtract_frame_transforms(
+            root_pos_w,
+            root_quat_w,
+            start_pos_w,
+            start_quat_w,
+        )
+
+        radius = torch.empty(count, device=self.device).uniform_(*self.cfg.radius_range)
+        bearing = torch.empty(count, device=self.device).uniform_(*self.cfg.bearing_range)
+        yaw = torch.empty(count, device=self.device).uniform_(*self.cfg.yaw_range)
+        if self.cfg.stationary_probability > 0.0:
+            stationary = torch.rand(count, device=self.device) < self.cfg.stationary_probability
+            radius[stationary] = 0.0
+            yaw[stationary] = 0.0
+
+        ghost_translation_b = torch.zeros((count, 3), device=self.device)
+        ghost_translation_b[:, 0] = radius * torch.cos(bearing)
+        ghost_translation_b[:, 1] = radius * torch.sin(bearing)
+        zeros = torch.zeros(count, device=self.device)
+        ghost_rotation = quat_from_euler_xyz(zeros, zeros, yaw)
+        ghost_root_pos_w, ghost_root_quat_w = combine_frame_transforms(
+            root_pos_w,
+            root_quat_w,
+            ghost_translation_b,
+            ghost_rotation,
+        )
+        goal_pos_w, goal_quat_w = combine_frame_transforms(
+            ghost_root_pos_w,
+            ghost_root_quat_w,
+            sampled_pos_b,
+            sampled_quat_b,
+        )
+
+        self.start_pose_w[env_ids, :3] = start_pos_w
+        self.start_pose_w[env_ids, 3:] = start_quat_w
+        self.goal_pose_w[env_ids, :3] = goal_pos_w
+        self.goal_pose_w[env_ids, 3:] = goal_quat_w
+        self.pose_command_w[env_ids] = self.start_pose_w[env_ids]
+        self.twist_command_w[env_ids] = 0.0
+        self.command_buffer[env_ids, :7] = self.pose_command_w[env_ids]
+        self.command_buffer[env_ids, 7:] = 0.0
+        self.ghost_root_pose_w[env_ids, :3] = ghost_root_pos_w
+        self.ghost_root_pose_w[env_ids, 3:] = ghost_root_quat_w
+        self.sampled_tcp_pose_b[env_ids, :3] = sampled_pos_b
+        self.sampled_tcp_pose_b[env_ids, 3:] = sampled_quat_b
+        self.elapsed_s[env_ids] = 0.0
+        self.motion_progress[env_ids] = 0.0
+
+    def _update_command(self) -> None:
+        self.elapsed_s += self._env.step_dt
+        linear_progress = torch.clamp(
+            (self.elapsed_s - self.cfg.settle_time_s) / self.cfg.motion_time_s,
+            min=0.0,
+            max=1.0,
+        )
+        # Quintic minimum-jerk time scaling: zero velocity and acceleration at
+        # both ends of the reference motion.
+        progress = linear_progress**3 * (10.0 - 15.0 * linear_progress + 6.0 * linear_progress**2)
+        progress_rate = (
+            30.0 * linear_progress**2 - 60.0 * linear_progress**3 + 30.0 * linear_progress**4
+        ) / self.cfg.motion_time_s
+        self.motion_progress.copy_(progress)
+        blend = progress.unsqueeze(-1)
+        self.pose_command_w[:, :3] = self.start_pose_w[:, :3] + blend * (
+            self.goal_pose_w[:, :3] - self.start_pose_w[:, :3]
+        )
+
+        start_quat = self.start_pose_w[:, 3:]
+        _, total_rotation = compute_pose_error(
+            self.start_pose_w[:, :3],
+            start_quat,
+            self.goal_pose_w[:, :3],
+            self.goal_pose_w[:, 3:],
+            rot_error_type="axis_angle",
+        )
+        total_angle = torch.linalg.vector_norm(total_rotation, dim=-1)
+        rotation_axis = total_rotation / torch.clamp(total_angle.unsqueeze(-1), min=1.0e-8)
+        rotation_delta = quat_from_angle_axis(progress * total_angle, rotation_axis)
+        self.pose_command_w[:, 3:] = quat_mul(rotation_delta, start_quat)
+        self.twist_command_w[:, :3] = progress_rate.unsqueeze(-1) * (self.goal_pose_w[:, :3] - self.start_pose_w[:, :3])
+        self.twist_command_w[:, 3:] = progress_rate.unsqueeze(-1) * total_rotation
+        self.command_buffer[:, :7] = self.pose_command_w
+        self.command_buffer[:, 7:] = self.twist_command_w
+
+
+@configclass
+class FKReachableWorldPoseCommandCfg(CommandTermCfg):
+    """Configuration for :class:`FKReachableWorldPoseCommand`."""
+
+    class_type: type = FKReachableWorldPoseCommand
+    asset_name: str = MISSING
+    body_name: str = MISSING
+    radius_range: tuple[float, float] = (0.05, 0.20)
+    bearing_range: tuple[float, float] = (-math.pi, math.pi)
+    yaw_range: tuple[float, float] = (-0.25, 0.25)
+    stationary_probability: float = 0.1
+    settle_time_s: float = 1.0
+    motion_time_s: float = 2.0
+
+    def __post_init__(self) -> None:
+        if self.radius_range[0] < 0.0 or self.radius_range[1] < self.radius_range[0]:
+            raise ValueError(f"Invalid radius range: {self.radius_range}")
+        if not 0.0 <= self.stationary_probability <= 1.0:
+            raise ValueError("stationary_probability must lie in [0, 1]")
+        if self.motion_time_s <= 0.0:
+            raise ValueError("motion_time_s must be positive")

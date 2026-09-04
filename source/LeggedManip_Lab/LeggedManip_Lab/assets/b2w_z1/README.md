@@ -68,7 +68,7 @@ official source values:
 
 ## Runtime configuration
 
-`b2w_z1_articulation_cfg.py` exposes two configurations. `B2W_Z1_CFG` uses the
+`b2w_z1_articulation_cfg.py` exposes four configurations. `B2W_Z1_CFG` uses the
 photo-matched provisional stacked Z-fold
 `[0.0, 0.15, -0.45, 0.30, 0.0, 0.0] rad` for
 joints 1--6. This keeps the returning arm and gripper above the lidar. The pose
@@ -89,6 +89,22 @@ hardware parameters. In particular, the wheel velocity-error gain of
 execution tests while preserving the official 20 N m effort limit. It has not
 been measured on the real robot. Calibrate and/or randomize these parameters
 before sim-to-real deployment.
+
+`B2W_Z1_ROBOT_LAB_POLICY_CFG` is a third, task-specific compatibility preset
+for the pinned public `robot_lab` B2-W locomotion checkpoint. It reproduces the
+checkpoint's nominal leg pose and its hip/thigh/calf/wheel actuator parameters,
+while retaining this combined asset's Z1 and gripper actuators. It is kept
+separate because changing the actuator model underneath a learned policy is
+not a neutral tuning change. Use the explicit name-mapped adapter in
+`controllers/robot_lab_b2w_policy.py`; the combined articulation's global
+joint order must never be assumed to equal the checkpoint's 16-joint order.
+
+`B2W_Z1_ROBOT_LAB_TCP_CFG` is the fourth, trainable-task preset. It retains the
+frozen policy's exact leg/wheel contract, switches Z1 from photo stow to the
+raised ready pose, resets the root at the measured 0.615 m flat-ground
+equilibrium, and disables the inherited arm/gripper command delay for the
+nominal DIK gate. Delay must be reintroduced later from measured hardware data;
+this nominal preset is not a sim-to-real calibration claim.
 
 For direct use in Isaac Sim, open `b2w_z1_stow.usda`. It is a lightweight USD
 wrapper around the generated `b2w_z1.usd` and authors the same stow joint state
@@ -151,6 +167,14 @@ alone. The validation sequence and current status are recorded in:
   passed, but it prescribes root motion and is not a wheel/contact WBC;
 - [wheel execution gate](../../../../../docs/B2W_Z1_WHEEL_GATE_ZH.md):
   straight/reverse subset passed, complete gate failed at turning.
+- [frozen `robot_lab` B2-W policy gate](../../../../../docs/B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md):
+  the combined B2-W + Z1 model stands, translates and turns in both directions;
+  low-speed yaw asymmetry and stopping/contact margins remain measurable.
+- [physical frozen-locomotion plus world-TCP gate](../../../../../docs/B2W_Z1_ROBOT_LAB_TCP_HOLD_GATE_ZH.md):
+  passed at 1, 16 and 64 environments without prescribing root state.
+- [trainable TCP task MVP](../../../../../docs/B2W_Z1_TCP_TASK_MVP_ZH.md):
+  registered task, 1/16/64-environment smoke tests, RSL-RL checkpoint/export
+  integration and the explicitly non-converged 20-iteration pilot.
 
 The mount, adapter mass/inertia, loaded wheel radius, tire/contact behavior,
 motor-loop parameters, gripper geometry and TCP remain provisional until they

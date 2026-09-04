@@ -100,13 +100,9 @@ ACCEPT_EULA=Y /home/mingqian/miniforge3/envs/env_isaaclab51/bin/python \
 由脚本直接写入，机械臂只使用六个关节列。它不是轮子闭环、动态全身控制或
 生产 WBC。
 
-剩余顺序是：
-
-1. 保留 gain 10 下已经可用的直行/倒车基线，但完整 wheel gate 因左右转向
-   失败仍保持红灯；
-2. 在官方力矩限制不变的前提下，对执行层、腿部转向姿态和轮胎碰撞/接触表示
-   做受控 A/B；
-3. 左右转向和完整 wheel gate 通过；
-4. 把相同固定世界目标语义接入正式 `B2W-Z1-TCP` task，完成 1/16/64 环境
-   smoke test 和 checkpoint 保存/加载；
-5. 此后才允许启动 PPO，学习不可达目标时的倒车、转向、升降和倾斜协调。
+后续已经采用冻结的 B2-W locomotion policy 取代固定腿开环轮速作为生产基础，
+并完成真实 wheel/contact 运动下的 TCP 保持、正式 `B2W-Z1-TCP` task、
+1/16/64 环境 smoke 和 PPO 保存/加载/导出。最新状态见
+[`B2W_Z1_TCP_TASK_MVP_ZH.md`](B2W_Z1_TCP_TASK_MVP_ZH.md)。本页的固定基座
+结果仍是修改 FK、Jacobian 或 actuator 后必须保留的回归基线，不代表碰撞安全或
+最终全身策略已经通过。

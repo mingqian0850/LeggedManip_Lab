@@ -45,8 +45,10 @@
 仓库中还提供了实验性的
 [B2-W + Z1 资产](source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/README.md)：
 它由锁定版本的宇树官方 B2-W/Z1 描述生成，保留四个轮关节和夹爪，包含名义 TCP，
-并按照实机照片采用 35 mm 垫高安装。当前完成的是机器人资产基础，尚未注册
-B2-W 专用的强化学习任务和奖励函数。
+并按照实机照片采用 35 mm 垫高安装。实验性的
+[`B2W-Z1-TCP` 任务](docs/B2W_Z1_TCP_TASK_MVP_ZH.md) 已注册，包含冻结的 B2-W
+locomotion、200 Hz Z1 IK 和可训练的 2 维 TCP 协调器。训练管线已经验证，但尚未
+声称获得收敛或可直接上真机的策略。
 
 每个平台支持以下 **2** 种训练模式：
 
@@ -76,11 +78,13 @@ B2-W 专用的强化学习任务和奖励函数。
 > [!IMPORTANT]
 > 本仓库当前面向 Isaac Lab `main` branch 中较新的 RSL-RL 配置 API。
 > 请不要使用 Isaac Lab `v2.3.2` release tag，因为该版本依赖 `rsl-rl-lib==3.1.2`，与当前 agent 配置不兼容。
+> 已验证 checkout 是 commit `b0542fe2d45bf91c4e1d9ef6952b9c709c80b4e8`
+>（其 `VERSION` 显示 2.3.2）；固定该 commit 可避免未来 `main` API 漂移。
 >
 > 依赖要求：
 >
 > * Isaac Sim: `5.1.0`
-> * Isaac Lab: `main` branch
+> * Isaac Lab: `main` commit `b0542fe2d45bf91c4e1d9ef6952b9c709c80b4e8`
 > * rsl-rl-lib: `>=5.0.1`
 > * Python: `3.11`
 

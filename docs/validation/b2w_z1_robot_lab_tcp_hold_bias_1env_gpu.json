@@ -1,0 +1,398 @@
+{
+  "checks": {
+    "arm_joint_limits": true,
+    "arm_joint_speed": true,
+    "base_attitude": true,
+    "base_height": true,
+    "forward_goal": true,
+    "moving_tcp_orientation": true,
+    "moving_tcp_position": true,
+    "no_nan": true,
+    "terminal_tcp_orientation": true,
+    "terminal_tcp_position": true,
+    "world_target_immutable": true,
+    "yaw_goal": true
+  },
+  "configuration": {
+    "arm_reset_pose": "B2W_Z1_ARM_HOME_JOINT_POS",
+    "base_command_components": [
+      "vx",
+      "wz"
+    ],
+    "contact_material": {
+      "dynamic_friction": 0.8,
+      "friction_combine_mode": "average",
+      "restitution": 0.0,
+      "static_friction": 0.8
+    },
+    "forward_command_bias_mps": 0.05,
+    "forward_goal_m": 0.05,
+    "lateral_velocity_command": 0.0,
+    "min_yaw_command_radps": 0.3,
+    "num_envs": 1,
+    "physics_dt_s": 0.005,
+    "physics_frequency_hz": 200.0,
+    "policy_decimation": 4,
+    "policy_frequency_hz": 50.0,
+    "root_state_writes": 0,
+    "world_target_pose_w": [
+      [
+        0.7259103655815125,
+        -0.002360191196203232,
+        1.3109828233718872,
+        0.9989915490150452,
+        -0.0032121329568326473,
+        -0.029924053698778152,
+        -0.03331615775823593
+      ]
+    ],
+    "yaw_goal_deg": 5.0,
+    "yaw_stop_tolerance_deg": 0.25
+  },
+  "elapsed_wall_time_s": 23.559894350997638,
+  "joint_mapping": {
+    "arm_jacobian_columns": [
+      14,
+      19,
+      24,
+      25,
+      26,
+      27
+    ],
+    "arm_joint_ids": [
+      8,
+      13,
+      18,
+      19,
+      20,
+      21
+    ],
+    "arm_joint_names": [
+      "joint1",
+      "joint2",
+      "joint3",
+      "joint4",
+      "joint5",
+      "joint6"
+    ],
+    "leg_joint_ids": [
+      1,
+      5,
+      10,
+      0,
+      4,
+      9,
+      3,
+      7,
+      12,
+      2,
+      6,
+      11
+    ],
+    "policy_joint_ids": [
+      1,
+      5,
+      10,
+      0,
+      4,
+      9,
+      3,
+      7,
+      12,
+      2,
+      6,
+      11,
+      15,
+      14,
+      17,
+      16
+    ],
+    "policy_joint_names": [
+      "FR_hip_joint",
+      "FR_thigh_joint",
+      "FR_calf_joint",
+      "FL_hip_joint",
+      "FL_thigh_joint",
+      "FL_calf_joint",
+      "RR_hip_joint",
+      "RR_thigh_joint",
+      "RR_calf_joint",
+      "RL_hip_joint",
+      "RL_thigh_joint",
+      "RL_calf_joint",
+      "FR_wheel_joint",
+      "FL_wheel_joint",
+      "RR_wheel_joint",
+      "RL_wheel_joint"
+    ],
+    "tcp_body_id": 35,
+    "tcp_jacobian_id": 35,
+    "wheel_joint_ids": [
+      15,
+      14,
+      17,
+      16
+    ]
+  },
+  "passed": true,
+  "phases": {
+    "forward_motion": {
+      "base_height_min_m": 0.6109957098960876,
+      "base_lateral_displacement_abs_max_m": 0.005698020104318857,
+      "base_relative_position_final_m": [
+        [
+          0.05889980122447014,
+          0.0008959301048889756,
+          -0.0001943318493431434
+        ]
+      ],
+      "base_relative_yaw_final_deg": [
+        -0.22039709108671357
+      ],
+      "base_roll_pitch_abs_max_deg": 0.7281146540269025,
+      "command_abs_max": [
+        [
+          0.06769989430904388,
+          0.0,
+          0.30000001192092896
+        ]
+      ],
+      "duration_s": 1.5,
+      "name": "forward_motion",
+      "nan_detected": false,
+      "steps": 300,
+      "tcp_orientation_error_max_deg": 1.3245199955240987,
+      "tcp_orientation_error_p95_deg": 1.2519628959710534,
+      "tcp_orientation_error_rms_deg": 0.7168293672490431,
+      "tcp_orientation_error_rms_worst_env_deg": 0.7168293672490431,
+      "tcp_position_error_max_m": 0.009702460840344429,
+      "tcp_position_error_p95_m": 0.009487767703831196,
+      "tcp_position_error_rms_m": 0.0053869811818003654,
+      "tcp_position_error_rms_worst_env_m": 0.0053869811818003654,
+      "terminal_tcp_orientation_error_rms_worst_env_deg": 0.5200000706770833,
+      "terminal_tcp_position_error_rms_worst_env_m": 0.0033355390187352896
+    },
+    "forward_terminal_hold": {
+      "base_height_min_m": 0.6117575168609619,
+      "base_lateral_displacement_abs_max_m": 0.0022787286434322596,
+      "base_relative_position_final_m": [
+        [
+          0.05885238200426102,
+          0.001728215254843235,
+          -0.0001443738874513656
+        ]
+      ],
+      "base_relative_yaw_final_deg": [
+        -0.28019749168365116
+      ],
+      "base_roll_pitch_abs_max_deg": 0.3420521917353891,
+      "command_abs_max": [
+        [
+          0.06877323985099792,
+          0.0,
+          0.30000001192092896
+        ]
+      ],
+      "duration_s": 1.0,
+      "name": "forward_terminal_hold",
+      "nan_detected": false,
+      "steps": 200,
+      "tcp_orientation_error_max_deg": 0.6793247985165031,
+      "tcp_orientation_error_p95_deg": 0.4883050047204623,
+      "tcp_orientation_error_rms_deg": 0.2578272347696843,
+      "tcp_orientation_error_rms_worst_env_deg": 0.2578272347696843,
+      "tcp_position_error_max_m": 0.003754803678020835,
+      "tcp_position_error_p95_m": 0.00302363489754498,
+      "tcp_position_error_rms_m": 0.001708446303382516,
+      "tcp_position_error_rms_worst_env_m": 0.001708446303382516,
+      "terminal_tcp_orientation_error_rms_worst_env_deg": 0.153995752883995,
+      "terminal_tcp_position_error_rms_worst_env_m": 0.0011980256531387568
+    },
+    "initial_world_tcp_hold": {
+      "base_height_min_m": 0.6127140522003174,
+      "base_lateral_displacement_abs_max_m": 0.0044050817377865314,
+      "base_relative_position_final_m": [
+        [
+          0.034144654870033264,
+          0.0044050817377865314,
+          0.0009361679549328983
+        ]
+      ],
+      "base_relative_yaw_final_deg": [
+        -0.21833340012180447
+      ],
+      "base_roll_pitch_abs_max_deg": 0.581780892627994,
+      "command_abs_max": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "duration_s": 0.5,
+      "name": "initial_world_tcp_hold",
+      "nan_detected": false,
+      "steps": 100,
+      "tcp_orientation_error_max_deg": 1.3941369120828653,
+      "tcp_orientation_error_p95_deg": 1.3888140602853098,
+      "tcp_orientation_error_rms_deg": 1.0451939666094325,
+      "tcp_orientation_error_rms_worst_env_deg": 1.0451939666094325,
+      "tcp_position_error_max_m": 0.01571814902126789,
+      "tcp_position_error_p95_m": 0.015666808933019638,
+      "tcp_position_error_rms_m": 0.012160325422883034,
+      "tcp_position_error_rms_worst_env_m": 0.012160325422883034,
+      "terminal_tcp_orientation_error_rms_worst_env_deg": 1.0451939666094325,
+      "terminal_tcp_position_error_rms_worst_env_m": 0.012160325422883034
+    },
+    "yaw_motion": {
+      "base_height_min_m": 0.6087512373924255,
+      "base_lateral_displacement_abs_max_m": 0.010151037015020847,
+      "base_relative_position_final_m": [
+        [
+          0.051064059138298035,
+          0.009983561001718044,
+          -7.193244528025389e-05
+        ]
+      ],
+      "base_relative_yaw_final_deg": [
+        4.660404556560719
+      ],
+      "base_roll_pitch_abs_max_deg": 0.8016774989352323,
+      "command_abs_max": [
+        [
+          0.0696159303188324,
+          0.0,
+          0.30000001192092896
+        ]
+      ],
+      "duration_s": 2.0,
+      "name": "yaw_motion",
+      "nan_detected": false,
+      "steps": 400,
+      "tcp_orientation_error_max_deg": 0.39653106121588017,
+      "tcp_orientation_error_p95_deg": 0.2558784430612621,
+      "tcp_orientation_error_rms_deg": 0.17025696587434086,
+      "tcp_orientation_error_rms_worst_env_deg": 0.17025696587434086,
+      "tcp_position_error_max_m": 0.004098155070096254,
+      "tcp_position_error_p95_m": 0.00376438582316041,
+      "tcp_position_error_rms_m": 0.0018643592484295368,
+      "tcp_position_error_rms_worst_env_m": 0.0018643592484295368,
+      "terminal_tcp_orientation_error_rms_worst_env_deg": 0.17016595893973574,
+      "terminal_tcp_position_error_rms_worst_env_m": 0.0010010291589424014
+    },
+    "yaw_terminal_hold": {
+      "base_height_min_m": 0.6122502088546753,
+      "base_lateral_displacement_abs_max_m": 0.011192986741662025,
+      "base_relative_position_final_m": [
+        [
+          0.05230535566806793,
+          0.011057740077376366,
+          -0.0003067712823394686
+        ]
+      ],
+      "base_relative_yaw_final_deg": [
+        4.705385194226661
+      ],
+      "base_roll_pitch_abs_max_deg": 0.7134602163583756,
+      "command_abs_max": [
+        [
+          0.05514540895819664,
+          0.0,
+          0.30000001192092896
+        ]
+      ],
+      "duration_s": 1.0,
+      "name": "yaw_terminal_hold",
+      "nan_detected": false,
+      "steps": 200,
+      "tcp_orientation_error_max_deg": 0.17448183808239043,
+      "tcp_orientation_error_p95_deg": 0.14666185060290704,
+      "tcp_orientation_error_rms_deg": 0.09517677843363684,
+      "tcp_orientation_error_rms_worst_env_deg": 0.09517677843363684,
+      "tcp_position_error_max_m": 0.0009874136885628104,
+      "tcp_position_error_p95_m": 0.0009372543427161872,
+      "tcp_position_error_rms_m": 0.0007304871105588973,
+      "tcp_position_error_rms_worst_env_m": 0.0007304871105588973,
+      "terminal_tcp_orientation_error_rms_worst_env_deg": 0.08627065865308317,
+      "terminal_tcp_position_error_rms_worst_env_m": 0.0006984457722865045
+    }
+  },
+  "provenance": {
+    "asset_path": "source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_stow.usda",
+    "asset_sha256": "3325375a20c588a9c5e924fd3a9c33f58596dd2966a672863a547eed1aa4e951",
+    "checkpoint_path": "/home/mingqian/LeggedManip_Lab/third_party/rl_sar_b2w/artifacts/policy.pt",
+    "checkpoint_sha256": "38155076408e8eccb22690c6c5be14bd1dcb9149245ca5e493308a9f6ff93b34",
+    "command": [
+      "/home/mingqian/miniforge3/envs/env_isaaclab51/bin/python",
+      "scripts/standalone/b2w_z1_robot_lab_tcp_hold_gate.py",
+      "--headless",
+      "--device",
+      "cuda:0",
+      "--num_envs",
+      "1",
+      "--forward_command_bias",
+      "0.05",
+      "--min_yaw_command",
+      "0.30",
+      "--report",
+      "/tmp/b2w_z1_robot_lab_tcp_hold_bias_ab_1env.json"
+    ],
+    "cuda_runtime_version": "12.8",
+    "git_head": "60bdd63823eed8129dfbd2faf9ce2743d394420f",
+    "gpu_name": "NVIDIA GeForce RTX 4090",
+    "python_version": "3.11.16",
+    "relevant_git_status": [
+      "?? scripts/standalone/b2w_z1_robot_lab_tcp_hold_gate.py"
+    ],
+    "script_path": "scripts/standalone/b2w_z1_robot_lab_tcp_hold_gate.py",
+    "script_sha256": "503969f7c7baf13547330de3c5c3a08e22616fa5780b0de038ad69cbcd836cf3",
+    "torch_version": "2.7.0+cu128"
+  },
+  "settling": {
+    "arm_home_joint_error_abs_max_rad": 0.035343289375305176,
+    "arm_home_joint_error_rms_rad": 0.01670427806675434,
+    "base_forward_drift_abs_max_m": 0.100800521671772,
+    "base_height_min_m": 0.6083871722221375,
+    "base_lateral_drift_abs_max_m": 0.03559131920337677,
+    "base_relative_position_final_m": [
+      [
+        0.100800521671772,
+        0.03559131920337677,
+        -0.046199824661016464
+      ]
+    ],
+    "base_relative_yaw_final_deg": [
+      -3.6009239686417356
+    ],
+    "base_roll_pitch_abs_max_deg": 3.408568979584663,
+    "duration_s": 2.0,
+    "nan_detected": false,
+    "steps": 400
+  },
+  "summary": {
+    "base_height_min_m": 0.6083871722221375,
+    "base_roll_pitch_abs_max_deg": 3.408568979584663,
+    "final_base_relative_position_m": [
+      [
+        0.05230535566806793,
+        0.011057740077376366,
+        -0.0003067712823394686
+      ]
+    ],
+    "final_base_relative_yaw_deg": [
+      4.705385194226661
+    ],
+    "final_forward_error_max_m": 0.0023053549230098724,
+    "final_yaw_error_max_deg": 0.2946146603197994,
+    "joint_limit_clamp_count": 0,
+    "joint_target_rate_limit_count": 0,
+    "maximum_arm_joint_speed_radps": 1.7556772232055664,
+    "minimum_jacobian_singular_value": 0.07106725871562958,
+    "moving_tcp_orientation_rms_worst_env_deg": 1.0451939666094325,
+    "moving_tcp_position_rms_worst_env_m": 0.012160325422883034,
+    "nan_detected": false,
+    "target_immutable": true,
+    "terminal_tcp_orientation_rms_worst_env_deg": 0.153995752883995,
+    "terminal_tcp_position_rms_worst_env_m": 0.0011980256531387568
+  }
+}

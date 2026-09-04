@@ -116,8 +116,10 @@ export PYTHONPATH="$PWD/source/LeggedManip_Lab${PYTHONPATH:+:$PYTHONPATH}"
 报告记录了完整命令、Git commit、相关文件 dirty 状态、脚本与资产 SHA256、
 Python、PyTorch、CUDA 和 GPU 型号。脚本失败时返回非零状态。
 
-## 下一道门槛
+## 后续状态
 
-下一步是让真实轮地动力学产生底盘运动。当前直行和倒车已经建立了可用的
-执行层基线，但左右转向仍未通过。只有完整 wheel gate、正式 task 集成以及
-1/16/64 环境 smoke test 都通过后，才开始 PPO。
+本页记录的 world-frame harness 继续作为坐标回归测试。后续已经接入冻结的
+B2-W locomotion policy，让真实 wheel/contact dynamics 产生底盘运动；组合 TCP
+gate 与正式 `B2W-Z1-TCP` task 的 1/16/64 环境测试也已通过。最新状态与仍未
+完成的安全/训练门槛见
+[`B2W_Z1_TCP_TASK_MVP_ZH.md`](B2W_Z1_TCP_TASK_MVP_ZH.md)。

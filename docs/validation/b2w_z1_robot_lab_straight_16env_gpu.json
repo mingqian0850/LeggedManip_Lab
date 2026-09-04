@@ -1,0 +1,179 @@
+{
+  "arm_pose": "stow",
+  "asset_path": "/home/mingqian/LeggedManip_Lab/source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_stow.usda",
+  "checkpoint": "/home/mingqian/LeggedManip_Lab/third_party/rl_sar_b2w/artifacts/policy.pt",
+  "checkpoint_sha256": "38155076408e8eccb22690c6c5be14bd1dcb9149245ca5e493308a9f6ff93b34",
+  "commands": {
+    "forward": [
+      0.3,
+      0.0,
+      0.0
+    ],
+    "reverse": [
+      -0.3,
+      0.0,
+      0.0
+    ],
+    "stand": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "turn_left": [
+      0.0,
+      0.0,
+      0.3
+    ],
+    "turn_right": [
+      0.0,
+      0.0,
+      -0.3
+    ]
+  },
+  "complete_gate_executed": false,
+  "complete_gate_passed": false,
+  "device": "cuda:0",
+  "durations_s": {
+    "phase": 4.0,
+    "ramp": 0.5,
+    "settle": 2.0,
+    "stop": 2.0
+  },
+  "elapsed_wall_time_s": 59.09728611097671,
+  "executed_phases": [
+    "forward",
+    "reverse"
+  ],
+  "expected_checkpoint_sha256": "38155076408e8eccb22690c6c5be14bd1dcb9149245ca5e493308a9f6ff93b34",
+  "gate": "b2w_z1_robot_lab_frozen_locomotion_policy",
+  "num_envs": 16,
+  "passed": false,
+  "phases": [
+    {
+      "base_height_min_m": 0.6151372790336609,
+      "command_vx_vy_wz": [
+        0.3,
+        0.0,
+        0.0
+      ],
+      "final_forward_displacement_min_m": 1.242416501045227,
+      "final_lateral_displacement_abs_max_m": 0.058635249733924866,
+      "final_yaw_abs_max_deg": 4.059414077057181,
+      "final_yaw_min_deg": -4.059414077057181,
+      "leg_position_target_error_p95_rad": 0.36061495542526245,
+      "name": "forward",
+      "passed": true,
+      "raw_action_abs_max": 2.2620184421539307,
+      "roll_pitch_abs_max_deg": 0.6092899063970435,
+      "signed_forward_displacement_min_m": 1.242416501045227,
+      "signed_steady_vx_mean_min_mps": 0.3347901999950409,
+      "steady_vx_mean_max_mps": 0.3398052155971527,
+      "steady_vx_mean_min_mps": 0.3347901999950409,
+      "steady_vy_rms_max_mps": 0.008381051011383533,
+      "steady_wz_mean_max_radps": -0.010436341166496277,
+      "steady_wz_mean_min_radps": -0.01118827611207962,
+      "stop_displacement_max_m": 0.12865133583545685,
+      "stop_succeeded_all_envs": true,
+      "stop_time_max_s": 0.3199999928474426,
+      "unintended_contact_ratio_max_env": 0.0,
+      "vx_tracking_rmse_max_mps": 0.041548408567905426,
+      "wheel_contact_ratio_min_env_wheel": 1.0,
+      "wheel_velocity_target_error_p95_radps": 7.0865631103515625,
+      "wheel_velocity_target_relative_error_p95": 1.1713465452194214
+    },
+    {
+      "base_height_min_m": 0.6067594289779663,
+      "command_vx_vy_wz": [
+        -0.3,
+        0.0,
+        0.0
+      ],
+      "final_forward_displacement_min_m": -0.9003140330314636,
+      "final_lateral_displacement_abs_max_m": 0.15064416825771332,
+      "final_yaw_abs_max_deg": 11.845281181304001,
+      "final_yaw_min_deg": -11.845281181304001,
+      "leg_position_target_error_p95_rad": 0.39499467611312866,
+      "name": "reverse",
+      "passed": false,
+      "raw_action_abs_max": 3.327916383743286,
+      "roll_pitch_abs_max_deg": 0.7378171511863172,
+      "signed_forward_displacement_min_m": 0.8883844614028931,
+      "signed_steady_vx_mean_min_mps": 0.25561147928237915,
+      "steady_vx_mean_max_mps": -0.25561147928237915,
+      "steady_vx_mean_min_mps": -0.2591261565685272,
+      "steady_vy_rms_max_mps": 0.012624799273908138,
+      "steady_wz_mean_max_radps": -0.03980721905827522,
+      "steady_wz_mean_min_radps": -0.041630819439888,
+      "stop_displacement_max_m": 0.12286414206027985,
+      "stop_succeeded_all_envs": false,
+      "stop_time_max_s": null,
+      "unintended_contact_ratio_max_env": 0.0,
+      "vx_tracking_rmse_max_mps": 0.0485217347741127,
+      "wheel_contact_ratio_min_env_wheel": 0.9975000023841858,
+      "wheel_velocity_target_error_p95_radps": 10.27603816986084,
+      "wheel_velocity_target_relative_error_p95": 3.029214382171631
+    }
+  ],
+  "physics_dt_s": 0.005,
+  "policy_decimation": 4,
+  "policy_dt_s": 0.02,
+  "policy_joint_names": [
+    "FR_hip_joint",
+    "FR_thigh_joint",
+    "FR_calf_joint",
+    "FL_hip_joint",
+    "FL_thigh_joint",
+    "FL_calf_joint",
+    "RR_hip_joint",
+    "RR_thigh_joint",
+    "RR_calf_joint",
+    "RL_hip_joint",
+    "RL_thigh_joint",
+    "RL_calf_joint",
+    "FR_wheel_joint",
+    "FL_wheel_joint",
+    "RR_wheel_joint",
+    "RL_wheel_joint"
+  ],
+  "provenance": {
+    "files": {
+      "scripts/standalone/b2w_z1_robot_lab_policy_gate.py": "5c224ac613e00a16c985bc1a67f1bcc5901e3fdda038c7fdaa8f03ceae27a2da",
+      "source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_articulation_cfg.py": "c9ab04083d07e891687752574a9b2852f5accc5f4618a6246257f6049cd41616",
+      "source/LeggedManip_Lab/LeggedManip_Lab/controllers/robot_lab_b2w_policy.py": "35d9082b3fa3910bc87a6f06c178e995fd94d6796a572d2bc75d8823e8a455d6"
+    },
+    "git_head": "60bdd63823eed8129dfbd2faf9ce2743d394420f",
+    "relevant_git_status": [
+      " M source/LeggedManip_Lab/LeggedManip_Lab/assets/b2w_z1/b2w_z1_articulation_cfg.py",
+      "?? scripts/standalone/b2w_z1_robot_lab_policy_gate.py",
+      "?? source/LeggedManip_Lab/LeggedManip_Lab/controllers/robot_lab_b2w_policy.py"
+    ]
+  },
+  "required_phases": [
+    "stand",
+    "forward",
+    "reverse",
+    "turn_left",
+    "turn_right"
+  ],
+  "runtime": {
+    "cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "python": "3.11.16",
+    "torch": "2.7.0+cu128"
+  },
+  "selected_phases_passed": false,
+  "thresholds": {
+    "base_height_min_m": 0.4,
+    "roll_pitch_abs_max_deg": 10.0,
+    "stop_displacement_max_m": 0.25,
+    "stop_time_max_s": 2.0,
+    "straight_signed_mean_velocity_min_mps": 0.15,
+    "straight_signed_travel_min_m": 0.6,
+    "straight_velocity_rmse_max_mps": 0.15,
+    "unintended_contact_ratio_max": 0.01,
+    "wheel_contact_ratio_min": 0.9,
+    "yaw_rate_rmse_max_radps": 0.15,
+    "yaw_signed_mean_rate_min_radps": 0.15,
+    "yaw_signed_travel_min_deg": 30.0
+  }
+}

@@ -14,12 +14,12 @@
 
 """Isaac Lab articulation configuration for the wheeled B2-W + Z1 asset."""
 
+import copy
 import os
 
 import isaaclab.sim as sim_utils
-from isaaclab.actuators import DelayedPDActuatorCfg
+from isaaclab.actuators import DCMotorCfg, DelayedPDActuatorCfg, ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
-
 
 _ASSET_DIR = os.path.dirname(os.path.abspath(__file__))
 B2W_Z1_GENERATED_USD = os.path.join(_ASSET_DIR, "b2w_z1.usd")
@@ -192,4 +192,92 @@ B2W_Z1_TRAINING_CFG = B2W_Z1_CFG.replace(
             **B2W_Z1_ARM_HOME_JOINT_POS,
         }
     )
+)
+
+
+# Compatibility preset for the public B2-W locomotion checkpoint exported by
+# fan-ziqi/rl_sar from robot_lab.  Keep this separate from B2W_Z1_CFG: the
+# deterministic wheel gate intentionally uses different provisional gains.
+#
+# Source task (robot_lab v2.3.2):
+# https://github.com/fan-ziqi/robot_lab/blob/v2.3.2/source/robot_lab/robot_lab/
+# tasks/manager_based/locomotion/velocity/config/wheeled/unitree_b2w/rough_env_cfg.py
+_ROBOT_LAB_ARM_ACTUATORS = {
+    name: copy.deepcopy(cfg) for name, cfg in B2W_Z1_CFG.actuators.items() if name not in {"legs", "wheels"}
+}
+B2W_Z1_ROBOT_LAB_POLICY_CFG = B2W_Z1_CFG.replace(
+    init_state=B2W_Z1_CFG.init_state.replace(
+        joint_pos={
+            "FL_hip_joint": 0.0,
+            "FR_hip_joint": 0.0,
+            "RL_hip_joint": 0.0,
+            "RR_hip_joint": 0.0,
+            ".*_thigh_joint": 0.8,
+            ".*_calf_joint": -1.5,
+            ".*_wheel_joint": 0.0,
+            **B2W_Z1_ARM_STOW_JOINT_POS,
+            "gripper_joint": -1.0,
+        }
+    ),
+    actuators={
+        "hip": DCMotorCfg(
+            joint_names_expr=[".*_hip_joint"],
+            effort_limit=200.0,
+            saturation_effort=200.0,
+            velocity_limit=23.0,
+            stiffness=160.0,
+            damping=5.0,
+            friction=0.0,
+        ),
+        "thigh": DCMotorCfg(
+            joint_names_expr=[".*_thigh_joint"],
+            effort_limit=200.0,
+            saturation_effort=200.0,
+            velocity_limit=23.0,
+            stiffness=160.0,
+            damping=5.0,
+            friction=0.0,
+        ),
+        "calf": DCMotorCfg(
+            joint_names_expr=[".*_calf_joint"],
+            effort_limit=320.0,
+            saturation_effort=320.0,
+            velocity_limit=14.0,
+            stiffness=160.0,
+            damping=5.0,
+            friction=0.0,
+        ),
+        "wheels": ImplicitActuatorCfg(
+            joint_names_expr=[".*_wheel_joint"],
+            effort_limit_sim=20.0,
+            velocity_limit_sim=50.0,
+            stiffness=0.0,
+            damping=1.0,
+            friction=0.0,
+        ),
+        **_ROBOT_LAB_ARM_ACTUATORS,
+    },
+)
+
+
+# Production starting point for the hierarchical TCP task: retain the exact
+# low-level actuator contract above while deploying Z1 in its collision-checked
+# home pose. Keeping this named preset prevents task code from silently mixing
+# the deterministic wheel-gate gains with the frozen policy gains.
+_ROBOT_LAB_TCP_ACTUATORS = copy.deepcopy(B2W_Z1_ROBOT_LAB_POLICY_CFG.actuators)
+for _actuator_name in _ROBOT_LAB_ARM_ACTUATORS:
+    _ROBOT_LAB_TCP_ACTUATORS[_actuator_name].min_delay = 0
+    _ROBOT_LAB_TCP_ACTUATORS[_actuator_name].max_delay = 0
+B2W_Z1_ROBOT_LAB_TCP_CFG = B2W_Z1_ROBOT_LAB_POLICY_CFG.replace(
+    init_state=B2W_Z1_ROBOT_LAB_POLICY_CFG.init_state.replace(
+        # The frozen controller's measured flat-ground equilibrium is about
+        # 0.614 m. Reset close to it so the immutable world TCP goal is not
+        # biased by a 3.5 cm free-fall transient at the start of every episode.
+        pos=(0.0, 0.0, 0.615),
+        joint_pos={
+            **B2W_Z1_ROBOT_LAB_POLICY_CFG.init_state.joint_pos,
+            **B2W_Z1_ARM_HOME_JOINT_POS,
+        },
+    ),
+    actuators=_ROBOT_LAB_TCP_ACTUATORS,
 )

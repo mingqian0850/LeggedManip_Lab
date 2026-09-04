@@ -8,10 +8,16 @@ Completed deterministic controller gate and measurements:
 [`B2W_Z1_TCP_DIK_GATE_ZH.md`](B2W_Z1_TCP_DIK_GATE_ZH.md).
 Completed standalone world-frame harness and measurements:
 [`B2W_Z1_WORLD_FRAME_GATE_ZH.md`](B2W_Z1_WORLD_FRAME_GATE_ZH.md).
-Current wheel execution status and the remaining blocker:
+Historical open-loop wheel diagnostic status:
 [`B2W_Z1_WHEEL_GATE_ZH.md`](B2W_Z1_WHEEL_GATE_ZH.md).
 Official-source investigation of real B2-W turning:
 [`research/B2W_REAL_TURNING_OFFICIAL_ZH.md`](research/B2W_REAL_TURNING_OFFICIAL_ZH.md).
+Frozen `robot_lab` B2-W policy integration and measured results:
+[`B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md`](B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md).
+Physical frozen-locomotion plus immutable-world TCP gate:
+[`B2W_Z1_ROBOT_LAB_TCP_HOLD_GATE_ZH.md`](B2W_Z1_ROBOT_LAB_TCP_HOLD_GATE_ZH.md).
+Trainable task MVP, smoke tests and PPO pilot:
+[`B2W_Z1_TCP_TASK_MVP_ZH.md`](B2W_Z1_TCP_TASK_MVP_ZH.md).
 
 ## Current outcome
 
@@ -62,6 +68,21 @@ Completed work:
   provisional simulation velocity gain of 10 N m/(rad/s), while preserving the
   official 20 N m effort and 50 rad/s velocity limits. The complete wheel gate
   remains failed because neither left nor right arc reaches the requested yaw.
+- Pinned and checksum-verified the public `rl_sar` B2-W TorchScript checkpoint,
+  reproduced its exact 57-observation/16-action contract and actuator preset,
+  and added an explicit name-mapped adapter for the combined B2-W + Z1
+  articulation. The frozen policy passed stand, forward, reverse and right-turn
+  phases and produced both left and right physical turns on the combined USD.
+  A 16-environment stand test also passed. Low-command left yaw still shows a
+  strong dead zone/asymmetry and must be treated as a closed-loop plant
+  limitation rather than hidden by relaxing the gate.
+- Connected the frozen locomotion policy to the 200 Hz Z1 world-frame DIK
+  without writing root state. After exposing the measured forward bias and yaw
+  dead-zone compensation as explicit configuration, the coupled physical gate
+  passed at 1, 16 and 64 environments. The 64-environment worst moving TCP RMS
+  was 12.42 mm / 1.08 degrees and worst terminal RMS was
+  1.55 mm / 0.196 degrees; base terminal errors were below
+  3.4 mm / 0.39 degrees.
 
 The world-frame result is a kinematic coordinate/controller harness, not a
 production WBC: gravity was disabled, root pose and velocity were written
@@ -82,53 +103,62 @@ payload and gripper-to-TCP transform must also be measured.
 ## What comes next
 
 The fixed-base arm gate and standalone moving-root world-frame harness have
-passed. The wheel execution gate has not: gain 10 gives usable straight and
-reverse motion, but the current fixed-leg, four-wheel model barely turns under
-differential arc commands. This is the blocking issue, not a reason to begin a
-long PPO run.
+passed. The earlier open-loop fixed-leg wheel gate still cannot turn, but it is
+no longer the production blocker: the public `robot_lab` B2-W locomotion policy
+uses coordinated leg and wheel motion and has produced forward, reverse and
+bidirectional physical yaw on the combined B2-W + Z1 USD. Its strict left-turn
+contact/yaw-rate and some stopping margins are not all passed, so the high-level
+controller must treat it as an asymmetric closed-loop plant.
 
 Official model, SDK, manual and tutorial checks now establish that the real
 B2-W has no steering joint and supports four-wheel-grounded turn-in-place. The
 mechanism is necessarily differential/skid steering with lateral tire scrub;
 the video does not show deliberate wheel lifting or large body lean. Unitree's
 internal `wheeled_sport` mixing, slip compensation and possible small leg-load
-corrections remain proprietary. The present approximately two-degree response
-therefore points to an unvalidated rigid tire/contact and stance model, not to
-the need to redesign the robot as Ackermann steering or immediately train PPO.
+corrections remain proprietary. The earlier fixed-leg open-loop approximately
+two-degree response therefore diagnoses that controller/contact setup; the
+frozen learned policy's later bidirectional turns show that the combined USD
+itself is not locked against yaw.
 
 The next sequence is:
 
 ```text
-run and record the existing name-mapped `--turn_mode in_place` regression
-  -> tire collision-geometry controlled A/B tests
-  -> fixed-target versus impedance/upright stance A/B
-  -> contact-model A/B and, where possible, low-speed real reference data
-  -> complete wheel gate
-  -> integrate the B2W-Z1-TCP production task
-  -> 1/16/64-environment task smoke and checkpoint save/load
-  -> PPO
+[done] complete the batched frozen-locomotion validation
+  -> [done] combine physical B2-W movement with immutable-world TCP DIK
+  -> [done] pass 1/16/64-environment coupled controller gates
+  -> [done] integrate the B2W-Z1-TCP task around the frozen low-level policy
+  -> [done] pass 1/16/64-environment task smoke and checkpoint save/load
+  -> [done] run a 20-iteration end-to-end PPO integration pilot
+  -> [done, diagnostic only] add an analytic coordinator comparison
+  -> define directional relocation gates and tune the nominal objective/controller
+  -> train and held-out evaluate the nominal coordinator
+  -> add general collision-filtered FK targets, then measured randomization
 ```
 
-The proposed task name is `B2W-Z1-TCP`; the existing `B2-Z1-WBC` task must
-remain unchanged as a comparison baseline.
+The registered task name is `B2W-Z1-TCP`; the existing `B2-Z1-WBC` task remains
+unchanged as a comparison baseline.
 
-No B2-W TCP task or trained B2-W policy exists yet. The completed work is the
-asset and validation gate needed before that task can be implemented safely.
+No final B2-W TCP policy exists yet. The trainable high-level task and a short
+PPO integration pilot now exist, but that pilot did not outperform zero action.
+A compatible pretrained B2-W locomotion policy supplies the low-level base
+controller; the remaining work is to train and validate the slow TCP
+reachability/posture coordinator, not locomotion from scratch.
 
-Create this task-specific structure:
+The task-specific structure is:
 
 ```text
 source/LeggedManip_Lab/LeggedManip_Lab/tasks/manager_based/
   leggedmanip_lab/
-    config/b2w_z1_tcp/
+    config/b2w_z1/
       __init__.py
-      env_cfg.py
+      tcp_env_cfg.py
       agents/
         __init__.py
         rsl_rl_ppo_cfg.py
     mdp/
-      tcp_commands.py
-      b2w_actions.py
+      b2w_tcp_command.py
+      b2w_tcp_action.py
+      b2w_tcp_terms.py
 ```
 
 The task must use `base_link`, `.*_wheel`, and the explicit `tcp_frame` (after
@@ -142,7 +172,10 @@ Each parallel environment stores one immutable TCP target in its environment
 or world frame. Moving the base must not move the target. The reference manager
 turns that final goal into a minimum-jerk or spline pose/twist trajectory.
 
-Targets should not come from a manually chosen rectangular reach box. Instead:
+The implemented MVP first applies a sampled planar ghost-root transform to the
+reset TCP pose. It gives each target a known whole-body solution without a
+manually chosen rectangular reach box. The next general-6D target generator
+should instead:
 
 1. sample a collision-free arm configuration;
 2. compute its TCP pose with FK;
@@ -160,15 +193,16 @@ The recommended precision architecture is:
 fixed world-frame 6D TCP goal
   -> smooth reference pose and twist
   -> slow learned reachability/posture coordinator
-  -> frozen batched DIK/OSC or constrained WBC
-  -> leg position, wheel velocity and arm commands
+       -> [vx, yaw rate] -> frozen robot_lab B2-W policy -> leg position + wheel velocity
+       -> desired TCP pose/twist -> batched DIK/OSC -> six Z1 joint targets
 ```
 
-The learned coordinator should begin with the macro action
-`[v_x, yaw_rate, body_height, body_pitch]`. B2-W should not receive a lateral
-velocity command because it cannot produce lateral motion without wheel slip.
-The arm controller tracks the TCP at every physics/control step and may later
-accept a small bounded learned residual.
+The implemented MVP coordinator action is `[v_x, yaw_rate]`. B2-W does not
+receive a lateral velocity command because it cannot produce lateral motion
+without wheel slip. After this two-action relocation policy is validated, a
+controlled extension may add `[body_height, body_pitch]`; the arm controller
+continues tracking the TCP at every physics step and may later accept a small
+bounded learned residual.
 
 For a quick end-to-end ablation, also retain a direct 22-action baseline:
 
@@ -240,9 +274,10 @@ not on training reward alone.
 | 7 | Deployment-matched mild terrain | Terrain passes while flat regression remains below 15% |
 | 8 | Frozen held-out evaluation and sim-to-sim test | Select by the complete metric matrix, not a showcase episode |
 
-Passing the standalone world-frame harness does not complete task-level
-Stage 0. Stage 0 still requires real wheel/contact execution, production task
-wiring and a stable 2,000-step run.
+The real wheel/contact task is now wired and has passed finite 1/16/64-environment
+smoke tests plus a 20-iteration PPO integration pilot. Longer held-out nominal
+runs, collision metrics and a 2,000-step stability gate remain before Stage 0
+can be considered fully closed.
 
 Arm behavior in every parallel environment should be consistent:
 
@@ -337,15 +372,27 @@ policy.
    `gripper_stator -> tcp` transform and validate the fixed-base DIK path.
 2. **Done as a standalone regression:** verify immutable world targets across
    64 separated environments, both signs and non-zero initial yaw.
-3. **Partial:** preserve the verified wheel signs, straight/reverse rolling
-   radius and gain-10 baseline; do not mark the complete wheel gate passed.
-4. Run controlled turn experiments for leg steering posture and
-   collision/contact representations. Do not manufacture a pass by merely
-   lowering friction or increasing torque beyond the official limit.
-5. Pass both left and right turn phases and therefore the complete wheel gate.
-6. Register `B2W-Z1-TCP` and `B2W-Z1-TCP-Play` with B2-W-specific actions,
-   observations, rewards, contacts and terminations.
-7. Pass 1/16/64-environment task smoke tests and deterministic checkpoint
-   save/load.
-8. Benchmark 256/512/1,024/2,048 environments, then begin Stage 1 PPO on a
-   nominal plane. Terrain is intentionally later.
+3. **Done as the production locomotion foundation:** pin the public B2-W
+   checkpoint, reproduce its exact observation/action/actuator contract and
+   demonstrate physical stand, translation and bidirectional yaw on the
+   combined USD. Strict left-turn contact/yaw-rate and some stopping margins
+   remain open; keep them and the failed open-loop fixed-leg gate visible as
+   plant diagnostics.
+4. **Done:** combine frozen physical locomotion with the immutable-world TCP
+   controller without writing root pose or velocity.
+5. **Done:** pass the coupled controller gate in 1/16/64 environments, including
+   TCP precision, posture and command-asymmetry metrics. Contact/slip metrics
+   still need to be carried into the production task.
+6. **Done:** register `B2W-Z1-TCP` and `B2W-Z1-TCP-Play` with B2-W-specific
+   actions, observations, rewards, contacts and terminations.
+7. **Done:** pass 1/16/64-environment task smoke tests and checkpoint
+   save/load/export. The target suite still produces measurable IK clamp events
+   that must remain visible in evaluation.
+8. **Integration pilot done, training incomplete:** a 256-environment,
+   20-iteration PPO run was stable and exportable but did not beat the matched
+   zero-action baseline. A first analytic comparison reduced arm-home error but
+   also failed the base relocation accuracy objective, especially for lateral
+   and yaw targets. Next freeze directional target suites and pass explicit
+   accuracy gates, then tune/train on a nominal plane and benchmark
+   512/1,024/2,048 environments. Terrain is intentionally later. See
+   [`B2W_Z1_TCP_TASK_MVP_ZH.md`](B2W_Z1_TCP_TASK_MVP_ZH.md).

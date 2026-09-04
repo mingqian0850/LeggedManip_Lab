@@ -12,6 +12,12 @@
 状态见 [`B2W_Z1_WHEEL_GATE_ZH.md`](B2W_Z1_WHEEL_GATE_ZH.md)，真实 B2-W 转向
 的官方资料核对见
 [`research/B2W_REAL_TURNING_OFFICIAL_ZH.md`](research/B2W_REAL_TURNING_OFFICIAL_ZH.md)。
+复用公开 B2-W locomotion policy 的接口与实测结果见
+[`B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md`](B2W_Z1_ROBOT_LAB_FOUNDATION_ZH.md)。
+真实底盘运动时的世界 TCP 保持结果见
+[`B2W_Z1_ROBOT_LAB_TCP_HOLD_GATE_ZH.md`](B2W_Z1_ROBOT_LAB_TCP_HOLD_GATE_ZH.md)。
+正式 task、并行冒烟测试和 PPO pilot 见
+[`B2W_Z1_TCP_TASK_MVP_ZH.md`](B2W_Z1_TCP_TASK_MVP_ZH.md)。
 
 ## 总体结论
 
@@ -21,7 +27,8 @@
 校准名义 TCP
   -> 建立确定性机械臂控制器
   -> 验证固定世界目标
-  -> 通过轮子直行、倒车和转向门槛
+  -> 接入冻结的 B2-W locomotion policy
+  -> 验证真实 wheel/contact 物理下的 TCP 保持
   -> 创建 B2W-Z1-TCP 任务
   -> 小规模并行冒烟测试
   -> 分阶段 PPO 训练
@@ -39,19 +46,25 @@
 1.149 mm / 0.136°，世界目标没有被重新生成或拖动。
 
 不过该 harness 关闭重力并直接写入本体轨迹，只验证坐标语义、floating-base
-Jacobian 和机械臂反向补偿，不等于生产 WBC。轮子执行层目前只完成了一部分：
-gain 10 下直行和倒车可用，左右转向仍未达到门槛，所以还不能进入 PPO。
+Jacobian 和机械臂反向补偿，不等于生产 WBC。早期固定腿开环轮速 gate 不能
+转向，但它不是现在的生产路线。固定版本的公开 `robot_lab` B2-W policy 已经在
+当前 B2-W + Z1 USD 上完成站立、前后移动并证明两个方向都能产生物理 yaw；严格
+左转 contact/yaw-rate 与部分停车窗口仍未全部通过。16 环境 deployed arm 站立
+通过。“learned locomotion 产生真实底盘运动时，Z1 保持 immutable
+world TCP”的组合闭环随后也已在 1、16、64 环境通过。64 环境最坏 moving RMS
+为 12.42 mm / 1.08°，最坏 terminal RMS 为 1.55 mm / 0.196°。下一缺口已经变成
+正式 task wiring 与可达性协调器，而不是底盘/机械臂能否同时闭环。
 
 ## 六个实施步骤
 
 | 步骤 | 代表什么 | 解决的问题 |
 | --- | --- | --- |
 | 1. 校准 `gripper_stator -> tcp_frame` | 当前已有仿真名义 TCP；真机前测量夹爪基座到实际抓取中心的平移和旋转 | 消除模型末端与真实接触点之间的固定误差 |
-| 2. 验证轮子方向和有效半径（部分完成） | 正负方向和直行/倒车已可用；左右转向仍失败 | 防止轮子互相对抗，并保证轮速与底盘速度一致 |
-| 3. 实现固定世界坐标目标（独立 harness 已完成） | 64 环境不变性已通过；尚未接入正式 task command | 让移动底盘真正帮助接近远处目标 |
-| 4. 验证 DIK/OSC/WBC（部分完成） | 固定 DIK 与运动学补偿已通过；动态 OSC/生产 WBC 未完成 | 独立检查 FK、Jacobian、坐标系和关节方向 |
-| 5. 创建 `B2W-Z1-TCP` 任务 | 定义 command、observation、action、reward 和 termination | 建立能被 Isaac Lab 与 RSL-RL 正确训练的新环境 |
-| 6. 开始 PPO 训练 | Actor/Critic 从大量并行仿真数据中学习协调策略 | 学会何时只动机械臂，何时移动轮子和身体 |
+| 2. 验证 B2-W 执行层（生产基础可用） | 固定腿开环 wheel gate 仍是失败诊断；冻结 locomotion 已完成前后运动并产生双向 yaw，但严格左转接触/yaw-rate 与部分停车 margin 仍开放 | 防止轮子互相对抗，并确认真实 wheel/contact 闭环可用且不隐藏不对称性 |
+| 3. 实现固定世界坐标目标（已接入 task） | 64 环境独立不变性和正式 command term 均已通过 | 让移动底盘真正帮助接近远处目标 |
+| 4. 验证 DIK/OSC/WBC（MVP 内环已完成） | 固定 DIK、运动学补偿及真实底盘运动下的 200 Hz DIK 已通过；受约束 WBC 与碰撞安全仍未完成 | 独立检查 FK、Jacobian、坐标系和关节方向 |
+| 5. 创建 `B2W-Z1-TCP` 任务（已完成） | 已定义 command、57 维 observation、2 维 action、reward 和 termination | 建立能被 Isaac Lab 与 RSL-RL 正确训练的新环境 |
+| 6. PPO 训练（管线 pilot 已完成，策略未收敛） | 20 iterations 已验证保存、加载和导出；下一步是标称平地训练与固定目标评估 | 学会何时只动机械臂，何时移动轮子和身体 |
 
 ## 第 1 步：定义真实 TCP
 
@@ -164,14 +177,15 @@ T_world_tcp_target
   -> 腿、轮子和机械臂命令
 ```
 
-RL 协调器第一版只输出：
+当前已经实现的 MVP 协调器只输出：
 
 ```text
-[v_x, yaw_rate, body_height, body_pitch]
+[v_x, yaw_rate]
 ```
 
-含义分别是前后速度、转向速度、身体高度和身体俯仰。B2-W 不应直接要求横向
-速度 `v_y`，因为普通非转向轮无法在不侧滑的情况下横移。
+含义分别是前后速度和转向速度。该 2 维策略验证 relocation 后，再做受控扩展加入
+`[body_height, body_pitch]`。B2-W 不应直接要求横向速度 `v_y`，因为普通非转向轮
+无法在不侧滑的情况下横移。
 
 同时保留一个 22 维直接关节 RL 作为对照实验：12 个腿位置动作、4 个轮速
 动作和 6 个机械臂位置动作。它适合验证端到端 PPO 是否能学习，但不是高精度
@@ -179,7 +193,7 @@ RL 协调器第一版只输出：
 
 ## 第 5 步：创建独立 Isaac Lab 任务
 
-新增任务建议命名为：
+已注册任务：
 
 ```text
 B2W-Z1-TCP
@@ -324,15 +338,23 @@ Actor 有意义，对当前 state-only controller 没有作用。
 ## 紧接着应该实施什么
 
 1. 保留 64 环境 world-frame harness，作为每次修改后的坐标回归测试；
-2. 运行脚本已经支持的 `--turn_mode in_place` 纯正/负 yaw 测试并保存正式报告，
-   同时核对官方电机顺序 `[FR,FL,RR,RL]` 与本 gate 顺序
-   `[FL,FR,RL,RR]` 的按名映射；
-3. 在相同轮速 gain、摩擦和官方力矩限制下，依次完成 convex hull/诊断圆柱/
-   圆冠低面数凸包、固定腿/阻抗稳定腿和接触模型的受控 A/B；
-4. 左右转向和制动都通过后，才把完整 wheel gate 标成通过；
-5. 注册并集成 `B2W-Z1-TCP` 与 `B2W-Z1-TCP-Play`；
-6. 通过正式 task 的 1、16、64 环境测试和 checkpoint 保存/加载测试；
-7. 最后才从标称平地的静态目标开始 Stage 1 PPO 训练。
+2. 保留冻结 B2-W policy 的 stand/forward/reverse/left/right gate 及 checksum，
+   继续把低速 yaw 不对称、轮子短暂卸载和停车尾部记录为 plant 特性；
+3. **已完成：** 将该 policy 与 Z1 world-frame DIK 接入同一浮动底盘
+   simulation loop，gravity 保持开启，且绝不直接写 root pose/velocity；
+4. **已完成：** 通过 1、16、64 环境的组合 TCP 保持门槛；
+5. **已完成：** 注册并集成 `B2W-Z1-TCP` 与 `B2W-Z1-TCP-Play`；
+6. **已完成：** 通过正式 task 的 1、16、64 环境测试，以及 checkpoint
+   保存、加载、TorchScript/ONNX 导出测试；
+7. **已完成训练管线 pilot，但策略未收敛：** 256 环境、20 iterations 共采集
+   327,680 transitions，运行稳定；相同 seed 的确定性评估没有超过 zero-action，
+   所以不能称为最终 policy；
+8. **首个解析 coordinator 诊断已完成：** 它改善 arm-home，但没有通过底盘
+   relocation accuracy，left/lateral 与 yaw 尤其明显；下一步先固定分方向目标集和
+   门槛、校准 reward/controller，再继续 512 环境标称训练与 held-out 评估；
+9. 再建立经过碰撞、lidar clearance、joint margin 和 manipulability 过滤的 6D
+   FK pose catalog。名义表现通过后才加入域随机化，terrain 最后加入。
 
-Stage 3 的底盘 relocation 仍未完成。能够直行或倒车不等于已经学会在目标后方
-时自然倒车、在低位目标时安全倾斜，也不等于能在 TCP 到位后无振荡停住。
+Stage 3 的任务接口与 ghost-base 目标已经实现，但高层策略尚未学会有效
+relocation。能够输出非零底盘动作不等于已经学会自然倒车/转向、释放机械臂
+裕度，也不等于能在 TCP 到位后无振荡停住。

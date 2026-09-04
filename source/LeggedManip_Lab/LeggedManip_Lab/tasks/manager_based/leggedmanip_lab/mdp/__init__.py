@@ -15,12 +15,16 @@
 """This sub-module contains the functions that are specific to the environment."""
 
 from isaaclab.envs.mdp import *  # noqa: F401, F403
+
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import *  # noqa: F401, F403
 
-from .rewards import *  # noqa: F401, F403
+from .b2w_tcp_action import *  # noqa: F401, F403
+from .b2w_tcp_command import *  # noqa: F401, F403
+from .b2w_tcp_terms import *  # noqa: F401, F403
 from .cfg import command_cfg  # noqa: F401
-from .events import randomize_rigid_body_inertia  # noqa: F401
 from .curriculums import *  # noqa: F401, F403
-from .observations import *
-from .pose_command_wbc import *
-from .pose_command_b import *
+from .events import randomize_rigid_body_inertia  # noqa: F401
+from .observations import *  # noqa: F401, F403
+from .pose_command_b import *  # noqa: F401, F403
+from .pose_command_wbc import *  # noqa: F401, F403
+from .rewards import *  # noqa: F401, F403

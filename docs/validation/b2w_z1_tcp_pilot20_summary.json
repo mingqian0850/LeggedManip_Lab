@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-04",
+  "environment": {
+    "device": "cuda:0",
+    "num_envs": 256,
+    "physics_hz": 200.0,
+    "policy_hz": 50.0,
+    "task": "B2W-Z1-TCP"
+  },
+  "evaluation": {
+    "analytic_diagnostic": {
+      "final_goal_orientation_error_mean_rad": 0.006724890321493149,
+      "final_goal_position_error_mean_m": 0.0018466783221811056,
+      "final_normalized_arm_home_error_mean": 0.2902370095252991,
+      "mean_episode_reward": 69.02075958251953,
+      "root_goal_position_error_mean_m": 0.08699887990951538,
+      "root_goal_yaw_error_mean_rad": 0.1814667284488678,
+      "status_scope": "structural smoke checks only; relocation accuracy not passed"
+    },
+    "num_envs": 64,
+    "pilot20": {
+      "final_goal_orientation_error_mean_rad": 0.003118271240964532,
+      "final_goal_position_error_mean_m": 0.0018790255999192595,
+      "final_normalized_arm_home_error_mean": 0.45981964468955994,
+      "mean_absolute_normalized_action": [
+        0.030964592471718788,
+        0.08912008255720139
+      ],
+      "mean_episode_reward": 67.9450912475586,
+      "root_displacement_mean_m": 0.03729891777038574,
+      "terminated_count": 0,
+      "truncated_count": 0
+    },
+    "seed": 43,
+    "steps": 400,
+    "verdict": "The pilot is numerically stable but does not outperform zero action and is not converged. The analytic diagnostic improves arm posture but also fails base-relocation accuracy.",
+    "zero_action": {
+      "final_goal_orientation_error_mean_rad": 0.0038833320140838623,
+      "final_goal_position_error_mean_m": 0.0013315646210685372,
+      "final_normalized_arm_home_error_mean": 0.45066380500793457,
+      "mean_absolute_normalized_action": [
+        0.0,
+        0.0
+      ],
+      "mean_episode_reward": 69.30326843261719,
+      "root_displacement_mean_m": 0.005339155439287424,
+      "terminated_count": 0,
+      "truncated_count": 0
+    }
+  },
+  "pilot": {
+    "checkpoint": "logs/rsl_rl/b2w_z1_tcp/2026-09-04_15-19-44_pilot20/model_19.pt",
+    "exported_onnx_bytes": 225662,
+    "exported_torchscript_bytes": 237782,
+    "iterations": 20,
+    "last_iteration": {
+      "goal_orientation_error_mean_rad": 0.12064582109451294,
+      "goal_position_error_mean_m": 0.03842471167445183,
+      "mean_episode_length": 600.0,
+      "mean_reward": 96.53681945800781,
+      "total_fps": 3902.0
+    },
+    "local_log_directory_ignored_by_git": true,
+    "transitions": 327680
+  },
+  "status": "INTEGRATION_PASS_NOT_CONVERGED"
+}

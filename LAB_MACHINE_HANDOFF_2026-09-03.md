@@ -7,10 +7,35 @@ Last updated: 2026-09-04 (Europe/Berlin)
 > separate WheelRL repository; the executable Isaac training plan is
 > [`docs/B2W_Z1_TCP_TRAINING_PLAN.md`](docs/B2W_Z1_TCP_TRAINING_PLAN.md).
 
-> **Start here on the RTX 4090 today:**
-> [`START_HERE_2026-09-04.md`](START_HERE_2026-09-04.md). The wheel gate script
-> already implements `--turn_mode in_place`; today's first action is to run and
-> record that baseline, not to reimplement pure-yaw commands.
+> **Current start point (2026-09-04):**
+> [`docs/B2W_Z1_TCP_TASK_MVP_ZH.md`](docs/B2W_Z1_TCP_TASK_MVP_ZH.md). The
+> frozen-policy locomotion and physical TCP-hold gates, registered task,
+> 1/16/64-environment smoke tests, checkpoint export and 20-iteration PPO pilot
+> are complete. The pilot is explicitly not converged. `START_HERE_2026-09-04.md`
+> and the older gate narrative below are retained as historical diagnostic
+> context, not as the current action list.
+
+## 2026-09-04 superseding status
+
+| Current item | Status |
+| --- | --- |
+| Frozen `robot_lab` locomotion on combined B2-W + Z1 | Usable foundation: stand/translation pass and bidirectional physical yaw is demonstrated; strict left-contact and stopping margins are not all passed |
+| Frozen locomotion + immutable-world 200 Hz TCP DIK | PASS at 1/16/64 environments |
+| `B2W-Z1-TCP` / `B2W-Z1-TCP-Play` registration | DONE: 57-D observation, 2-D `[v_x, yaw_rate]` action |
+| Task smoke | PASS at 1/16/64 environments for shape, finite state, immutable goal, reset and root-height invariants |
+| RSL-RL integration | PASS: save/load, TorchScript/ONNX export and short playback video |
+| 20-iteration, 256-environment pilot | Stable pipeline, **not converged** and did not beat matched zero action |
+| General collision-filtered 6D targets | NOT STARTED; current target family is planar ghost-root SE(2) |
+| Self/body/lidar collision and wheel slip/lift costs | NOT COMPLETE; required before wide targets or sim-to-real |
+| Domain randomization / terrain | DEFERRED until nominal held-out tracking and coordination pass |
+
+The first analytic coordinator comparison is now complete. It improves arm
+posture but fails base-relocation accuracy, especially on lateral/yaw targets.
+The next order is a frozen directional target suite and explicit accuracy
+gates, reward/controller calibration, then nominal PPO with fixed-seed
+checkpoint evaluation. A collision-filtered joint-sample/FK pose catalog and
+measured domain randomization follow later. Do not treat the generic smoke
+`PASS` as a TCP-accuracy, collision-safety or learned-policy acceptance gate.
 
 ## Start here
 

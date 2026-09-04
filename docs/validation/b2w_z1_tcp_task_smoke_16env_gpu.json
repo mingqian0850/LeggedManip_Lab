@@ -1,0 +1,180 @@
+{
+  "checks": {
+    "action_shape_is_2": true,
+    "command_shape_is_13": true,
+    "finite": true,
+    "goal_immutable_without_reset": true,
+    "initial_reference_orientation_matches_tcp": true,
+    "initial_reference_position_matches_tcp": true,
+    "no_early_reset": true,
+    "policy_observation_shape_is_57": true,
+    "root_above_termination_height": true
+  },
+  "controller": "zero",
+  "coordinator_hz": 50.0,
+  "first_environment_initial_state": {
+    "reference_pose_w": [
+      5.140965461730957,
+      -4.500000476837158,
+      1.2888805866241455,
+      0.9999999403953552,
+      -6.583847778074414e-08,
+      -1.1793751752975368e-07,
+      3.326545083837118e-08
+    ],
+    "root_pose_w": [
+      4.5,
+      -4.5,
+      0.6150000095367432,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "sampled_tcp_pose_b": [
+      0.640965461730957,
+      -4.76837158203125e-07,
+      0.6738805770874023,
+      0.9999999403953552,
+      -5.960464477539063e-08,
+      -1.4427671146677312e-07,
+      5.960464477539063e-08
+    ],
+    "tcp_pose_w": [
+      5.140965461730957,
+      -4.500000476837158,
+      1.2888805866241455,
+      0.9999999403953552,
+      -6.583847778074414e-08,
+      -1.1793751752975368e-07,
+      3.326545083837118e-08
+    ]
+  },
+  "metrics": {
+    "final_goal_orientation_error_mean_rad": 0.008080223575234413,
+    "final_goal_position_error_max_m": 0.01293781865388155,
+    "final_goal_position_error_mean_m": 0.0030031600035727024,
+    "final_normalized_arm_home_error_mean": 0.5169039964675903,
+    "goal_displacement_mean_m": 0.1274823248386383,
+    "initial_reference_orientation_error_max_rad": 2.532353846618207e-07,
+    "initial_reference_position_error_max_m": 0.0,
+    "joint_limit_clamp_count": 156,
+    "joint_rate_limit_count": 141,
+    "maximum_reference_orientation_error_rad": 0.10463853925466537,
+    "maximum_reference_position_error_m": 0.06272510439157486,
+    "maximum_root_tilt_rad": 0.023030100390315056,
+    "mean_absolute_low_level_velocity_command": [
+      0.05000009760260582,
+      0.0
+    ],
+    "mean_absolute_normalized_action": [
+      0.0,
+      0.0
+    ],
+    "mean_episode_reward": 28.343664169311523,
+    "minimum_root_height_m": 0.6133885383605957,
+    "root_displacement_mean_m": 0.00539756752550602,
+    "root_goal_position_error_mean_m": 0.10341297090053558,
+    "root_goal_yaw_error_mean_rad": 0.12973502278327942,
+    "terminated_count": 0,
+    "truncated_count": 0
+  },
+  "num_envs": 16,
+  "physics_hz": 200.0,
+  "policy_path": null,
+  "reward_term_sums_mean": {
+    "action_rate": 0.0,
+    "arm_joint_margin": -0.03803659975528717,
+    "arm_joint_velocity": -5.805388354929164e-05,
+    "base_height": -4.771694875671528e-06,
+    "coordinator_action": -0.00019999950018245727,
+    "final_success": 2.5837485790252686,
+    "flat_orientation": -0.0009629763662815094,
+    "settled_velocity": -0.0016509880078956485,
+    "tcp_orientation_coarse": 1.9843871593475342,
+    "tcp_orientation_fine": 3.5501773357391357,
+    "tcp_position_coarse": 5.9555463790893555,
+    "tcp_position_fine": 12.82643985748291,
+    "tcp_twist": 1.8400083780288696,
+    "terminal_arm_home": -0.35570985078811646,
+    "termination": 0.0,
+    "vertical_velocity": -2.0602734366548248e-05
+  },
+  "seed": 42,
+  "status": "PASS",
+  "steps": 200,
+  "target_family_metrics": {
+    "forward": {
+      "arm_home_error_mean": 0.49145612120628357,
+      "count": 4,
+      "episode_reward_mean": 24.53804588317871,
+      "root_displacement_mean_m": 0.005880236625671387,
+      "root_goal_position_error_mean_m": 0.1354190558195114,
+      "root_goal_yaw_error_mean_rad": 0.1879560649394989,
+      "tcp_orientation_error_mean_rad": 0.0031087519600987434,
+      "tcp_position_error_mean_m": 0.0019577261991798878
+    },
+    "left": {
+      "arm_home_error_mean": 0.6941719055175781,
+      "count": 4,
+      "episode_reward_mean": 29.274425506591797,
+      "root_displacement_mean_m": 0.004887017421424389,
+      "root_goal_position_error_mean_m": 0.1451871693134308,
+      "root_goal_yaw_error_mean_rad": 0.12955717742443085,
+      "tcp_orientation_error_mean_rad": 0.00584742845967412,
+      "tcp_position_error_mean_m": 0.002662988845258951
+    },
+    "negative_yaw": {
+      "arm_home_error_mean": 0.6576482057571411,
+      "count": 8,
+      "episode_reward_mean": 27.499465942382812,
+      "root_displacement_mean_m": 0.005794510245323181,
+      "root_goal_position_error_mean_m": 0.13389240205287933,
+      "root_goal_yaw_error_mean_rad": 0.1188671886920929,
+      "tcp_orientation_error_mean_rad": 0.01146520022302866,
+      "tcp_position_error_mean_m": 0.0034473645500838757
+    },
+    "positive_yaw": {
+      "arm_home_error_mean": 0.553485095500946,
+      "count": 5,
+      "episode_reward_mean": 26.9843807220459,
+      "root_displacement_mean_m": 0.004966768901795149,
+      "root_goal_position_error_mean_m": 0.11365945637226105,
+      "root_goal_yaw_error_mean_rad": 0.19109587371349335,
+      "tcp_orientation_error_mean_rad": 0.006598853971809149,
+      "tcp_position_error_mean_m": 0.003709525568410754
+    },
+    "reverse": {
+      "arm_home_error_mean": 1.031554937362671,
+      "count": 2,
+      "episode_reward_mean": 25.0692081451416,
+      "root_displacement_mean_m": 0.005096570588648319,
+      "root_goal_position_error_mean_m": 0.14953988790512085,
+      "root_goal_yaw_error_mean_rad": 0.15751951932907104,
+      "tcp_orientation_error_mean_rad": 0.03967138007283211,
+      "tcp_position_error_mean_m": 0.010693572461605072
+    },
+    "right": {
+      "arm_home_error_mean": 0.4076629877090454,
+      "count": 3,
+      "episode_reward_mean": 29.84311294555664,
+      "root_displacement_mean_m": 0.005975920706987381,
+      "root_goal_position_error_mean_m": 0.07264392077922821,
+      "root_goal_yaw_error_mean_rad": 0.10710828006267548,
+      "tcp_orientation_error_mean_rad": 0.0031827958300709724,
+      "tcp_position_error_mean_m": 0.0020855129696428776
+    },
+    "stationary": {
+      "arm_home_error_mean": 0.08061759173870087,
+      "count": 3,
+      "episode_reward_mean": 32.86033248901367,
+      "root_displacement_mean_m": 0.005057051312178373,
+      "root_goal_position_error_mean_m": 0.005057051312178373,
+      "root_goal_yaw_error_mean_rad": 0.056447893381118774,
+      "tcp_orientation_error_mean_rad": 0.0015225647948682308,
+      "tcp_position_error_mean_m": 0.0006413376540876925
+    }
+  },
+  "task": "B2W-Z1-TCP-Play",
+  "trace": []
+}

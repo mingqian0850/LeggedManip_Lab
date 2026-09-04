@@ -1,5 +1,11 @@
 # 2026-09-04：B2-W + Z1 在 RTX 4090 上从这里开始
 
+> **历史执行计划，已被后续结果取代。** 本页以下内容保留当天早期“固定腿开环
+> 转向诊断”的上下文，不再是当前待办。冻结的 `robot_lab` B2-W policy 已经产生
+> 双向物理转向，组合 TCP gate 与正式 `B2W-Z1-TCP` task 的 1/16/64 环境测试
+> 已通过，20-iteration PPO pilot 也已完成但未收敛。当前入口是
+> [`docs/B2W_Z1_TCP_TASK_MVP_ZH.md`](docs/B2W_Z1_TCP_TASK_MVP_ZH.md)。
+
 这份文件是今天在实验机 `/home/mingqian/LeggedManip_Lab` 的直接执行入口。
 今天只解决 **B2-W 轮式转向模型**，不启动 PPO、不加入门、不加入相机。
 

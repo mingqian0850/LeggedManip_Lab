@@ -1,6 +1,6 @@
 # B2-W + Z1 TCP Tracking 训练步骤中文说明
 
-最后更新：2026-09-03（Europe/Berlin）
+最后更新：2026-09-04（Europe/Berlin）
 
 本文解释从当前 B2-W + Z1 Isaac 资产到并行 PPO 训练的每一步分别解决
 什么问题。详细参数和英文工程计划见
@@ -324,8 +324,9 @@ Actor 有意义，对当前 state-only controller 没有作用。
 ## 紧接着应该实施什么
 
 1. 保留 64 环境 world-frame harness，作为每次修改后的坐标回归测试；
-2. 新增与官方 turn-in-place 行为对应的纯正/负 yaw 测试，并核对官方电机顺序
-   `[FR,FL,RR,RL]` 与本 gate 顺序 `[FL,FR,RL,RR]` 的按名映射；
+2. 运行脚本已经支持的 `--turn_mode in_place` 纯正/负 yaw 测试并保存正式报告，
+   同时核对官方电机顺序 `[FR,FL,RR,RL]` 与本 gate 顺序
+   `[FL,FR,RL,RR]` 的按名映射；
 3. 在相同轮速 gain、摩擦和官方力矩限制下，依次完成 convex hull/诊断圆柱/
    圆冠低面数凸包、固定腿/阻抗稳定腿和接触模型的受控 A/B；
 4. 左右转向和制动都通过后，才把完整 wheel gate 标成通过；

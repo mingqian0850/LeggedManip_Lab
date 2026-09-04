@@ -1,11 +1,16 @@
 # B2-W + Z1 Isaac Lab machine handoff
 
-Last updated: 2026-09-03 (Europe/Berlin)
+Last updated: 2026-09-04 (Europe/Berlin)
 
 > This is the self-contained machine, repository and asset handoff for the
 > Isaac Lab checkout. The companion research discussion remains in the
 > separate WheelRL repository; the executable Isaac training plan is
 > [`docs/B2W_Z1_TCP_TRAINING_PLAN.md`](docs/B2W_Z1_TCP_TRAINING_PLAN.md).
+
+> **Start here on the RTX 4090 today:**
+> [`START_HERE_2026-09-04.md`](START_HERE_2026-09-04.md). The wheel gate script
+> already implements `--turn_mode in_place`; today's first action is to run and
+> record that baseline, not to reimplement pure-yaw commands.
 
 ## Start here
 
@@ -65,8 +70,10 @@ stance. It omits the narrow rounded rubber tire's crown, compliance and
 direction-dependent effective scrub behavior. The next session must run
 controlled A/B tests, changing one factor at a time:
 
-1. Add a pure `+/- yaw` regression matching the official turn-in-place
-   behavior, and re-check name-based signs and achieved yaw rate.
+1. Run the already implemented `--turn_mode in_place` positive/negative yaw
+   regression, save its first official report, and re-check name-based signs
+   and achieved yaw rate. Promote it into the routine gate only after the
+   baseline behavior is understood.
 2. Compare the present collision hull against a diagnostic axis-correct
    analytic cylinder and then a low-face-count crowned convex tire; record
    yaw, wheel-speed error, longitudinal/lateral slip, contact ratio and body
@@ -495,9 +502,10 @@ single photograph.
    checkpoints and handoff pointer; never use `git add -A`, reset or clean.
 3. Treat B2-W + Z1 as selected. Preserve the reproducible asset and the passed
    DIK/world-frame/straight-wheel reports as regression baselines.
-4. Add and execute the pure-yaw sign test, followed by the tire collision
-   geometry A/B and impedance-stance A/B described above. Change only one
-   factor per run and save a machine-readable report for every variant.
+4. Execute the existing `--turn_mode in_place` sign test and save its report,
+   followed by the tire collision geometry A/B and impedance-stance A/B
+   described above. Change only one factor per run and save a machine-readable
+   report for every variant.
 5. Do not tune PPO rewards to hide the current yaw failure. If no physically
    credible tire/contact model passes, restrict the first TCP task to validated
    forward/reverse relocation and connect yaw to a separately validated

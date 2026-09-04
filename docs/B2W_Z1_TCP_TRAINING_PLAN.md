@@ -1,6 +1,6 @@
 # B2-W + Z1 TCP tracking: implementation record and training plan
 
-Last updated: 2026-09-03 (Europe/Berlin)
+Last updated: 2026-09-04 (Europe/Berlin)
 
 Chinese step-by-step explanation:
 [`B2W_Z1_TCP_TRAINING_STEPS_ZH.md`](B2W_Z1_TCP_TRAINING_STEPS_ZH.md).
@@ -99,7 +99,7 @@ the need to redesign the robot as Ackermann steering or immediately train PPO.
 The next sequence is:
 
 ```text
-name-mapped pure-yaw regression matching official turn-in-place
+run and record the existing name-mapped `--turn_mode in_place` regression
   -> tire collision-geometry controlled A/B tests
   -> fixed-target versus impedance/upright stance A/B
   -> contact-model A/B and, where possible, low-speed real reference data

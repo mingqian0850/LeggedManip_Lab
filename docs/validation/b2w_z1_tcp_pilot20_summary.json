@@ -48,6 +48,23 @@
       "truncated_count": 0
     }
   },
+  "playback": {
+    "checkpoint_sha256": "a01a413cd2f63f685d409013ac43c8c4e42f831fbeabba923260bb1f2632bba4",
+    "duration_seconds": 5.98,
+    "fps": 50.0,
+    "frames": 299,
+    "num_envs": 1,
+    "resolution": [
+      1280,
+      720
+    ],
+    "seed": 42,
+    "screenshot": "docs/imgs/b2w_z1_tcp_pilot20_2026-09-04.png",
+    "task": "B2W-Z1-TCP-Play",
+    "video": "docs/videos/b2w_z1_tcp_pilot20_2026-09-04_zoom.mp4",
+    "video_postprocessing": "Spatial crop and resize only; simulation frames and timing are unchanged.",
+    "video_sha256": "68fc64f7b40af62b956cc6ce61149c61bc14253d60095252813589d371b8d8db"
+  },
   "pilot": {
     "checkpoint": "logs/rsl_rl/b2w_z1_tcp/2026-09-04_15-19-44_pilot20/model_19.pt",
     "exported_onnx_bytes": 225662,

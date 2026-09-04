@@ -113,6 +113,26 @@ RSL-RL 集成测试也已完成：
 [`pilot summary`](validation/b2w_z1_tcp_pilot20_summary.json)
 保留可审计结果。
 
+### Isaac Sim 图形回放快照
+
+2026-09-04 使用 `B2W-Z1-TCP-Play`、seed 42、1 environment 和 `model_19.pt`
+在带图形界面的 Isaac Sim 中再次加载并运行。随后以同一配置录制 299 帧：task
+step 为 50 Hz，时长 5.98 s，底层 physics 仍为 200 Hz。回放证明组合资产、物理、
+冻结 B2-W policy、Z1 differential IK、高层 actor 以及标准 `play.py` 路径可以在
+Isaac Sim GUI 中共同运行。
+
+[下载 6 秒 Isaac Sim 回放](videos/b2w_z1_tcp_pilot20_2026-09-04_zoom.mp4)
+
+![B2W + Z1 pilot20 Isaac Sim 回放中间帧](imgs/b2w_z1_tcp_pilot20_2026-09-04.png)
+
+视频只对默认远景相机画面进行了空间裁切和缩放，没有删除、插值或重排仿真帧。
+视频 SHA-256 为
+`68fc64f7b40af62b956cc6ce61149c61bc14253d60095252813589d371b8d8db`；所用
+checkpoint SHA-256 为
+`a01a413cd2f63f685d409013ac43c8c4e42f831fbeabba923260bb1f2632bba4`。
+checkpoint 本身仍留在被忽略的 `logs/` 中，因为这是未收敛的集成 pilot，不是发布
+策略。该画面也不能单独证明 TCP 跟踪精度；数值结论以下面的固定 seed 评估为准。
+
 ## Pilot、零动作与解析协调器的确定性对比
 
 使用相同 seed 43、64 environments、400 task steps：

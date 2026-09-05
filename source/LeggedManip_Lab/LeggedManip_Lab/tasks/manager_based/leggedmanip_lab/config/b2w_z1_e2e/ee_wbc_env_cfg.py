@@ -298,7 +298,11 @@ class B2WZ1EEWBCRewardsCfg:
         weight=-0.5,
         params={"margin_threshold": 0.12, "asset_cfg": ARM_CFG},
     )
-    base_height = RewTerm(func=mdp.base_height_error_l2, weight=-3.0, params={"target_height": 0.505})
+    # Tracking reward is deliberately strong, so height needs a comparable
+    # shaping signal or the deterministic actor learns to lower the base for
+    # extra arm reach.  This weight was increased after the first 100-iteration
+    # checkpoint failed 55/64 evaluation episodes on low-base termination.
+    base_height = RewTerm(func=mdp.base_height_error_l2, weight=-12.0, params={"target_height": 0.505})
     flat_orientation = RewTerm(func=mdp.flat_orientation_l2, weight=-1.0)
     vertical_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-0.5)
     joint_limits = RewTerm(
@@ -334,7 +338,7 @@ class B2WZ1EEWBCRewardsCfg:
             "asset_cfg": TCP_CFG,
         },
     )
-    termination = RewTerm(func=mdp.is_terminated, weight=-8.0)
+    termination = RewTerm(func=mdp.is_terminated, weight=-20.0)
 
 
 @configclass

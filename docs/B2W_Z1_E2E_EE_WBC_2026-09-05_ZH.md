@@ -8,7 +8,9 @@
 
 已经建立一个与原 Hybrid 控制器并行存在的端到端 EE tracking 训练任务。这里“端到端”指：一个 PPO actor 直接接收末端轨迹与本体状态，并同时输出腿、机械臂和轮子的低层目标；它不再调用冻结的 B2-W locomotion policy，也不再调用 Z1 differential IK。
 
-当前任务只是训练基础设施和第一阶段课程，不是已经训练好的开门策略，也不是可直接部署到真机的策略。旧 Hybrid 控制器仍应保留，作为精度/安全基线和以后 residual controller 的候选后端。
+训练基础设施、100 iterations 初训和 200 iterations 稳定性微调均已完成。当前最佳 checkpoint 是 `model_200.pt`：在存活环境中已经达到约 5.5 mm / 1.24° 的最终 EE 误差，但固定种子的 64 环境首回合测试仅有 48.4% 完整存活，因此第一阶段只能标记为 **PARTIAL（精度达标、鲁棒性不达标）**，不能开始门任务，也不能部署真机。
+
+旧 Hybrid 控制器仍应保留，作为精度/安全基线和以后 residual controller 的候选后端。当前最重要的工程结论是：不要用训练窗口中的平均 episode length 或单个成功视频替代确定性批量评估。
 
 ## 2. 控制结构
 
@@ -54,7 +56,7 @@ critic 输入为 243 维：actor 的 216 维输入，再加 27 维仿真特权�
 
 终止条件包括低本体、超过 35° 倾角，以及 base、小腿、lidar、Z1 links 或 gripper 的非期望接触。训练资产开启 self-collision。当前阶段关闭执行器延迟和动力学随机化，避免在 nominal policy 尚未建立时混入 sim-to-real 难度。
 
-## 5. 已完成验证
+## 5. 已完成验证与训练结果
 
 最终验证全部使用 RTX 4090、Isaac Sim 5.1 / Isaac Lab 对应环境：
 
@@ -65,7 +67,26 @@ critic 输入为 243 维：actor 的 216 维输入，再加 27 维仿真特权�
 | 1024 env，零动作 20 steps | PASS | policy/critic batch 分别为 1024×216、1024×27；无 NaN 或 reset |
 | 256 env，PPO 2 iterations | PASS | actor 216→22、critic 243→1；16384 steps；checkpoint 正常写出 |
 
-两次 PPO 更新只验证 rollout、反向传播、观测分组和保存链路，不代表得到可用策略。第二次更新的吞吐约 4235 steps/s。
+两次 PPO 更新只验证 rollout、反向传播、观测分组和保存链路。第二次更新的吞吐约 4235 steps/s。
+
+随后完成两段正式训练：
+
+| 阶段 | 训练目录 | 训练量 | 结果 |
+|---|---|---:|---|
+| Stage 1 nominal | `2026-09-05_23-12-01_stage1_nominal_100` | 100 iterations / 3.277M steps / 229 s | tracking 已形成，但普遍通过降低本体换取可达性 |
+| Stage 1b height | `2026-09-05_23-25-26_stage1b_height_200` | 从 model 99 续训 200 iterations / 6.55M steps / 460 s | 加强高度和终止惩罚；中途 checkpoint 优于最终 checkpoint |
+
+固定 `seed=42`、64 environments、599 steps（11.98 s）、确定性 actor 的首回合评估如下。误差只统计仍存活的环境，因此必须与存活率一起阅读：
+
+| checkpoint | 完整存活 | 主要终止原因 | 存活者最终位置误差 | 存活者最终姿态误差 | 3 cm / 6° 成功率（存活者） |
+|---|---:|---|---:|---:|---:|
+| Stage 1 `model_99` | 9/64 = 14.1% | `low_base` 55 | 8.64 mm | 5.65° | 66.7% |
+| Stage 1b `model_200` | **31/64 = 48.4%** | `undesired_contact` 32，`low_base` 1 | **5.54 mm** | **1.24°** | **100%** |
+| Stage 1b `model_298` | 21/64 = 32.8% | `low_base` 43 | 5.62 mm | 1.05° | 100% |
+
+因此选择 `model_200.pt`，而不是最后的 `model_298.pt`。它证明端到端策略可以学到准确的短程 6D EE tracking 和全身动作，但尚未证明稳定性。`model_200` 的失败主要从低本体转移成了非期望接触；在不知道具体碰撞 body 之前，不应继续盲目提高奖励权重。
+
+训练窗口在 `model_298` 附近曾显示 mean episode length 约 583、timeout 约 95.6%，但确定性首回合测试只有 32.8% 存活。差异来自训练指标的滚动/随机分布与 reset 混合，而确定性评估严格追踪同一批环境的第一次 episode。以后 checkpoint 选择一律以后者为准。
 
 还额外做过两项失败诊断并保留结果：
 
@@ -90,7 +111,23 @@ $PY scripts/standalone/b2w_z1_e2e_ee_wbc_smoke.py \
   --headless --device cuda:0 --num_envs 1024 --steps 20 --mode zero
 ```
 
-开始第一段训练（建议先观察 100 iterations，不要一开始就无人值守跑 3000）：
+当前最佳 checkpoint：
+
+```text
+/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-25-26_stage1b_height_200/model_200.pt
+```
+
+复现固定批量评估：
+
+```bash
+$PY scripts/standalone/b2w_z1_e2e_ee_wbc_eval.py \
+  --task B2W-Z1-EE-WBC-Flat-Play-v0 \
+  --headless --device cuda:0 --num_envs 64 --steps 599 --seed 42 \
+  --checkpoint logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-25-26_stage1b_height_200/model_200.pt \
+  --report docs/validation/e2e_ee_wbc/stage1b_height_model_200_eval.json
+```
+
+若需从头复现第一段训练：
 
 ```bash
 $PY scripts/rsl_rl/train.py \
@@ -110,9 +147,12 @@ $PY scripts/rsl_rl/play.py \
 
 ## 7. 下一步顺序
 
-### 阶段 1：先证明 nominal EE tracking 能学会
+### 阶段 1：先通过 nominal EE tracking 鲁棒性门槛（当前正在这里）
 
-跑 100 iterations 并检查：episode length 是否能超过 2 秒 settle 段、low-base termination 是否下降、运动阶段 TCP position/orientation error 是否下降、轮子是否真正参与而不是只靠手臂。然后继续到 300–500 iterations，保存固定 seed 视频和 Hybrid 对照结果。
+1. 扩展 evaluator，在 `undesired_contact` 发生的瞬间记录具体 body 和接触力，先解释 `model_200` 的 32 次接触失败；
+2. 把本体过低改成单边安全 barrier，并检查是否需要减小腿 action scale、增加腿回到默认姿态的正则；
+3. 稳定性微调每 25–50 iterations 保存一次，由确定性评估自动选 checkpoint，不能默认使用最后一个；
+4. 至少用 seed 42/43/44、每个 64 environments 验证。进入阶段 2 的门槛是聚合首回合存活率 ≥95%，其中最终 3 cm / 6° 成功率 ≥90%，无 NaN。
 
 ### 阶段 2：扩大 whole-body 工作空间
 
@@ -137,3 +177,5 @@ $PY scripts/rsl_rl/play.py \
 - 第一阶段 PD plant 是为了建立可学习基线，不等同真机执行器。
 - 两帧历史和 216 维输入尚未做消融；后续可以比较单帧、三帧以及显式 acceleration。
 - 当前仍是单 critic PPO。只有标准 PPO 基线收敛后，才值得加入 manipulation/locomotion/safety multi-critic，以免无法判断收益来自算法还是环境修复。
+- 当前最佳 checkpoint 的主要失败是 `undesired_contact`，但评估器尚未细分到具体 body；这是下一个必须完成的诊断。
+- 目前的单环境视频视觉上稳定，但它只是成功样本，不能作为鲁棒性证据。

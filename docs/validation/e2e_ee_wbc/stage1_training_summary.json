@@ -1,0 +1,83 @@
+{
+  "status": "partial_accuracy_pass_robustness_fail",
+  "evaluation_protocol": {
+    "deterministic_policy": true,
+    "first_episode_only": true,
+    "num_envs": 64,
+    "seed": 42,
+    "steps": 599,
+    "step_dt_s": 0.02
+  },
+  "selected_checkpoint": {
+    "name": "model_200.pt",
+    "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-25-26_stage1b_height_200/model_200.pt",
+    "reason": "Highest deterministic first-episode survival among the three evaluated checkpoints while retaining sub-centimeter and low-degree EE accuracy."
+  },
+  "training_runs": [
+    {
+      "name": "stage1_nominal_100",
+      "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-12-01_stage1_nominal_100",
+      "iterations": 100,
+      "simulation_steps": 3276800,
+      "wall_time_s": 229
+    },
+    {
+      "name": "stage1b_height_200",
+      "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-25-26_stage1b_height_200",
+      "additional_iterations": 200,
+      "additional_simulation_steps": 6553600,
+      "wall_time_s": 460,
+      "change": "base_height reward -3.0 to -12.0; termination reward -8.0 to -20.0"
+    }
+  ],
+  "evaluations": [
+    {
+      "checkpoint": "stage1/model_99.pt",
+      "completed_envs": 9,
+      "completion_rate": 0.140625,
+      "termination_counts": {
+        "low_base": 55,
+        "bad_orientation": 0,
+        "undesired_contact": 0
+      },
+      "survivor_final_position_error_mean_m": 0.008642364293336868,
+      "survivor_final_orientation_error_mean_deg": 5.650541222044325,
+      "survivor_success_rate_3cm_6deg": 0.6666666865348816
+    },
+    {
+      "checkpoint": "stage1b/model_200.pt",
+      "completed_envs": 31,
+      "completion_rate": 0.484375,
+      "termination_counts": {
+        "low_base": 1,
+        "bad_orientation": 0,
+        "undesired_contact": 32
+      },
+      "survivor_final_position_error_mean_m": 0.005537358112633228,
+      "survivor_final_orientation_error_mean_deg": 1.2433684902827675,
+      "survivor_success_rate_3cm_6deg": 1.0
+    },
+    {
+      "checkpoint": "stage1b/model_298.pt",
+      "completed_envs": 21,
+      "completion_rate": 0.328125,
+      "termination_counts": {
+        "low_base": 43,
+        "bad_orientation": 0,
+        "undesired_contact": 0
+      },
+      "survivor_final_position_error_mean_m": 0.005621358752250671,
+      "survivor_final_orientation_error_mean_deg": 1.0472519879837219,
+      "survivor_success_rate_3cm_6deg": 1.0
+    }
+  ],
+  "stage1_exit_gate": {
+    "seeds": [42, 43, 44],
+    "envs_per_seed": 64,
+    "minimum_aggregate_first_episode_survival": 0.95,
+    "minimum_final_success_rate_3cm_6deg": 0.9,
+    "allow_nan": false,
+    "passed": false
+  },
+  "next_required_diagnostic": "Record the body name and contact force at each undesired_contact termination before changing rewards again."
+}

@@ -410,3 +410,83 @@ class B2WZ1EEWBCEnvCfg_PLAY(B2WZ1EEWBCEnvCfg):
         self.scene.num_envs = 16
         self.scene.env_spacing = 3.0
         self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage2EnvCfg(B2WZ1EEWBCEnvCfg):
+    """Stage 2: longer planar goals with explicit Stage 1 replay."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.radius_range = (0.12, 0.20)
+        self.commands.tcp_pose.short_radius_range = (0.03, 0.12)
+        self.commands.tcp_pose.short_radius_probability = 0.30
+
+
+@configclass
+class B2WZ1EEWBCStage2EnvCfg_PLAY(B2WZ1EEWBCStage2EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage3EnvCfg(B2WZ1EEWBCEnvCfg):
+    """Stage 3: 30 cm planar goals with replay of the full earlier workspace."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.radius_range = (0.20, 0.30)
+        self.commands.tcp_pose.short_radius_range = (0.03, 0.20)
+        self.commands.tcp_pose.short_radius_probability = 0.30
+
+
+@configclass
+class B2WZ1EEWBCStage3EnvCfg_PLAY(B2WZ1EEWBCStage3EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage4EnvCfg(B2WZ1EEWBCEnvCfg):
+    """Stage 4: 50 cm planar goals with replay of the full earlier workspace."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.radius_range = (0.30, 0.50)
+        self.commands.tcp_pose.short_radius_range = (0.03, 0.30)
+        self.commands.tcp_pose.short_radius_probability = 0.30
+
+
+@configclass
+class B2WZ1EEWBCStage4EnvCfg_PLAY(B2WZ1EEWBCStage4EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage5EnvCfg(B2WZ1EEWBCEnvCfg):
+    """Stage 5: 70 cm planar goals that require coordinated base travel."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.radius_range = (0.50, 0.70)
+        self.commands.tcp_pose.short_radius_range = (0.03, 0.50)
+        self.commands.tcp_pose.short_radius_probability = 0.30
+
+
+@configclass
+class B2WZ1EEWBCStage5EnvCfg_PLAY(B2WZ1EEWBCStage5EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True

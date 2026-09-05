@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-06",
+  "task_family": "B2W-Z1-EE-WBC",
+  "gate": {
+    "minimum_aggregate_first_episode_completion_rate": 0.95,
+    "minimum_final_success_rate_among_survivors": 0.9,
+    "position_threshold_m": 0.03,
+    "orientation_threshold_deg": 6.0
+  },
+  "stages": [
+    {
+      "stage": 2,
+      "new_radius_range_m": [0.12, 0.2],
+      "replay_radius_range_m": [0.03, 0.12],
+      "replay_probability": 0.3,
+      "training_iterations": 0,
+      "checkpoint": "2026-09-05_23-56-53_stage1d_safety_scale_75/model_324.pt",
+      "completed_envs": 188,
+      "total_envs": 192,
+      "completion_rate": 0.9791666667,
+      "survivor_success_rate": 1.0,
+      "mean_motion_position_error_m": 0.003566
+    },
+    {
+      "stage": 3,
+      "new_radius_range_m": [0.2, 0.3],
+      "replay_radius_range_m": [0.03, 0.2],
+      "replay_probability": 0.3,
+      "training_iterations": 100,
+      "checkpoint": "2026-09-06_00-14-26_stage3_radius30_100/model_350.pt",
+      "completed_envs": 190,
+      "total_envs": 192,
+      "completion_rate": 0.9895833333,
+      "survivor_success_rate": 1.0,
+      "mean_motion_position_error_m": 0.005357
+    },
+    {
+      "stage": 4,
+      "new_radius_range_m": [0.3, 0.5],
+      "replay_radius_range_m": [0.03, 0.3],
+      "replay_probability": 0.3,
+      "training_iterations": 100,
+      "checkpoint": "2026-09-06_00-26-39_stage4_radius50_100/model_449.pt",
+      "completed_envs": 187,
+      "total_envs": 192,
+      "completion_rate": 0.9739583333,
+      "survivor_success_rate": 1.0,
+      "mean_motion_position_error_m": 0.006946
+    },
+    {
+      "stage": 5,
+      "new_radius_range_m": [0.5, 0.7],
+      "replay_radius_range_m": [0.03, 0.5],
+      "replay_probability": 0.3,
+      "training_iterations": 100,
+      "checkpoint": "2026-09-06_00-37-29_stage5_radius70_100/model_525.pt",
+      "completed_envs": 192,
+      "total_envs": 192,
+      "completion_rate": 1.0,
+      "survivor_success_rate": 1.0,
+      "mean_motion_position_error_m": 0.005169,
+      "mean_root_planar_displacement_m": 0.2259,
+      "maximum_root_planar_displacement_m": 0.5930
+    }
+  ],
+  "selected_checkpoint_absolute": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt",
+  "next_stage": "vertical TCP targets and controlled body pitch/height with planar replay"
+}

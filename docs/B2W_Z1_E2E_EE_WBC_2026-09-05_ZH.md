@@ -96,6 +96,25 @@ critic 输入为 243 维：actor 的 216 维输入，再加 27 维仿真特权�
 
 选择 `model_324.pt`，而不是任何训练段的最后 checkpoint。它证明当前任务下端到端策略可以同时学到准确短程 6D EE tracking、全身协调和 nominal 安全性。
 
+### 5.1 平面大范围课程（2026-09-06 已通过）
+
+在 Stage 1 安全基线之上，命令生成器增加了 30% 的旧工作空间 replay，并逐级扩大目标半径。每一级都先做 zero-shot 测试；低于门槛才继续 PPO 微调，最终仍以固定首回合、多随机种子评估选择 checkpoint。
+
+| 课程 | 热启动模型 | 是否训练 | 最佳模型 | 三 seed 存活 | 幸存者 3 cm / 6° | 动态位置误差均值 |
+|---|---|---:|---|---:|---:|---:|
+| Stage 2: 12–20 cm | Stage 1 `model_324` | 否，zero-shot 已通过 | `model_324` | 188/192 = 97.92% | 100% | 3.57 mm |
+| Stage 3: 20–30 cm | Stage 1 `model_324` | 100 iterations | `model_350` | 190/192 = 98.96% | 100% | 5.36 mm |
+| Stage 4: 30–50 cm | Stage 3 `model_350` | 100 iterations | `model_449` | 187/192 = 97.40% | 100% | 6.95 mm |
+| Stage 5: 50–70 cm | Stage 4 `model_449` | 100 iterations | **`model_525`** | **192/192 = 100%** | **100%** | **5.17 mm** |
+
+Stage 5 的平均底盘平移约 0.226 m，三个 seed 中观察到的最大底盘平移约 0.593 m，说明策略已经学会在目标超出机械臂舒适工作空间时同步移动 B2-W，而不是只把 Z1 拉到极限。Stage 5 零样本只有 49/64 存活；微调后达到 192/192，说明逐级课程与旧目标 replay 都是必要的。
+
+当前新的平面工作空间最佳 checkpoint：
+
+```text
+/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt
+```
+
 训练窗口在 `model_298` 附近曾显示 mean episode length 约 583、timeout 约 95.6%，但确定性首回合测试只有 32.8% 存活。差异来自训练指标的滚动/随机分布与 reset 混合，而确定性评估严格追踪同一批环境的第一次 episode。以后 checkpoint 选择一律以后者为准。
 
 还额外做过两项失败诊断并保留结果：
@@ -125,6 +144,12 @@ $PY scripts/standalone/b2w_z1_e2e_ee_wbc_smoke.py \
 
 ```text
 /home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-56-53_stage1d_safety_scale_75/model_324.pt
+```
+
+当前 70 cm 平面 EE tracking 最佳 checkpoint：
+
+```text
+/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt
 ```
 
 复现固定批量评估：
@@ -161,9 +186,9 @@ $PY scripts/rsl_rl/play.py \
 
 已完成按 body 的碰撞诊断、单边高度 barrier、25 iterations checkpoint 保存和三 seed 批量验证。聚合首回合存活率 98.96%，整体成功率 98.96%，无 NaN，超过进入阶段 2 所需的 95% / 90% 门槛。
 
-### 阶段 2：扩大 whole-body 工作空间
+### 阶段 2：扩大 whole-body 工作空间（平面部分已通过）
 
-下一次训练先把 ghost-root 平移从 12 cm 扩到 20 cm，并保留至少 30% 的 Stage 1 短程目标防止遗忘；通过同一鲁棒性门槛后再扩到 30、50、70 cm。随后增加更大的 yaw，再单独加入 z 方向目标和可控 body pitch/height，使低目标可以通过前低后高的全身倾斜完成。不要一次同时扩大所有范围。
+已按 20、30、50、70 cm 的顺序完成，并始终保留 30% 旧目标 replay。下一步单独加入 z 方向目标和可控 body pitch/height，使低目标可以通过前低后高的全身倾斜完成；继续保留平面 nominal 回归。之后再扩大 yaw。不要一次同时扩大所有范围。
 
 ### 阶段 3：提高动态质量和精度
 
@@ -179,10 +204,10 @@ $PY scripts/rsl_rl/play.py \
 
 ## 8. 当前已知限制
 
-- 目前只有 flat plane 和短距离平面 ghost-root 目标；还没有低位目标、门、视觉或触觉。
+- 目前已有 flat plane 上最大 70 cm 的平面 ghost-root 目标；还没有低位目标、门、视觉或触觉。
 - 夹爪只保持，不参与学习。
 - 第一阶段 PD plant 是为了建立可学习基线，不等同真机执行器。
 - 两帧历史和 216 维输入尚未做消融；后续可以比较单帧、三帧以及显式 acceleration。
 - 当前仍是单 critic PPO。只有标准 PPO 基线收敛后，才值得加入 manipulation/locomotion/safety multi-critic，以免无法判断收益来自算法还是环境修复。
-- Stage 1 的 192 环境中仍有 2 次 `undesired_contact`；工作空间扩大后必须继续跟踪 `lidar_link`、`link2`、gripper 和 calf，而不能只看平均误差。
+- Stage 5 最佳模型在 192 个环境中没有终止；后续低位/接触课程仍必须继续跟踪 `lidar_link`、`link2`、gripper 和 calf，而不能只看平均误差。
 - 单环境视频只用于直观检查；鲁棒性结论来自确定性三 seed 批量评估。

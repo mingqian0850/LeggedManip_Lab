@@ -1,0 +1,78 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_548.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 1.1556895653507253,
+    "mean": 0.49110282095922875,
+    "p95": 1.077400549701864
+  },
+  "final_goal_position_error_m": {
+    "max": 0.007964079268276691,
+    "mean": 0.004140201490372419,
+    "p95": 0.006661880295723677
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_survival": {
+    "completed_envs": 63,
+    "completion_rate": 0.984375,
+    "maximum_tilt_deg": 32.79776243207917,
+    "minimum_root_height_m": 0.4819425642490387,
+    "terminated_envs": 1,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 1
+    },
+    "termination_step": {
+      "max": 470.0,
+      "mean": 470.0,
+      "p95": 470.0
+    },
+    "undesired_contact_by_body": {
+      "lidar_link": {
+        "peak_force_n": 355.3226013183594,
+        "terminated_env_count": 1
+      },
+      "link2": {
+        "peak_force_n": 355.3226013183594,
+        "terminated_env_count": 1
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.32374340295791626,
+    "legs": 0.2982054650783539,
+    "wheels": 0.06705919653177261
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 16.91883961189056,
+    "mean": 0.655454034419249,
+    "p95": 1.7538069898129205
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.035468265414237976,
+    "mean": 0.005223913583904505,
+    "p95": 0.011984158307313919
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.5556930899620056,
+    "mean": 0.24454277753829956,
+    "p95": 0.47326168417930603
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7488229870796204,
+    "mean": 0.4340786039829254,
+    "p95": 0.6966740489006042
+  },
+  "sampled_target_translation_m": {
+    "max": 0.762226402759552,
+    "mean": 0.4368358254432678,
+    "p95": 0.7057710289955139
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage5-Play-v0"
+}

@@ -1,0 +1,74 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-26-39_stage4_radius50_100/model_425.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 4.188376159436662,
+    "mean": 1.7999883533906096,
+    "p95": 3.7565613548247003
+  },
+  "final_goal_position_error_m": {
+    "max": 0.01811184175312519,
+    "mean": 0.010547938756644726,
+    "p95": 0.015286069363355637
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_survival": {
+    "completed_envs": 62,
+    "completion_rate": 0.96875,
+    "maximum_tilt_deg": 18.560603644950064,
+    "minimum_root_height_m": 0.45072251558303833,
+    "terminated_envs": 2,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 1,
+      "time_out": 0,
+      "undesired_contact": 1
+    },
+    "termination_step": {
+      "max": 540.0,
+      "mean": 515.5,
+      "p95": 537.5499877929688
+    },
+    "undesired_contact_by_body": {
+      "RR_calf": {
+        "peak_force_n": 21.510690689086914,
+        "terminated_env_count": 1
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.5671508312225342,
+    "legs": 0.2876546084880829,
+    "wheels": 0.10108672082424164
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 5.19146115603932,
+    "mean": 1.7866012893390906,
+    "p95": 3.6870910738896776
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.024909591302275658,
+    "mean": 0.011021524667739868,
+    "p95": 0.01640872098505497
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.6286090612411499,
+    "mean": 0.2517935633659363,
+    "p95": 0.5118330717086792
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.5547415018081665,
+    "mean": 0.29048147797584534,
+    "p95": 0.5048294067382812
+  },
+  "sampled_target_translation_m": {
+    "max": 0.5566677451133728,
+    "mean": 0.2911144495010376,
+    "p95": 0.506802499294281
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage4-Play-v0"
+}

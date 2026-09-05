@@ -1,0 +1,69 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-14-26_stage3_radius30_100/model_423.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 1.656648082478018,
+    "mean": 0.9610087901595576,
+    "p95": 1.5062682344086704
+  },
+  "final_goal_position_error_m": {
+    "max": 0.00667933514341712,
+    "mean": 0.00399759691208601,
+    "p95": 0.005748895462602377
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 0.9999999403953552,
+  "first_episode_survival": {
+    "completed_envs": 55,
+    "completion_rate": 0.859375,
+    "maximum_tilt_deg": 15.065298733425642,
+    "minimum_root_height_m": 0.45000413060188293,
+    "terminated_envs": 9,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 9,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "termination_step": {
+      "max": 532.0,
+      "mean": 306.4444580078125,
+      "p95": 482.79998779296875
+    },
+    "undesired_contact_by_body": {}
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.6416561603546143,
+    "legs": 0.38307541608810425,
+    "wheels": 0.1075335443019867
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 3.672588447847625,
+    "mean": 1.0462481636191416,
+    "p95": 1.7463437274842122
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.014333807863295078,
+    "mean": 0.004113093484193087,
+    "p95": 0.007004413288086653
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.3847903907299042,
+    "mean": 0.18003740906715393,
+    "p95": 0.3088000416755676
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.35991349816322327,
+    "mean": 0.18920627236366272,
+    "p95": 0.31746959686279297
+  },
+  "sampled_target_translation_m": {
+    "max": 0.36219272017478943,
+    "mean": 0.18974655866622925,
+    "p95": 0.317548930644989
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage3-Play-v0"
+}

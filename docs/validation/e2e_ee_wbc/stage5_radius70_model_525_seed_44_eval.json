@@ -1,0 +1,69 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 2.2171534694499515,
+    "mean": 0.8128179109974933,
+    "p95": 1.8980924948736184
+  },
+  "final_goal_position_error_m": {
+    "max": 0.008090282790362835,
+    "mean": 0.004049960523843765,
+    "p95": 0.0067451586946845055
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_survival": {
+    "completed_envs": 64,
+    "completion_rate": 1.0,
+    "maximum_tilt_deg": 21.834000832982646,
+    "minimum_root_height_m": 0.4604484736919403,
+    "terminated_envs": 0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "termination_step": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "undesired_contact_by_body": {}
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.3052200376987457,
+    "legs": 0.31815096735954285,
+    "wheels": 0.07618618756532669
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 4.853234030321696,
+    "mean": 0.9004078300269137,
+    "p95": 2.1262837789584554
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.021968543529510498,
+    "mean": 0.005021940916776657,
+    "p95": 0.01156904362142086
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.5181554555892944,
+    "mean": 0.22294385731220245,
+    "p95": 0.4334450662136078
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7490267753601074,
+    "mean": 0.3987509310245514,
+    "p95": 0.7183142304420471
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7491132616996765,
+    "mean": 0.4003312885761261,
+    "p95": 0.7193992137908936
+  },
+  "seed": 44,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage5-Play-v0"
+}

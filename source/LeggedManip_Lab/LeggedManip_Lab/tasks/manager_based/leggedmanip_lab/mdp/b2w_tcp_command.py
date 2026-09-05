@@ -196,6 +196,10 @@ class FKReachableWorldPoseCommand(CommandTerm):
         )
 
         radius = torch.empty(count, device=self.device).uniform_(*self.cfg.radius_range)
+        if self.cfg.short_radius_probability > 0.0:
+            short_mask = torch.rand(count, device=self.device) < self.cfg.short_radius_probability
+            short_radius = torch.empty(count, device=self.device).uniform_(*self.cfg.short_radius_range)
+            radius = torch.where(short_mask, short_radius, radius)
         bearing = torch.empty(count, device=self.device).uniform_(*self.cfg.bearing_range)
         yaw = torch.empty(count, device=self.device).uniform_(*self.cfg.yaw_range)
         if self.cfg.stationary_probability > 0.0:
@@ -324,6 +328,10 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
     asset_name: str = MISSING
     body_name: str = MISSING
     radius_range: tuple[float, float] = (0.05, 0.20)
+    short_radius_range: tuple[float, float] | None = None
+    """Optional replay range used to prevent forgetting earlier short targets."""
+    short_radius_probability: float = 0.0
+    """Probability of replacing a radius sample with ``short_radius_range``."""
     bearing_range: tuple[float, float] = (-math.pi, math.pi)
     yaw_range: tuple[float, float] = (-0.25, 0.25)
     stationary_probability: float = 0.1
@@ -335,6 +343,13 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
     def __post_init__(self) -> None:
         if self.radius_range[0] < 0.0 or self.radius_range[1] < self.radius_range[0]:
             raise ValueError(f"Invalid radius range: {self.radius_range}")
+        if not 0.0 <= self.short_radius_probability <= 1.0:
+            raise ValueError("short_radius_probability must lie in [0, 1]")
+        if self.short_radius_probability > 0.0:
+            if self.short_radius_range is None:
+                raise ValueError("short_radius_range is required when short-radius replay is enabled")
+            if self.short_radius_range[0] < 0.0 or self.short_radius_range[1] < self.short_radius_range[0]:
+                raise ValueError(f"Invalid short radius range: {self.short_radius_range}")
         if not 0.0 <= self.stationary_probability <= 1.0:
             raise ValueError("stationary_probability must lie in [0, 1]")
         if self.motion_time_s <= 0.0:

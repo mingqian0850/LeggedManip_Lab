@@ -42,9 +42,11 @@ class FKReachableWorldPoseCommand(CommandTerm):
     Consequently every final target has a known whole-body solution: move the root
     to the ghost pose and return the arm to its sampled reset configuration.
 
-    The final pose remains immutable for the episode.  ``command`` exposes a
-    minimum-jerk reference from the initial TCP pose to that final pose so the arm
-    is never hit with a discontinuous Cartesian target.
+    By default the final pose remains immutable for the episode.  A task may
+    explicitly re-anchor it during a physical settling window; it is frozen
+    before motion begins. ``command`` exposes a minimum-jerk reference from the
+    settled TCP pose to that final pose so the arm is never hit with a
+    discontinuous Cartesian target.
     """
 
     cfg: FKReachableWorldPoseCommandCfg
@@ -64,11 +66,14 @@ class FKReachableWorldPoseCommand(CommandTerm):
         self.command_buffer = torch.zeros((self.num_envs, 13), device=self.device)
         self.ghost_root_pose_w = torch.zeros_like(self.start_pose_w)
         self.sampled_tcp_pose_b = torch.zeros_like(self.start_pose_w)
+        self.ghost_translation_b = torch.zeros((self.num_envs, 3), device=self.device)
+        self.ghost_rotation_b = torch.zeros((self.num_envs, 4), device=self.device)
         self.start_pose_w[:, 3] = 1.0
         self.goal_pose_w[:, 3] = 1.0
         self.pose_command_w[:, 3] = 1.0
         self.ghost_root_pose_w[:, 3] = 1.0
         self.sampled_tcp_pose_b[:, 3] = 1.0
+        self.ghost_rotation_b[:, 0] = 1.0
         self.command_buffer[:, :7] = self.pose_command_w
         self.elapsed_s = torch.zeros(self.num_envs, device=self.device)
         self.motion_progress = torch.zeros(self.num_envs, device=self.device)
@@ -93,8 +98,61 @@ class FKReachableWorldPoseCommand(CommandTerm):
 
     @property
     def final_command(self) -> torch.Tensor:
-        """Immutable final world-frame TCP goal for the current episode."""
+        """World TCP goal, frozen after an optional settling re-anchor."""
         return self.goal_pose_w
+
+    def reference_pose_at_offsets(self, offsets_s: Sequence[float]) -> torch.Tensor:
+        """Evaluate future minimum-jerk poses without advancing the command.
+
+        Args:
+            offsets_s: Non-negative time offsets relative to the current policy
+                step.  The returned tensor has shape ``(num_envs, K, 7)`` and
+                stores position plus scalar-first quaternion for each offset.
+
+        This is the task-space trajectory preview consumed by the unified
+        whole-body policy.  It is computed from the same immutable episode goal
+        as :attr:`command`, so the actor never receives a privileged base pose.
+        """
+        if len(offsets_s) == 0:
+            raise ValueError("offsets_s must contain at least one preview time")
+        if any(offset < 0.0 for offset in offsets_s):
+            raise ValueError("trajectory preview offsets must be non-negative")
+        offsets = torch.as_tensor(offsets_s, device=self.device, dtype=self.elapsed_s.dtype)
+
+        elapsed = self.elapsed_s.unsqueeze(-1) + offsets.unsqueeze(0)
+        linear_progress = torch.clamp(
+            (elapsed - self.cfg.settle_time_s) / self.cfg.motion_time_s,
+            min=0.0,
+            max=1.0,
+        )
+        progress = linear_progress**3 * (10.0 - 15.0 * linear_progress + 6.0 * linear_progress**2)
+
+        poses = torch.zeros((self.num_envs, offsets.numel(), 7), device=self.device)
+        poses[..., :3] = self.start_pose_w[:, None, :3] + progress[..., None] * (
+            self.goal_pose_w[:, None, :3] - self.start_pose_w[:, None, :3]
+        )
+
+        start_quat = self.start_pose_w[:, 3:]
+        _, total_rotation = compute_pose_error(
+            self.start_pose_w[:, :3],
+            start_quat,
+            self.goal_pose_w[:, :3],
+            self.goal_pose_w[:, 3:],
+            rot_error_type="axis_angle",
+        )
+        total_angle = torch.linalg.vector_norm(total_rotation, dim=-1)
+        rotation_axis = total_rotation / torch.clamp(total_angle.unsqueeze(-1), min=1.0e-8)
+        preview_angle = progress * total_angle.unsqueeze(-1)
+        preview_axis = rotation_axis[:, None, :].expand(-1, offsets.numel(), -1)
+        rotation_delta = quat_from_angle_axis(
+            preview_angle.reshape(-1),
+            preview_axis.reshape(-1, 3),
+        ).reshape(self.num_envs, offsets.numel(), 4)
+        poses[..., 3:] = quat_mul(
+            rotation_delta.reshape(-1, 4),
+            start_quat[:, None, :].expand(-1, offsets.numel(), -1).reshape(-1, 4),
+        ).reshape(self.num_envs, offsets.numel(), 4)
+        return poses
 
     def _update_metrics(self) -> None:
         tcp_pos_w = self.robot.data.body_pos_w[:, self.body_idx]
@@ -175,11 +233,54 @@ class FKReachableWorldPoseCommand(CommandTerm):
         self.ghost_root_pose_w[env_ids, 3:] = ghost_root_quat_w
         self.sampled_tcp_pose_b[env_ids, :3] = sampled_pos_b
         self.sampled_tcp_pose_b[env_ids, 3:] = sampled_quat_b
+        self.ghost_translation_b[env_ids] = ghost_translation_b
+        self.ghost_rotation_b[env_ids] = ghost_rotation
         self.elapsed_s[env_ids] = 0.0
         self.motion_progress[env_ids] = 0.0
 
+    def _recapture_settling_reference(self, env_ids: torch.Tensor) -> None:
+        """Anchor the trajectory after the robot has physically settled."""
+        if env_ids.numel() == 0:
+            return
+        root_pos_w = self.robot.data.root_pos_w[env_ids]
+        root_quat_w = self.robot.data.root_quat_w[env_ids]
+        start_pos_w = self.robot.data.body_pos_w[env_ids, self.body_idx]
+        start_quat_w = self.robot.data.body_quat_w[env_ids, self.body_idx]
+        sampled_pos_b, sampled_quat_b = subtract_frame_transforms(
+            root_pos_w,
+            root_quat_w,
+            start_pos_w,
+            start_quat_w,
+        )
+        ghost_root_pos_w, ghost_root_quat_w = combine_frame_transforms(
+            root_pos_w,
+            root_quat_w,
+            self.ghost_translation_b[env_ids],
+            self.ghost_rotation_b[env_ids],
+        )
+        goal_pos_w, goal_quat_w = combine_frame_transforms(
+            ghost_root_pos_w,
+            ghost_root_quat_w,
+            sampled_pos_b,
+            sampled_quat_b,
+        )
+        self.start_pose_w[env_ids, :3] = start_pos_w
+        self.start_pose_w[env_ids, 3:] = start_quat_w
+        self.goal_pose_w[env_ids, :3] = goal_pos_w
+        self.goal_pose_w[env_ids, 3:] = goal_quat_w
+        self.ghost_root_pose_w[env_ids, :3] = ghost_root_pos_w
+        self.ghost_root_pose_w[env_ids, 3:] = ghost_root_quat_w
+        self.sampled_tcp_pose_b[env_ids, :3] = sampled_pos_b
+        self.sampled_tcp_pose_b[env_ids, 3:] = sampled_quat_b
+
     def _update_command(self) -> None:
         self.elapsed_s += self._env.step_dt
+        if self.cfg.recapture_during_settle:
+            settling_env_ids = torch.nonzero(
+                self.elapsed_s <= self.cfg.settle_time_s,
+                as_tuple=False,
+            ).squeeze(-1)
+            self._recapture_settling_reference(settling_env_ids)
         linear_progress = torch.clamp(
             (self.elapsed_s - self.cfg.settle_time_s) / self.cfg.motion_time_s,
             min=0.0,
@@ -228,6 +329,8 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
     stationary_probability: float = 0.1
     settle_time_s: float = 1.0
     motion_time_s: float = 2.0
+    recapture_during_settle: bool = False
+    """Continuously re-anchor start/goal during settle, then freeze them."""
 
     def __post_init__(self) -> None:
         if self.radius_range[0] < 0.0 or self.radius_range[1] < self.radius_range[0]:

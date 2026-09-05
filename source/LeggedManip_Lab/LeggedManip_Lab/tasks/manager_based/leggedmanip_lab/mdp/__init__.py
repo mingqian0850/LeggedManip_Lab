@@ -18,6 +18,8 @@ from isaaclab.envs.mdp import *  # noqa: F401, F403
 
 from isaaclab_tasks.manager_based.locomotion.velocity.mdp import *  # noqa: F401, F403
 
+from .b2w_ee_wbc_action import *  # noqa: F401, F403
+from .b2w_ee_wbc_terms import *  # noqa: F401, F403
 from .b2w_tcp_action import *  # noqa: F401, F403
 from .b2w_tcp_command import *  # noqa: F401, F403
 from .b2w_tcp_terms import *  # noqa: F401, F403

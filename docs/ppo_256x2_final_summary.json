@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "task": "B2W-Z1-EE-WBC-Flat-v0",
+  "run_name": "final_smoke_2iter",
+  "num_envs": 256,
+  "iterations": 2,
+  "total_steps": 16384,
+  "actor_input_dim": 216,
+  "actor_output_dim": 22,
+  "critic_input_dim": 243,
+  "checkpoint_files": ["model_0.pt", "model_1.pt"],
+  "note": "Pipeline smoke only; this is not a trained tracking policy."
+}

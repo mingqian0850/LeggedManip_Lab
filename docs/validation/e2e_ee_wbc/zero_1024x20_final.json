@@ -1,0 +1,197 @@
+{
+  "action_term_dims": {
+    "arm_position": 6,
+    "leg_position": 12,
+    "wheel_velocity": 4
+  },
+  "action_term_order": [
+    "leg_position",
+    "arm_position",
+    "wheel_velocity"
+  ],
+  "checks": {
+    "action_shape_is_22": true,
+    "action_term_dims_are_12_6_4": true,
+    "finite": true,
+    "no_early_reset": true,
+    "policy_observation_is_matrix": true,
+    "privileged_observation_is_matrix": true,
+    "reward_terms_finite": true,
+    "root_above_termination_height": true,
+    "zero_action_keeps_tilt_below_20_deg": true
+  },
+  "final_joint_state_env0": {
+    "FL_calf_joint": {
+      "default_rad": -1.5,
+      "position_rad": -1.7481701374053955,
+      "velocity_rad_s": 2.5022318363189697
+    },
+    "FL_hip_joint": {
+      "default_rad": 0.10000000149011612,
+      "position_rad": 0.12628883123397827,
+      "velocity_rad_s": -0.0591445192694664
+    },
+    "FL_thigh_joint": {
+      "default_rad": 0.800000011920929,
+      "position_rad": 0.8138497471809387,
+      "velocity_rad_s": -0.9712713956832886
+    },
+    "FL_wheel_joint": {
+      "default_rad": 0.0,
+      "position_rad": 0.09881766140460968,
+      "velocity_rad_s": -0.2634974420070648
+    },
+    "FR_calf_joint": {
+      "default_rad": -1.5,
+      "position_rad": -1.7629975080490112,
+      "velocity_rad_s": 2.265925645828247
+    },
+    "FR_hip_joint": {
+      "default_rad": -0.10000000149011612,
+      "position_rad": -0.10007274895906448,
+      "velocity_rad_s": 0.13107308745384216
+    },
+    "FR_thigh_joint": {
+      "default_rad": 0.800000011920929,
+      "position_rad": 0.815109133720398,
+      "velocity_rad_s": -0.7816303372383118
+    },
+    "FR_wheel_joint": {
+      "default_rad": 0.0,
+      "position_rad": 0.04924705624580383,
+      "velocity_rad_s": -0.4086325466632843
+    },
+    "RL_calf_joint": {
+      "default_rad": -1.5,
+      "position_rad": -1.650396466255188,
+      "velocity_rad_s": 0.1424178034067154
+    },
+    "RL_hip_joint": {
+      "default_rad": 0.10000000149011612,
+      "position_rad": 0.0954798012971878,
+      "velocity_rad_s": 0.026271216571331024
+    },
+    "RL_thigh_joint": {
+      "default_rad": 1.0,
+      "position_rad": 0.9844788312911987,
+      "velocity_rad_s": 0.34819114208221436
+    },
+    "RL_wheel_joint": {
+      "default_rad": 0.0,
+      "position_rad": 0.01629863865673542,
+      "velocity_rad_s": -0.01704113930463791
+    },
+    "RR_calf_joint": {
+      "default_rad": -1.5,
+      "position_rad": -1.6419765949249268,
+      "velocity_rad_s": 0.03523934632539749
+    },
+    "RR_hip_joint": {
+      "default_rad": -0.10000000149011612,
+      "position_rad": -0.11500733345746994,
+      "velocity_rad_s": -0.0007372088730335236
+    },
+    "RR_thigh_joint": {
+      "default_rad": 1.0,
+      "position_rad": 0.9765436053276062,
+      "velocity_rad_s": 0.43685296177864075
+    },
+    "RR_wheel_joint": {
+      "default_rad": 0.0,
+      "position_rad": -0.06879673898220062,
+      "velocity_rad_s": -0.07291305065155029
+    },
+    "gripper_joint": {
+      "default_rad": -1.0,
+      "position_rad": -1.0112473964691162,
+      "velocity_rad_s": -3.1413357257843018
+    },
+    "joint1": {
+      "default_rad": 0.0,
+      "position_rad": 0.0040132878348231316,
+      "velocity_rad_s": -0.050343919545412064
+    },
+    "joint2": {
+      "default_rad": 1.350000023841858,
+      "position_rad": 1.754907488822937,
+      "velocity_rad_s": 3.091003179550171
+    },
+    "joint3": {
+      "default_rad": -1.649999976158142,
+      "position_rad": -1.3870961666107178,
+      "velocity_rad_s": -0.053572025150060654
+    },
+    "joint4": {
+      "default_rad": 0.30000001192092896,
+      "position_rad": 0.5002419948577881,
+      "velocity_rad_s": 0.7390695810317993
+    },
+    "joint5": {
+      "default_rad": 0.0,
+      "position_rad": 0.0015994063578546047,
+      "velocity_rad_s": -0.032257672399282455
+    },
+    "joint6": {
+      "default_rad": 0.0,
+      "position_rad": -0.0005593100795522332,
+      "velocity_rad_s": 1.3291064533405006e-06
+    }
+  },
+  "metrics": {
+    "max_joint_motion_rad": 0.40505194664001465,
+    "maximum_tilt_deg": 6.007498434013415,
+    "mean_episode_reward": 2.4540698528289795,
+    "minimum_root_height_m": 0.5034375786781311,
+    "nonzero_probe_elements_by_term": {
+      "arm_position": 0,
+      "leg_position": 0,
+      "wheel_velocity": 0
+    },
+    "terminated_count": 0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "truncated_count": 0
+  },
+  "mode": "zero",
+  "num_envs": 1024,
+  "observation_shapes": {
+    "policy": [
+      1024,
+      216
+    ],
+    "privileged": [
+      1024,
+      27
+    ]
+  },
+  "reward_terms_env0": {
+    "action_rate": -0.0,
+    "arm_action": -0.0,
+    "arm_joint_margin": -0.0,
+    "base_height": -0.005078180227428675,
+    "final_success": 0.0,
+    "flat_orientation": -0.0012288582511246204,
+    "joint_limits": -0.0,
+    "joint_torque": -0.09977786988019943,
+    "leg_action": -0.0,
+    "settled_velocity": -0.4142169952392578,
+    "tcp_orientation_coarse": 0.726823091506958,
+    "tcp_orientation_fine": 1.0211565494537354,
+    "tcp_position_coarse": 1.984840989112854,
+    "tcp_position_fine": 3.9000966548919678,
+    "tcp_twist": 1.679895127392831e-19,
+    "terminal_arm_home": -0.0,
+    "termination": -0.0,
+    "vertical_velocity": -0.060906678438186646,
+    "wheel_action": -0.0,
+    "wheel_lateral_slip": -0.00027670376584865153
+  },
+  "status": "PASS",
+  "step_dt_s": 0.02,
+  "steps": 20,
+  "task": "B2W-Z1-EE-WBC-Flat-Play-v0"
+}

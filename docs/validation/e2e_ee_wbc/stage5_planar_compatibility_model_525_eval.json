@@ -1,0 +1,90 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 2.3372335311440646,
+    "mean": 0.8072711570612083,
+    "p95": 1.6804283465687695
+  },
+  "final_goal_position_error_m": {
+    "max": 0.007883097045123577,
+    "mean": 0.0043169306591153145,
+    "p95": 0.007225517183542252
+  },
+  "final_root_height_m": {
+    "max": 0.5108997821807861,
+    "mean": 0.4839838147163391,
+    "min": 0.463308721780777,
+    "p05": 0.46762385964393616,
+    "p95": 0.5073541402816772
+  },
+  "final_root_pitch_deg": {
+    "max": 8.828771676823829,
+    "mean": 4.089950145289016,
+    "min": -0.0028318104371111703,
+    "p05": 1.3403126735456377,
+    "p95": 5.775844457462794
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_survival": {
+    "completed_envs": 64,
+    "completion_rate": 1.0,
+    "maximum_tilt_deg": 22.541393280037113,
+    "minimum_root_height_m": 0.4631369709968567,
+    "terminated_envs": 0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "termination_step": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "undesired_contact_by_body": {}
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.30161309242248535,
+    "legs": 0.31751275062561035,
+    "wheels": 0.07294698804616928
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 5.1916797220927595,
+    "mean": 0.9249586248334072,
+    "p95": 2.309611392366887
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.022822298109531403,
+    "mean": 0.005327756050974131,
+    "p95": 0.012563529424369335
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.5930406451225281,
+    "mean": 0.21711602807044983,
+    "p95": 0.42038270831108093
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.753242015838623,
+    "mean": 0.4339132308959961,
+    "p95": 0.6988041400909424
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7711717486381531,
+    "mean": 0.4376252293586731,
+    "p95": 0.708775520324707
+  },
+  "sampled_target_vertical_translation_m": {
+    "max": 0.16532468795776367,
+    "mean": 0.036327555775642395,
+    "min": -0.05507981777191162,
+    "p05": -0.03534534201025963,
+    "p95": 0.1330108642578125
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage5-Play-v0"
+}

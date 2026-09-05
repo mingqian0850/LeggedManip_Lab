@@ -115,6 +115,28 @@ Stage 5 的平均底盘平移约 0.226 m，三个 seed 中观察到的最大底�
 /home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt
 ```
 
+### 5.2 低位 TCP 与本体倾斜课程（2026-09-06 已通过）
+
+最初把所有 ghost-root 平移直接改成重力对齐坐标，破坏了 Stage 5 的已学分布；该尝试已停止。最终采用向后兼容的命令定义：平面 replay 保持原几何不变，仅对明确抽中的 spatial 样本把 TCP 世界 z 锁定为相对落稳 TCP 的负偏移。评估器也增加了 spatial/planar 分组完成率和相对落稳姿态的 root-pitch 变化。
+
+低位课程先从 -0.5～-1.5 cm、20% 样本开始，并把底盘高度 barrier 权重从 -4 增到 -12、flat-orientation 权重从 -1 降到 -0.2。`model_625` 在 seed 42/43/44 共 384 环境中达到 384/384，其中低位 75/75、平面 309/309。之后将低位目标限制在面向开门任务的前方 ±0.60 rad 扇区，并逐级 zero-shot 扩展：
+
+| 低位范围 | 训练 | 三 seed 总体存活 | 低位存活 | 平面存活 | 低位平均额外前倾 |
+|---|---:|---:|---:|---:|---:|
+| -0.5～-1.5 cm | 175 iterations（两段） | 384/384 | 75/75 | 309/309 | — |
+| -1.5～-4 cm | 0 | 380/384 | 83/87 | 297/297 | — |
+| -4～-8 cm，前方扇区 | 0 | 384/384 | 100/100 | 284/284 | 约 +1.8° |
+| -8～-12 cm，前方扇区 | 0 | 384/384 | 123/123 | 261/261 | 约 +2.39° |
+| -12～-18 cm，前方扇区 | 0 | 374/384 = 97.40% | 129/139 = 92.81% | 245/245 | 约 +3.24° |
+
+当前低位/平面统一最佳 checkpoint 仍为首级课程的 `model_625`；更深的目标靠任务结构泛化通过，没有额外覆盖这个稳定模型：
+
+```text
+/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt
+```
+
+一个失败的 Stage 8 标准 PPO 试验显示：30% 的 360° 低位目标会导致平面遗忘和姿态冲突。最终版本将低位目标放到前方扇区，并提供低位专用 pitch shaping 与保守 PPO 配置（1e-4 学习率、0.1 clip、0.001 entropy），供后续更深目标或门接触微调使用。当前 Stage 8–10 因 zero-shot 已过门槛，没有不必要地继续训练。
+
 训练窗口在 `model_298` 附近曾显示 mean episode length 约 583、timeout 约 95.6%，但确定性首回合测试只有 32.8% 存活。差异来自训练指标的滚动/随机分布与 reset 混合，而确定性评估严格追踪同一批环境的第一次 episode。以后 checkpoint 选择一律以后者为准。
 
 还额外做过两项失败诊断并保留结果：
@@ -150,6 +172,12 @@ $PY scripts/standalone/b2w_z1_e2e_ee_wbc_smoke.py \
 
 ```text
 /home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_00-37-29_stage5_radius70_100/model_525.pt
+```
+
+当前低位 + 平面统一最佳 checkpoint：
+
+```text
+/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt
 ```
 
 复现固定批量评估：
@@ -188,7 +216,7 @@ $PY scripts/rsl_rl/play.py \
 
 ### 阶段 2：扩大 whole-body 工作空间（平面部分已通过）
 
-已按 20、30、50、70 cm 的顺序完成，并始终保留 30% 旧目标 replay。下一步单独加入 z 方向目标和可控 body pitch/height，使低目标可以通过前低后高的全身倾斜完成；继续保留平面 nominal 回归。之后再扩大 yaw。不要一次同时扩大所有范围。
+已按 20、30、50、70 cm 的顺序完成，并始终保留 30% 旧目标 replay；前方低位目标也已扩到 -18 cm，并验证了随目标降低而增加的本体前倾。下一步进入门把手接触任务，同时保留平面与低位 nominal 回归。之后再扩大 yaw。不要一次同时扩大所有范围。
 
 ### 阶段 3：提高动态质量和精度
 
@@ -204,7 +232,7 @@ $PY scripts/rsl_rl/play.py \
 
 ## 8. 当前已知限制
 
-- 目前已有 flat plane 上最大 70 cm 的平面 ghost-root 目标；还没有低位目标、门、视觉或触觉。
+- 目前已有 flat plane 上最大 70 cm 的平面目标和前方 -18 cm 低位目标；还没有门、视觉或触觉。
 - 夹爪只保持，不参与学习。
 - 第一阶段 PD plant 是为了建立可学习基线，不等同真机执行器。
 - 两帧历史和 216 维输入尚未做消融；后续可以比较单帧、三帧以及显式 acceleration。

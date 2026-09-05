@@ -1,0 +1,66 @@
+{
+  "date": "2026-09-06",
+  "selected_checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt",
+  "command_semantics": "Planar replay preserves the proven ghost-root geometry; selected spatial samples override only final TCP world-z relative to settled TCP.",
+  "gate": {
+    "minimum_overall_completion_rate": 0.95,
+    "minimum_spatial_completion_rate": 0.90,
+    "minimum_planar_replay_completion_rate": 0.95,
+    "position_threshold_m": 0.03,
+    "orientation_threshold_deg": 6.0
+  },
+  "stages": [
+    {
+      "name": "stage6_low15mm",
+      "height_offset_range_m": [-0.015, -0.005],
+      "spatial_probability": 0.20,
+      "training_iterations": 175,
+      "overall": [384, 384],
+      "spatial": [75, 75],
+      "planar_replay": [309, 309]
+    },
+    {
+      "name": "stage7_low4cm",
+      "height_offset_range_m": [-0.04, -0.015],
+      "spatial_probability": 0.25,
+      "training_iterations": 0,
+      "overall": [380, 384],
+      "spatial": [83, 87],
+      "planar_replay": [297, 297]
+    },
+    {
+      "name": "stage8_forward_low8cm",
+      "height_offset_range_m": [-0.08, -0.04],
+      "spatial_probability": 0.30,
+      "spatial_bearing_range_rad": [-0.60, 0.60],
+      "training_iterations": 0,
+      "overall": [384, 384],
+      "spatial": [100, 100],
+      "planar_replay": [284, 284],
+      "mean_spatial_root_pitch_delta_deg": 1.76
+    },
+    {
+      "name": "stage9_forward_low12cm",
+      "height_offset_range_m": [-0.12, -0.08],
+      "spatial_probability": 0.35,
+      "spatial_bearing_range_rad": [-0.60, 0.60],
+      "training_iterations": 0,
+      "overall": [384, 384],
+      "spatial": [123, 123],
+      "planar_replay": [261, 261],
+      "mean_spatial_root_pitch_delta_deg": 2.39
+    },
+    {
+      "name": "stage10_forward_low18cm",
+      "height_offset_range_m": [-0.18, -0.12],
+      "spatial_probability": 0.40,
+      "spatial_bearing_range_rad": [-0.60, 0.60],
+      "training_iterations": 0,
+      "overall": [374, 384],
+      "spatial": [129, 139],
+      "planar_replay": [245, 245],
+      "mean_spatial_root_pitch_delta_deg": 3.24
+    }
+  ],
+  "next_stage": "door asset, handle alignment/grasp, handle rotation, then pull while maintaining connection"
+}

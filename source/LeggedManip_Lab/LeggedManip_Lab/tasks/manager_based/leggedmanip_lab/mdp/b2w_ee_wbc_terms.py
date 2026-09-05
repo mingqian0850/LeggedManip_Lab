@@ -15,7 +15,7 @@ import torch
 from isaaclab.assets import Articulation
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.sensors import ContactSensor
-from isaaclab.utils.math import compute_pose_error, quat_apply_inverse, quat_inv, quat_mul
+from isaaclab.utils.math import compute_pose_error, euler_xyz_from_quat, quat_apply_inverse, quat_inv, quat_mul
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -138,6 +138,37 @@ def base_height_safety_barrier(
         min=0.0,
     )
     return torch.square(normalized_shortfall)
+
+
+def spatial_base_pitch_tracking_exp(
+    env: ManagerBasedRLEnv,
+    command_name: str,
+    maximum_height_offset: float,
+    maximum_pitch: float,
+    std: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Shape low forward goals toward a safe nose-down whole-body posture.
+
+    The command's signed world-z offset determines the desired pitch.  The term
+    is inactive for planar replay and ramps with the minimum-jerk command phase,
+    so settling is not disturbed.  Positive pitch is the B2-W nose-down
+    convention used by the command curriculum.
+    """
+    if maximum_height_offset <= 0.0 or maximum_pitch <= 0.0 or std <= 0.0:
+        raise ValueError("maximum_height_offset, maximum_pitch, and std must be positive")
+    command = env.command_manager.get_term(command_name)
+    robot: Articulation = env.scene[asset_cfg.name]
+    _, root_pitch, _ = euler_xyz_from_quat(robot.data.root_quat_w)
+    height_fraction = torch.clamp(
+        -command.ghost_translation_b[:, 2] / maximum_height_offset,
+        min=0.0,
+        max=1.0,
+    )
+    desired_pitch = maximum_pitch * height_fraction
+    phase = command.motion_progress
+    active = command.spatial_mask.float()
+    return active * phase * torch.exp(-torch.square(root_pitch - desired_pitch) / std**2)
 
 
 def tcp_goal_distance(

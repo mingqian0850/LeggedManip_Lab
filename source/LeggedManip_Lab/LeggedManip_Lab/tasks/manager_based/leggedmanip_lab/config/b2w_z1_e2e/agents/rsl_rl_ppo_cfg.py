@@ -40,3 +40,23 @@ class B2WZ1EEWBCPPORunnerCfg(RslRlOnPolicyRunnerCfg):
         desired_kl=0.01,
         max_grad_norm=1.0,
     )
+
+
+@configclass
+class B2WZ1EEWBCFineTunePPORunnerCfg(B2WZ1EEWBCPPORunnerCfg):
+    """Conservative PPO updates for workspace/posture curriculum expansion."""
+
+    algorithm = RslRlPpoAlgorithmCfg(
+        value_loss_coef=1.0,
+        use_clipped_value_loss=True,
+        clip_param=0.10,
+        entropy_coef=0.001,
+        num_learning_epochs=3,
+        num_mini_batches=4,
+        learning_rate=1.0e-4,
+        schedule="adaptive",
+        gamma=0.99,
+        lam=0.95,
+        desired_kl=0.005,
+        max_grad_norm=0.7,
+    )

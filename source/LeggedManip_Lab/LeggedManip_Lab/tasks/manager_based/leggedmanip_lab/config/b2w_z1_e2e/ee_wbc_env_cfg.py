@@ -307,6 +307,7 @@ class B2WZ1EEWBCRewardsCfg:
         params={"safe_height": 0.49, "minimum_height": 0.45},
     )
     flat_orientation = RewTerm(func=mdp.flat_orientation_l2, weight=-1.0)
+    spatial_pitch = None
     vertical_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-0.5)
     joint_limits = RewTerm(
         func=mdp.joint_pos_limits,
@@ -485,6 +486,119 @@ class B2WZ1EEWBCStage5EnvCfg(B2WZ1EEWBCEnvCfg):
 
 @configclass
 class B2WZ1EEWBCStage5EnvCfg_PLAY(B2WZ1EEWBCStage5EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage6EnvCfg(B2WZ1EEWBCStage5EnvCfg):
+    """Stage 6: introduce low TCP goals while replaying the 70 cm planar task."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.height_offset_range = (-0.015, -0.005)
+        self.commands.tcp_pose.pitch_range = (0.0, 0.0)
+        self.commands.tcp_pose.spatial_probability = 0.20
+        self.rewards.base_height.weight = -12.0
+        self.rewards.flat_orientation.weight = -0.20
+
+
+@configclass
+class B2WZ1EEWBCStage6EnvCfg_PLAY(B2WZ1EEWBCStage6EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage7EnvCfg(B2WZ1EEWBCStage6EnvCfg):
+    """Stage 7: expand low TCP goals to four centimetres."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.height_offset_range = (-0.04, -0.015)
+        self.commands.tcp_pose.spatial_probability = 0.25
+
+
+@configclass
+class B2WZ1EEWBCStage7EnvCfg_PLAY(B2WZ1EEWBCStage7EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage8EnvCfg(B2WZ1EEWBCStage7EnvCfg):
+    """Stage 8: expand low TCP goals to eight centimetres."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.height_offset_range = (-0.08, -0.04)
+        self.commands.tcp_pose.spatial_probability = 0.30
+        self.commands.tcp_pose.spatial_bearing_range = (-0.60, 0.60)
+        self.rewards.spatial_pitch = RewTerm(
+            func=mdp.spatial_base_pitch_tracking_exp,
+            weight=1.0,
+            params={
+                "command_name": "tcp_pose",
+                "maximum_height_offset": 0.08,
+                "maximum_pitch": math.radians(10.0),
+                "std": math.radians(5.0),
+            },
+        )
+
+
+@configclass
+class B2WZ1EEWBCStage8EnvCfg_PLAY(B2WZ1EEWBCStage8EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage9EnvCfg(B2WZ1EEWBCStage8EnvCfg):
+    """Stage 9: extend front-sector low TCP goals to twelve centimetres."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.height_offset_range = (-0.12, -0.08)
+        self.commands.tcp_pose.spatial_probability = 0.35
+        self.rewards.spatial_pitch.params["maximum_height_offset"] = 0.12
+        self.rewards.spatial_pitch.params["maximum_pitch"] = math.radians(14.0)
+
+
+@configclass
+class B2WZ1EEWBCStage9EnvCfg_PLAY(B2WZ1EEWBCStage9EnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1EEWBCStage10EnvCfg(B2WZ1EEWBCStage9EnvCfg):
+    """Stage 10: extend front-sector low TCP goals to eighteen centimetres."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.height_offset_range = (-0.18, -0.12)
+        self.commands.tcp_pose.spatial_probability = 0.40
+        self.rewards.spatial_pitch.params["maximum_height_offset"] = 0.18
+        self.rewards.spatial_pitch.params["maximum_pitch"] = math.radians(18.0)
+
+
+@configclass
+class B2WZ1EEWBCStage10EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg):
     def __post_init__(self) -> None:
         super().__post_init__()
         self.scene.num_envs = 16

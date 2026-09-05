@@ -68,6 +68,7 @@ class FKReachableWorldPoseCommand(CommandTerm):
         self.sampled_tcp_pose_b = torch.zeros_like(self.start_pose_w)
         self.ghost_translation_b = torch.zeros((self.num_envs, 3), device=self.device)
         self.ghost_rotation_b = torch.zeros((self.num_envs, 4), device=self.device)
+        self.spatial_mask = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.start_pose_w[:, 3] = 1.0
         self.goal_pose_w[:, 3] = 1.0
         self.pose_command_w[:, 3] = 1.0
@@ -202,16 +203,32 @@ class FKReachableWorldPoseCommand(CommandTerm):
             radius = torch.where(short_mask, short_radius, radius)
         bearing = torch.empty(count, device=self.device).uniform_(*self.cfg.bearing_range)
         yaw = torch.empty(count, device=self.device).uniform_(*self.cfg.yaw_range)
+        height_offset = torch.zeros(count, device=self.device)
+        pitch = torch.zeros(count, device=self.device)
+        spatial_mask = torch.zeros(count, dtype=torch.bool, device=self.device)
+        if self.cfg.spatial_probability > 0.0:
+            height_offset.uniform_(*self.cfg.height_offset_range)
+            pitch.uniform_(*self.cfg.pitch_range)
+            spatial_mask = torch.rand(count, device=self.device) < self.cfg.spatial_probability
+            height_offset = torch.where(spatial_mask, height_offset, torch.zeros_like(height_offset))
+            pitch = torch.where(spatial_mask, pitch, torch.zeros_like(pitch))
+            if self.cfg.spatial_bearing_range is not None:
+                spatial_bearing = torch.empty(count, device=self.device).uniform_(*self.cfg.spatial_bearing_range)
+                bearing = torch.where(spatial_mask, spatial_bearing, bearing)
         if self.cfg.stationary_probability > 0.0:
             stationary = torch.rand(count, device=self.device) < self.cfg.stationary_probability
             radius[stationary] = 0.0
             yaw[stationary] = 0.0
+            height_offset[stationary] = 0.0
+            pitch[stationary] = 0.0
+            spatial_mask[stationary] = False
 
         ghost_translation_b = torch.zeros((count, 3), device=self.device)
         ghost_translation_b[:, 0] = radius * torch.cos(bearing)
         ghost_translation_b[:, 1] = radius * torch.sin(bearing)
+        ghost_translation_b[:, 2] = height_offset
         zeros = torch.zeros(count, device=self.device)
-        ghost_rotation = quat_from_euler_xyz(zeros, zeros, yaw)
+        ghost_rotation = quat_from_euler_xyz(zeros, pitch, yaw)
         ghost_root_pos_w, ghost_root_quat_w = combine_frame_transforms(
             root_pos_w,
             root_quat_w,
@@ -224,6 +241,11 @@ class FKReachableWorldPoseCommand(CommandTerm):
             sampled_pos_b,
             sampled_quat_b,
         )
+        # Preserve the proven planar command geometry bit-for-bit.  Only
+        # explicitly selected spatial samples receive a world-vertical TCP
+        # displacement, preventing root tilt from reversing a requested low
+        # target while avoiding a distribution shift for planar replay.
+        goal_pos_w[spatial_mask, 2] = start_pos_w[spatial_mask, 2] + height_offset[spatial_mask]
 
         self.start_pose_w[env_ids, :3] = start_pos_w
         self.start_pose_w[env_ids, 3:] = start_quat_w
@@ -239,6 +261,7 @@ class FKReachableWorldPoseCommand(CommandTerm):
         self.sampled_tcp_pose_b[env_ids, 3:] = sampled_quat_b
         self.ghost_translation_b[env_ids] = ghost_translation_b
         self.ghost_rotation_b[env_ids] = ghost_rotation
+        self.spatial_mask[env_ids] = spatial_mask
         self.elapsed_s[env_ids] = 0.0
         self.motion_progress[env_ids] = 0.0
 
@@ -267,6 +290,10 @@ class FKReachableWorldPoseCommand(CommandTerm):
             ghost_root_quat_w,
             sampled_pos_b,
             sampled_quat_b,
+        )
+        spatial_mask = self.spatial_mask[env_ids]
+        goal_pos_w[spatial_mask, 2] = (
+            start_pos_w[spatial_mask, 2] + self.ghost_translation_b[env_ids[spatial_mask], 2]
         )
         self.start_pose_w[env_ids, :3] = start_pos_w
         self.start_pose_w[env_ids, 3:] = start_quat_w
@@ -333,7 +360,15 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
     short_radius_probability: float = 0.0
     """Probability of replacing a radius sample with ``short_radius_range``."""
     bearing_range: tuple[float, float] = (-math.pi, math.pi)
+    spatial_bearing_range: tuple[float, float] | None = None
+    """Optional bearing range used only for height/pitch samples."""
     yaw_range: tuple[float, float] = (-0.25, 0.25)
+    height_offset_range: tuple[float, float] = (0.0, 0.0)
+    """Ghost-root vertical displacement in the settled root frame."""
+    pitch_range: tuple[float, float] = (0.0, 0.0)
+    """Ghost-root pitch displacement in radians; positive pitches the nose down."""
+    spatial_probability: float = 0.0
+    """Fraction of samples using height/pitch; remaining samples stay planar."""
     stationary_probability: float = 0.1
     settle_time_s: float = 1.0
     motion_time_s: float = 2.0
@@ -352,5 +387,13 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
                 raise ValueError(f"Invalid short radius range: {self.short_radius_range}")
         if not 0.0 <= self.stationary_probability <= 1.0:
             raise ValueError("stationary_probability must lie in [0, 1]")
+        if self.height_offset_range[1] < self.height_offset_range[0]:
+            raise ValueError(f"Invalid height offset range: {self.height_offset_range}")
+        if self.pitch_range[1] < self.pitch_range[0]:
+            raise ValueError(f"Invalid pitch range: {self.pitch_range}")
+        if self.spatial_bearing_range is not None and self.spatial_bearing_range[1] < self.spatial_bearing_range[0]:
+            raise ValueError(f"Invalid spatial bearing range: {self.spatial_bearing_range}")
+        if not 0.0 <= self.spatial_probability <= 1.0:
+            raise ValueError("spatial_probability must lie in [0, 1]")
         if self.motion_time_s <= 0.0:
             raise ValueError("motion_time_s must be positive")

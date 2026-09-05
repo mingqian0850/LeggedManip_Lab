@@ -34,6 +34,7 @@ import LeggedManip_Lab.tasks  # noqa: F401
 from isaaclab_tasks.utils.parse_cfg import load_cfg_from_registry
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab_rl.rsl_rl import RslRlVecEnvWrapper, handle_deprecated_rsl_rl_cfg
+from isaaclab.utils.math import euler_xyz_from_quat
 
 
 def _as_float(value: torch.Tensor) -> float:
@@ -47,6 +48,19 @@ def _summary(values: torch.Tensor) -> dict[str, float]:
     return {
         "mean": _as_float(torch.mean(values)),
         "p95": _as_float(torch.quantile(values, 0.95)),
+        "max": _as_float(torch.max(values)),
+    }
+
+
+def _signed_summary(values: torch.Tensor) -> dict[str, float]:
+    values = values.flatten()
+    if values.numel() == 0:
+        return {"mean": math.nan, "p05": math.nan, "p95": math.nan, "min": math.nan, "max": math.nan}
+    return {
+        "mean": _as_float(torch.mean(values)),
+        "p05": _as_float(torch.quantile(values, 0.05)),
+        "p95": _as_float(torch.quantile(values, 0.95)),
+        "min": _as_float(torch.min(values)),
         "max": _as_float(torch.max(values)),
     }
 
@@ -75,13 +89,22 @@ def main() -> dict:
 
         robot = task.scene["robot"]
         command = task.command_manager.get_term("tcp_pose")
+        initial_spatial_mask = getattr(
+            command,
+            "spatial_mask",
+            torch.zeros(task.num_envs, dtype=torch.bool, device=task.device),
+        ).clone()
         settle_steps = math.ceil(command.cfg.settle_time_s / task.step_dt)
         alive = torch.ones(task.num_envs, dtype=torch.bool, device=task.device)
         initial_root_xy = robot.data.root_pos_w[:, :2].clone()
         target_translation = None
         target_planar_translation = None
+        target_vertical_translation = None
+        settled_root_pitch = torch.zeros(task.num_envs, device=task.device)
         reference_position_errors = []
         reference_orientation_errors = []
+        spatial_reference_position_errors = []
+        planar_reference_position_errors = []
         minimum_root_height = math.inf
         maximum_tilt = 0.0
         termination_counts = {name: 0 for name in task.termination_manager.active_terms}
@@ -110,6 +133,9 @@ def main() -> dict:
                 target_delta = command.goal_pose_w[:, :3] - command.start_pose_w[:, :3]
                 target_translation = torch.linalg.vector_norm(target_delta, dim=-1).clone()
                 target_planar_translation = torch.linalg.vector_norm(target_delta[:, :2], dim=-1).clone()
+                target_vertical_translation = target_delta[:, 2].clone()
+                _, settled_pitch, _ = euler_xyz_from_quat(robot.data.root_quat_w)
+                settled_root_pitch.copy_(settled_pitch)
 
             valid = alive & ~dones
             newly_done = alive & dones
@@ -141,6 +167,16 @@ def main() -> dict:
             if step + 1 > settle_steps and torch.any(valid):
                 reference_position_errors.append(command.metrics["reference_position_error"][valid].clone())
                 reference_orientation_errors.append(command.metrics["reference_orientation_error"][valid].clone())
+                spatial_valid = valid & initial_spatial_mask
+                planar_valid = valid & ~initial_spatial_mask
+                if torch.any(spatial_valid):
+                    spatial_reference_position_errors.append(
+                        command.metrics["reference_position_error"][spatial_valid].clone()
+                    )
+                if torch.any(planar_valid):
+                    planar_reference_position_errors.append(
+                        command.metrics["reference_position_error"][planar_valid].clone()
+                    )
 
             action_abs_sum[0] += torch.sum(torch.abs(actions[alive, :12]))
             action_abs_sum[1] += torch.sum(torch.abs(actions[alive, 12:18]))
@@ -164,6 +200,13 @@ def main() -> dict:
         root_displacement = torch.linalg.vector_norm(
             robot.data.root_pos_w[alive, :2] - initial_root_xy[alive], dim=-1
         )
+        _, final_root_pitch_all, _ = euler_xyz_from_quat(robot.data.root_quat_w)
+        final_root_pitch = final_root_pitch_all[alive]
+        final_root_pitch_delta = final_root_pitch - settled_root_pitch[alive]
+        spatial_alive = alive & initial_spatial_mask
+        planar_alive = alive & ~initial_spatial_mask
+        spatial_total = int(torch.count_nonzero(initial_spatial_mask).item())
+        planar_total = int(task.num_envs - spatial_total)
 
         report = {
             "task": args_cli.task,
@@ -192,13 +235,46 @@ def main() -> dict:
                     torch.cat(termination_steps) if termination_steps else torch.empty(0)
                 ),
             },
+            "first_episode_completion_by_target_type": {
+                "spatial": {
+                    "completed_envs": int(torch.count_nonzero(spatial_alive).item()),
+                    "total_envs": spatial_total,
+                    "completion_rate": (
+                        _as_float(torch.count_nonzero(spatial_alive).float() / spatial_total)
+                        if spatial_total else math.nan
+                    ),
+                },
+                "planar_replay": {
+                    "completed_envs": int(torch.count_nonzero(planar_alive).item()),
+                    "total_envs": planar_total,
+                    "completion_rate": (
+                        _as_float(torch.count_nonzero(planar_alive).float() / planar_total)
+                        if planar_total else math.nan
+                    ),
+                },
+            },
             "sampled_target_translation_m": _summary(target_translation if target_translation is not None else torch.empty(0)),
             "sampled_target_planar_translation_m": _summary(
                 target_planar_translation if target_planar_translation is not None else torch.empty(0)
             ),
+            "sampled_target_vertical_translation_m": _signed_summary(
+                target_vertical_translation if target_vertical_translation is not None else torch.empty(0)
+            ),
             "motion_reference_position_error_m": _summary(
                 torch.cat(reference_position_errors) if reference_position_errors else torch.empty(0)
             ),
+            "motion_reference_position_error_by_target_type_m": {
+                "spatial": _summary(
+                    torch.cat(spatial_reference_position_errors)
+                    if spatial_reference_position_errors
+                    else torch.empty(0)
+                ),
+                "planar_replay": _summary(
+                    torch.cat(planar_reference_position_errors)
+                    if planar_reference_position_errors
+                    else torch.empty(0)
+                ),
+            },
             "motion_reference_orientation_error_deg": {
                 key: math.degrees(value)
                 for key, value in _summary(
@@ -213,6 +289,27 @@ def main() -> dict:
                 _as_float(torch.mean(final_success.float())) if final_success.numel() else 0.0
             ),
             "root_planar_displacement_m": _summary(root_displacement),
+            "final_root_height_m": _signed_summary(robot.data.root_pos_w[alive, 2]),
+            "final_root_pitch_deg": {
+                key: math.degrees(value) for key, value in _signed_summary(final_root_pitch).items()
+            },
+            "final_root_pitch_delta_deg": {
+                key: math.degrees(value) for key, value in _signed_summary(final_root_pitch_delta).items()
+            },
+            "final_root_pitch_delta_by_target_type_deg": {
+                "spatial": {
+                    key: math.degrees(value)
+                    for key, value in _signed_summary(
+                        final_root_pitch_all[spatial_alive] - settled_root_pitch[spatial_alive]
+                    ).items()
+                },
+                "planar_replay": {
+                    key: math.degrees(value)
+                    for key, value in _signed_summary(
+                        final_root_pitch_all[planar_alive] - settled_root_pitch[planar_alive]
+                    ).items()
+                },
+            },
             "mean_absolute_normalized_action": {
                 "legs": _as_float(action_abs_sum[0] / torch.clamp(action_element_count[0], min=1.0)),
                 "arm": _as_float(action_abs_sum[1] / torch.clamp(action_element_count[1], min=1.0)),

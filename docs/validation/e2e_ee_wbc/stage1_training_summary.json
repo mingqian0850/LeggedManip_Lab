@@ -1,17 +1,17 @@
 {
-  "status": "partial_accuracy_pass_robustness_fail",
+  "status": "stage1_nominal_pass",
   "evaluation_protocol": {
     "deterministic_policy": true,
     "first_episode_only": true,
     "num_envs": 64,
-    "seed": 42,
+    "seeds": [42, 43, 44],
     "steps": 599,
     "step_dt_s": 0.02
   },
   "selected_checkpoint": {
-    "name": "model_200.pt",
-    "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-25-26_stage1b_height_200/model_200.pt",
-    "reason": "Highest deterministic first-episode survival among the three evaluated checkpoints while retaining sub-centimeter and low-degree EE accuracy."
+    "name": "model_324.pt",
+    "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-56-53_stage1d_safety_scale_75/model_324.pt",
+    "reason": "Passed the three-seed Stage 1 gate with 190/192 first episodes surviving and all survivors meeting 3 cm / 6 degrees."
   },
   "training_runs": [
     {
@@ -28,6 +28,22 @@
       "additional_simulation_steps": 6553600,
       "wall_time_s": 460,
       "change": "base_height reward -3.0 to -12.0; termination reward -8.0 to -20.0"
+    },
+    {
+      "name": "stage1c_safety_100",
+      "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-46-37_stage1c_safety_100",
+      "additional_iterations": 100,
+      "additional_simulation_steps": 3276800,
+      "wall_time_s": 235,
+      "change": "one-sided normalized base-height barrier; contact penalty; 25-iteration checkpoint interval"
+    },
+    {
+      "name": "stage1d_safety_scale_75",
+      "path": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-56-53_stage1d_safety_scale_75",
+      "additional_iterations": 75,
+      "additional_simulation_steps": 2457600,
+      "wall_time_s": 176,
+      "change": "contact reward -50; terminal reward -200 to account for 0.02 s reward integration"
     }
   ],
   "evaluations": [
@@ -69,6 +85,30 @@
       "survivor_final_position_error_mean_m": 0.005621358752250671,
       "survivor_final_orientation_error_mean_deg": 1.0472519879837219,
       "survivor_success_rate_3cm_6deg": 1.0
+    },
+    {
+      "checkpoint": "stage1c/model_250.pt",
+      "aggregate_seeds": [42, 43, 44],
+      "completed_envs": 173,
+      "num_envs": 192,
+      "completion_rate": 0.9010416666666666,
+      "overall_success_rate_3cm_6deg": 0.8958333569268385
+    },
+    {
+      "checkpoint": "stage1d/model_324.pt",
+      "aggregate_seeds": [42, 43, 44],
+      "completed_envs": 190,
+      "num_envs": 192,
+      "completion_rate": 0.9895833333333334,
+      "termination_counts": {
+        "low_base": 0,
+        "bad_orientation": 0,
+        "undesired_contact": 2
+      },
+      "mean_of_seed_final_position_error_means_m": 0.0033122272385905185,
+      "mean_of_seed_final_orientation_error_means_deg": 1.0928520740039216,
+      "overall_success_rate_3cm_6deg": 0.9895833333333334,
+      "survivor_success_rate_3cm_6deg": 1.0
     }
   ],
   "stage1_exit_gate": {
@@ -77,7 +117,7 @@
     "minimum_aggregate_first_episode_survival": 0.95,
     "minimum_final_success_rate_3cm_6deg": 0.9,
     "allow_nan": false,
-    "passed": false
+    "passed": true
   },
-  "next_required_diagnostic": "Record the body name and contact force at each undesired_contact termination before changing rewards again."
+  "next_stage": "Expand the planar target radius to 0.20 m while retaining at least 30% Stage 1 short-range targets, then repeat the same gate."
 }

@@ -86,6 +86,15 @@ def main() -> dict:
         maximum_tilt = 0.0
         termination_counts = {name: 0 for name in task.termination_manager.active_terms}
         termination_steps = []
+        undesired_cfg = task.termination_manager.get_term_cfg("undesired_contact")
+        undesired_sensor_cfg = undesired_cfg.params["sensor_cfg"]
+        undesired_sensor = task.scene.sensors[undesired_sensor_cfg.name]
+        undesired_body_ids = undesired_sensor_cfg.body_ids
+        if isinstance(undesired_body_ids, slice):
+            undesired_body_ids = list(range(len(undesired_sensor.body_names)))[undesired_body_ids]
+        undesired_body_names = [undesired_sensor.body_names[index] for index in undesired_body_ids]
+        undesired_body_counts = {name: 0 for name in undesired_body_names}
+        undesired_body_peak_force = {name: 0.0 for name in undesired_body_names}
         action_abs_sum = torch.zeros(3, device=task.device)
         action_element_count = torch.zeros(3, device=task.device)
 
@@ -116,6 +125,19 @@ def main() -> dict:
                 for name in termination_counts:
                     cause = task.termination_manager.get_term(name).bool()
                     termination_counts[name] += int(torch.count_nonzero(newly_done & cause).item())
+                undesired_done = newly_done & task.termination_manager.get_term("undesired_contact").bool()
+                if torch.any(undesired_done):
+                    contact_force = torch.linalg.vector_norm(
+                        undesired_sensor.data.net_forces_w_history[:, :, undesired_body_ids, :], dim=-1
+                    ).amax(dim=1)
+                    for body_index, body_name in enumerate(undesired_body_names):
+                        impacted = undesired_done & (contact_force[:, body_index] > undesired_cfg.params["threshold"])
+                        undesired_body_counts[body_name] += int(torch.count_nonzero(impacted).item())
+                        if torch.any(impacted):
+                            undesired_body_peak_force[body_name] = max(
+                                undesired_body_peak_force[body_name],
+                                _as_float(torch.max(contact_force[impacted, body_index])),
+                            )
             if step + 1 > settle_steps and torch.any(valid):
                 reference_position_errors.append(command.metrics["reference_position_error"][valid].clone())
                 reference_orientation_errors.append(command.metrics["reference_orientation_error"][valid].clone())
@@ -158,6 +180,14 @@ def main() -> dict:
                 "minimum_root_height_m": minimum_root_height,
                 "maximum_tilt_deg": math.degrees(maximum_tilt),
                 "termination_counts": termination_counts,
+                "undesired_contact_by_body": {
+                    name: {
+                        "terminated_env_count": undesired_body_counts[name],
+                        "peak_force_n": undesired_body_peak_force[name],
+                    }
+                    for name in undesired_body_names
+                    if undesired_body_counts[name] > 0
+                },
                 "termination_step": _summary(
                     torch.cat(termination_steps) if termination_steps else torch.empty(0)
                 ),

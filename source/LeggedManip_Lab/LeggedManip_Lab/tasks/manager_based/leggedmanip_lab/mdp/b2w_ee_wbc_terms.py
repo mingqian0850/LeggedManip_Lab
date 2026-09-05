@@ -118,6 +118,28 @@ def action_term_l2(env: ManagerBasedRLEnv, action_name: str) -> torch.Tensor:
     return torch.sum(torch.square(action), dim=-1)
 
 
+def base_height_safety_barrier(
+    env: ManagerBasedRLEnv,
+    safe_height: float,
+    minimum_height: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """One-sided normalized penalty as root height approaches termination.
+
+    Heights above ``safe_height`` are unpenalized, which leaves room for useful
+    whole-body height and tilt motion.  The quadratic reaches one at
+    ``minimum_height`` so its reward weight has an intuitive safety scale.
+    """
+    if minimum_height >= safe_height:
+        raise ValueError("minimum_height must be lower than safe_height")
+    robot: Articulation = env.scene[asset_cfg.name]
+    normalized_shortfall = torch.clamp(
+        (safe_height - robot.data.root_pos_w[:, 2]) / (safe_height - minimum_height),
+        min=0.0,
+    )
+    return torch.square(normalized_shortfall)
+
+
 def tcp_goal_distance(
     env: ManagerBasedRLEnv,
     command_name: str,

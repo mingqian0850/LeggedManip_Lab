@@ -27,6 +27,28 @@
       "max": 599.0,
       "mean": 301.06060791015625,
       "p95": 563.0
+    },
+    "undesired_contact_by_body": {
+      "FL_calf": {
+        "peak_force_n": 249.14614868164062,
+        "terminated_env_count": 8
+      },
+      "FR_calf": {
+        "peak_force_n": 249.14614868164062,
+        "terminated_env_count": 8
+      },
+      "gripper_stator": {
+        "peak_force_n": 34.790321350097656,
+        "terminated_env_count": 3
+      },
+      "lidar_link": {
+        "peak_force_n": 2205.848388671875,
+        "terminated_env_count": 17
+      },
+      "link2": {
+        "peak_force_n": 2205.848388671875,
+        "terminated_env_count": 14
+      }
     }
   },
   "mean_absolute_normalized_action": {

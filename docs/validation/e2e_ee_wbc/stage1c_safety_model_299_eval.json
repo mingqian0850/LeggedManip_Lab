@@ -1,0 +1,78 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-46-37_stage1c_safety_100/model_299.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 3.7757657123366606,
+    "mean": 1.4607640200541645,
+    "p95": 2.3759703086915573
+  },
+  "final_goal_position_error_m": {
+    "max": 0.007142582908272743,
+    "mean": 0.004524333868175745,
+    "p95": 0.005792554467916489
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_survival": {
+    "completed_envs": 54,
+    "completion_rate": 0.84375,
+    "maximum_tilt_deg": 6.483708187569991,
+    "minimum_root_height_m": 0.4500834047794342,
+    "terminated_envs": 10,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 4,
+      "time_out": 0,
+      "undesired_contact": 6
+    },
+    "termination_step": {
+      "max": 485.0,
+      "mean": 398.5,
+      "p95": 483.6499938964844
+    },
+    "undesired_contact_by_body": {
+      "FL_calf": {
+        "peak_force_n": 69.94146728515625,
+        "terminated_env_count": 6
+      },
+      "FR_calf": {
+        "peak_force_n": 69.94146728515625,
+        "terminated_env_count": 6
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.6229858994483948,
+    "legs": 0.4525020718574524,
+    "wheels": 0.16705341637134552
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 3.871337561184887,
+    "mean": 1.322434226506306,
+    "p95": 2.3906065503092484
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.016242967918515205,
+    "mean": 0.004574682097882032,
+    "p95": 0.006533058825880289
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.358924001455307,
+    "mean": 0.17829802632331848,
+    "p95": 0.3099519610404968
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.17371387779712677,
+    "mean": 0.06953081488609314,
+    "p95": 0.13944433629512787
+  },
+  "sampled_target_translation_m": {
+    "max": 0.1739489585161209,
+    "mean": 0.06957030296325684,
+    "p95": 0.13946089148521423
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Flat-Play-v0"
+}

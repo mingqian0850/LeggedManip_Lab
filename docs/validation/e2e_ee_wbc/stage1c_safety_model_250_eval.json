@@ -1,0 +1,78 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-46-37_stage1c_safety_100/model_250.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 19.815587725690083,
+    "mean": 1.3306099629428114,
+    "p95": 2.3848583057924477
+  },
+  "final_goal_position_error_m": {
+    "max": 0.03708186373114586,
+    "mean": 0.005142990965396166,
+    "p95": 0.006565844174474478
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 0.98333340883255,
+  "first_episode_survival": {
+    "completed_envs": 60,
+    "completion_rate": 0.9375,
+    "maximum_tilt_deg": 16.286727802320684,
+    "minimum_root_height_m": 0.4530433714389801,
+    "terminated_envs": 4,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 4
+    },
+    "termination_step": {
+      "max": 466.0,
+      "mean": 267.0,
+      "p95": 428.04998779296875
+    },
+    "undesired_contact_by_body": {
+      "gripper_stator": {
+        "peak_force_n": 18.363697052001953,
+        "terminated_env_count": 2
+      },
+      "lidar_link": {
+        "peak_force_n": 18.363697052001953,
+        "terminated_env_count": 2
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.5574303269386292,
+    "legs": 0.421878457069397,
+    "wheels": 0.15100646018981934
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 19.81558089550091,
+    "mean": 1.1339556899683332,
+    "p95": 2.3444186767075066
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.03708186373114586,
+    "mean": 0.0050687240436673164,
+    "p95": 0.007534577511250973
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.6402963399887085,
+    "mean": 0.12622514367103577,
+    "p95": 0.27764496207237244
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.1741175651550293,
+    "mean": 0.06943758577108383,
+    "p95": 0.1366923600435257
+  },
+  "sampled_target_translation_m": {
+    "max": 0.17413002252578735,
+    "mean": 0.06946343183517456,
+    "p95": 0.13671186566352844
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Flat-Play-v0"
+}

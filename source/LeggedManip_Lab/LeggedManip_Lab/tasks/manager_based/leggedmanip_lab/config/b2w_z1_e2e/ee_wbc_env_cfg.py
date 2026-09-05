@@ -298,11 +298,14 @@ class B2WZ1EEWBCRewardsCfg:
         weight=-0.5,
         params={"margin_threshold": 0.12, "asset_cfg": ARM_CFG},
     )
-    # Tracking reward is deliberately strong, so height needs a comparable
-    # shaping signal or the deterministic actor learns to lower the base for
-    # extra arm reach.  This weight was increased after the first 100-iteration
-    # checkpoint failed 55/64 evaluation episodes on low-base termination.
-    base_height = RewTerm(func=mdp.base_height_error_l2, weight=-12.0, params={"target_height": 0.505})
+    # A normalized one-sided barrier protects the 0.45 m termination boundary
+    # without punishing useful upward or tilting whole-body motion.  The former
+    # unnormalized L2 term remained tiny compared with the tracking rewards.
+    base_height = RewTerm(
+        func=mdp.base_height_safety_barrier,
+        weight=-4.0,
+        params={"safe_height": 0.49, "minimum_height": 0.45},
+    )
     flat_orientation = RewTerm(func=mdp.flat_orientation_l2, weight=-1.0)
     vertical_velocity = RewTerm(func=mdp.lin_vel_z_l2, weight=-0.5)
     joint_limits = RewTerm(
@@ -328,6 +331,11 @@ class B2WZ1EEWBCRewardsCfg:
         weight=-0.10,
         params={"sensor_cfg": WHEEL_CONTACT_CFG, "asset_cfg": WHEEL_BODY_CFG},
     )
+    undesired_contacts = RewTerm(
+        func=mdp.undesired_contacts,
+        weight=-50.0,
+        params={"sensor_cfg": UNDESIRED_CONTACT_CFG, "threshold": 1.0},
+    )
     settled_velocity = RewTerm(
         func=mdp.settled_velocity_l2,
         weight=-0.25,
@@ -338,7 +346,10 @@ class B2WZ1EEWBCRewardsCfg:
             "asset_cfg": TCP_CFG,
         },
     )
-    termination = RewTerm(func=mdp.is_terminated, weight=-20.0)
+    # RewardManager integrates weights with the 0.02 s control step.  A -200
+    # weight therefore contributes -4 at failure, which is large enough to be
+    # visible against an approximately 100-return successful episode.
+    termination = RewTerm(func=mdp.is_terminated, weight=-200.0)
 
 
 @configclass

@@ -1,0 +1,90 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-05_23-56-53_stage1d_safety_scale_75/model_275.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 3.1219477750278943,
+    "mean": 1.1550409108229858,
+    "p95": 2.427019996321879
+  },
+  "final_goal_position_error_m": {
+    "max": 0.0064548891969025135,
+    "mean": 0.003652191022410989,
+    "p95": 0.005674426909536123
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_survival": {
+    "completed_envs": 30,
+    "completion_rate": 0.46875,
+    "maximum_tilt_deg": 23.044192533145722,
+    "minimum_root_height_m": 0.45003825426101685,
+    "terminated_envs": 34,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 4,
+      "time_out": 0,
+      "undesired_contact": 31
+    },
+    "termination_step": {
+      "max": 485.0,
+      "mean": 302.9117736816406,
+      "p95": 389.75
+    },
+    "undesired_contact_by_body": {
+      "FL_calf": {
+        "peak_force_n": 66.859619140625,
+        "terminated_env_count": 1
+      },
+      "FR_calf": {
+        "peak_force_n": 66.859619140625,
+        "terminated_env_count": 1
+      },
+      "gripper_stator": {
+        "peak_force_n": 19.816225051879883,
+        "terminated_env_count": 13
+      },
+      "lidar_link": {
+        "peak_force_n": 1692.3385009765625,
+        "terminated_env_count": 20
+      },
+      "link2": {
+        "peak_force_n": 1692.3385009765625,
+        "terminated_env_count": 7
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.5421014428138733,
+    "legs": 0.42648744583129883,
+    "wheels": 0.16038021445274353
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 27.543371328121935,
+    "mean": 1.3328473835045196,
+    "p95": 2.539469242609207
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.06492111086845398,
+    "mean": 0.004234752617776394,
+    "p95": 0.007349423598498106
+  },
+  "num_envs": 64,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.18073450028896332,
+    "mean": 0.0807214006781578,
+    "p95": 0.1523417979478836
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.16544675827026367,
+    "mean": 0.06842190772294998,
+    "p95": 0.13098745048046112
+  },
+  "sampled_target_translation_m": {
+    "max": 0.16546238958835602,
+    "mean": 0.06845021992921829,
+    "p95": 0.13100402057170868
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Flat-Play-v0"
+}

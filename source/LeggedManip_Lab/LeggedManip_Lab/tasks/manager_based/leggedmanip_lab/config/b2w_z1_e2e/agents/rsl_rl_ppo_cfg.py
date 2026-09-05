@@ -10,7 +10,9 @@ class B2WZ1EEWBCPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 32
     check_for_nan = True
     max_iterations = 3000
-    save_interval = 100
+    # Stabilization runs are selected by deterministic batch evaluation rather
+    # than by taking the final checkpoint, so retain intermediate policies.
+    save_interval = 25
     experiment_name = "b2w_z1_e2e_ee_wbc"
     actor = RslRlMLPModelCfg(
         hidden_dims=[512, 256, 128],

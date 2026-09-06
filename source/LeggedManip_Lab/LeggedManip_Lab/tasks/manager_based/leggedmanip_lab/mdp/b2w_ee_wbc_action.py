@@ -74,6 +74,10 @@ class MirroredLowPassJointPositionAction(LowPassJointPositionAction):
 
     cfg: MirroredLowPassJointPositionActionCfg
 
+    def __init__(self, cfg: MirroredLowPassJointPositionActionCfg, env: ManagerBasedEnv) -> None:
+        super().__init__(cfg, env)
+        self._env = env
+
     def process_actions(self, actions: torch.Tensor) -> None:
         # Bypass LowPassJointPositionAction.process_actions so projection occurs
         # before temporal filtering while JointPositionAction still records the
@@ -94,7 +98,30 @@ class MirroredLowPassJointPositionAction(LowPassJointPositionAction):
             mirrored[:, left + 1] = thigh
             mirrored[:, right + 2] = calf
             mirrored[:, left + 2] = calf
-        beta = self.cfg.asymmetric_residual_scale
+        beta: float | torch.Tensor = self.cfg.asymmetric_residual_scale
+        if self.cfg.command_name is not None:
+            command = self._env.command_manager.get_term(self.cfg.command_name)
+            height_offset = command.ghost_translation_b[:, 2]
+            blend = torch.clamp(
+                (self.cfg.mirrored_above_height_m - height_offset)
+                / (self.cfg.mirrored_above_height_m - self.cfg.full_residual_below_height_m),
+                min=0.0,
+                max=1.0,
+            )
+            planar_radius = torch.linalg.vector_norm(command.ghost_translation_b[:, :2], dim=-1)
+            planar_blend = torch.clamp(
+                (planar_radius - self.cfg.mirrored_below_planar_radius_m)
+                / (
+                    self.cfg.full_residual_above_planar_radius_m
+                    - self.cfg.mirrored_below_planar_radius_m
+                ),
+                min=0.0,
+                max=1.0,
+            )
+            blend = torch.maximum(blend, planar_blend)
+            beta = self.cfg.asymmetric_residual_scale + (
+                1.0 - self.cfg.asymmetric_residual_scale
+            ) * blend.unsqueeze(-1)
         projected_residual = mirrored + beta * (residual - mirrored)
         self._processed_actions = offset + projected_residual
         self._filtered_actions.lerp_(self._processed_actions, self.cfg.alpha)
@@ -107,11 +134,22 @@ class MirroredLowPassJointPositionActionCfg(LowPassJointPositionActionCfg):
 
     class_type: type = MirroredLowPassJointPositionAction
     asymmetric_residual_scale: float = 0.25
+    command_name: str | None = None
+    mirrored_above_height_m: float = -0.08
+    full_residual_below_height_m: float = -0.14
+    mirrored_below_planar_radius_m: float = 0.40
+    full_residual_above_planar_radius_m: float = 0.60
 
     def __post_init__(self) -> None:
         super().__post_init__()
         if not 0.0 <= self.asymmetric_residual_scale <= 1.0:
             raise ValueError("asymmetric_residual_scale must lie in [0, 1]")
+        if self.full_residual_below_height_m >= self.mirrored_above_height_m:
+            raise ValueError("full_residual_below_height_m must be below mirrored_above_height_m")
+        if self.full_residual_above_planar_radius_m <= self.mirrored_below_planar_radius_m:
+            raise ValueError(
+                "full_residual_above_planar_radius_m must exceed mirrored_below_planar_radius_m"
+            )
 
 
 class FixedJointPositionAction(ActionTerm):

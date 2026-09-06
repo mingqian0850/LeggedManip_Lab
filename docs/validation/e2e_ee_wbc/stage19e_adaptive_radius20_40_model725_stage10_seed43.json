@@ -1,0 +1,212 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_11-49-23_stage18a_filter35_from700_50/model_725.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 2.6881001353642078,
+    "mean": 0.9292317619328965,
+    "p95": 1.3479049624166357
+  },
+  "final_goal_position_error_m": {
+    "max": 0.010215003974735737,
+    "mean": 0.004742663353681564,
+    "p95": 0.00853578932583332
+  },
+  "final_root_height_m": {
+    "max": 0.5715567469596863,
+    "mean": 0.5295284390449524,
+    "min": 0.4823545515537262,
+    "p05": 0.49454131722450256,
+    "p95": 0.5629066824913025
+  },
+  "final_root_pitch_deg": {
+    "max": 6.686611763469913,
+    "mean": 2.432809221973699,
+    "min": -1.894349764651863,
+    "p05": -1.0880354744046912,
+    "p95": 6.222794961275503
+  },
+  "final_root_pitch_delta_by_target_type_deg": {
+    "planar_replay": {
+      "max": 1.5069884992009894,
+      "mean": -0.2834376427124553,
+      "min": -3.2776284902234063,
+      "p05": -2.3878151373728285,
+      "p95": 0.982873933240061
+    },
+    "spatial": {
+      "max": 5.595361831287084,
+      "mean": 4.554213897987238,
+      "min": 2.745312574616585,
+      "p05": 3.8859276990256806,
+      "p95": 5.380513962076102
+    }
+  },
+  "final_root_pitch_delta_deg": {
+    "max": 5.595361831287084,
+    "mean": 1.544965951811847,
+    "min": -3.2776284902234063,
+    "p05": -2.2077698567474116,
+    "p95": 5.139133796147382
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_completion_by_target_type": {
+    "planar_replay": {
+      "completed_envs": 79,
+      "completion_rate": 0.987500011920929,
+      "total_envs": 80
+    },
+    "spatial": {
+      "completed_envs": 48,
+      "completion_rate": 1.0,
+      "total_envs": 48
+    }
+  },
+  "first_episode_survival": {
+    "completed_envs": 127,
+    "completion_rate": 0.9921875,
+    "maximum_tilt_deg": 15.780685916903607,
+    "minimum_root_height_m": 0.48187917470932007,
+    "terminated_envs": 1,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 1
+    },
+    "termination_step": {
+      "max": 199.0,
+      "mean": 199.0,
+      "p95": 199.0
+    },
+    "undesired_contact_by_body": {
+      "base_link": {
+        "peak_force_n": 21.811527252197266,
+        "terminated_env_count": 1
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.42509791254997253,
+    "legs": 0.2767297625541687,
+    "wheels": 0.0617096871137619
+  },
+  "minimum_monitored_body_pair_center_distance_m": {
+    "gripper_mover__lidar_link": {
+      "all_environments": {
+        "max": 0.3778585195541382,
+        "mean": 0.30600789189338684,
+        "p95": 0.3482835590839386
+      },
+      "completed_environments": {
+        "max": 0.3778585195541382,
+        "mean": 0.30549857020378113,
+        "p95": 0.3459617793560028
+      },
+      "terminated_environments": {
+        "max": 0.3706955015659332,
+        "mean": 0.3706955015659332,
+        "p95": 0.3706955015659332
+      }
+    },
+    "gripper_stator__lidar_link": {
+      "all_environments": {
+        "max": 0.3870067596435547,
+        "mean": 0.3244902193546295,
+        "p95": 0.36390867829322815
+      },
+      "completed_environments": {
+        "max": 0.3870067596435547,
+        "mean": 0.3240664005279541,
+        "p95": 0.36012205481529236
+      },
+      "terminated_environments": {
+        "max": 0.3783155679702759,
+        "mean": 0.3783155679702759,
+        "p95": 0.3783155679702759
+      }
+    },
+    "link2__lidar_link": {
+      "all_environments": {
+        "max": 0.13576610386371613,
+        "mean": 0.1357647180557251,
+        "p95": 0.13576604425907135
+      },
+      "completed_environments": {
+        "max": 0.13576610386371613,
+        "mean": 0.1357647180557251,
+        "p95": 0.13576604425907135
+      },
+      "terminated_environments": {
+        "max": 0.13576450943946838,
+        "mean": 0.13576450943946838,
+        "p95": 0.13576450943946838
+      }
+    },
+    "link3__lidar_link": {
+      "all_environments": {
+        "max": 0.4087355136871338,
+        "mean": 0.3857237994670868,
+        "p95": 0.4016217887401581
+      },
+      "completed_environments": {
+        "max": 0.4087355136871338,
+        "mean": 0.38597971200942993,
+        "p95": 0.4016518294811249
+      },
+      "terminated_environments": {
+        "max": 0.3532176613807678,
+        "mean": 0.3532176613807678,
+        "p95": 0.3532176613807678
+      }
+    }
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 4.303843495563489,
+    "mean": 1.0007377594057003,
+    "p95": 1.8112688376917088
+  },
+  "motion_reference_position_error_by_target_type_m": {
+    "planar_replay": {
+      "max": 0.023361697793006897,
+      "mean": 0.005948503501713276,
+      "p95": 0.010750734247267246
+    },
+    "spatial": {
+      "max": 0.037172820419073105,
+      "mean": 0.007078377529978752,
+      "p95": 0.02774837426841259
+    }
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.037172820419073105,
+    "mean": 0.0063748834654688835,
+    "p95": 0.017971348017454147
+  },
+  "num_envs": 128,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.7609008550643921,
+    "mean": 0.32342174649238586,
+    "p95": 0.6526660323143005
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7656343579292297,
+    "mean": 0.4220678508281708,
+    "p95": 0.698169469833374
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7658780813217163,
+    "mean": 0.4340878427028656,
+    "p95": 0.7019436359405518
+  },
+  "sampled_target_vertical_translation_m": {
+    "max": 0.04231077432632446,
+    "mean": -0.04980754479765892,
+    "min": -0.17953747510910034,
+    "p05": -0.1731145977973938,
+    "p95": 0.02356916479766369
+  },
+  "seed": 43,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage10-Adaptive-Mirrored-Filter35-Play-v0"
+}

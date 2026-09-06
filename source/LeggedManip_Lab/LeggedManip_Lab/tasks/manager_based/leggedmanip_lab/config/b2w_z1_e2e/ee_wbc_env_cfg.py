@@ -220,6 +220,26 @@ class B2WZ1MirroredLegFilter35ActionsCfg(B2WZ1EEWBCActionsCfg):
 
 
 @configclass
+class B2WZ1AdaptiveMirroredLegFilter35ActionsCfg(B2WZ1EEWBCActionsCfg):
+    """Soft mirror projection that releases the legs for extreme-low targets."""
+
+    leg_position = mdp.MirroredLowPassJointPositionActionCfg(
+        asset_name="robot",
+        joint_names=LEG_JOINTS,
+        scale=0.35,
+        use_default_offset=True,
+        preserve_order=True,
+        alpha=0.35,
+        asymmetric_residual_scale=0.25,
+        command_name="tcp_pose",
+        mirrored_above_height_m=-0.08,
+        full_residual_below_height_m=-0.14,
+        mirrored_below_planar_radius_m=0.20,
+        full_residual_above_planar_radius_m=0.40,
+    )
+
+
+@configclass
 class B2WZ1EEWBCPolicyObsCfg(ObsGroup):
     """Deployable observations; two frames provide velocity-free short memory."""
 
@@ -987,6 +1007,13 @@ class B2WZ1DynamicTrackingMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
 
 
 @configclass
+class B2WZ1DynamicTrackingAdaptiveMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-19b task with height-adaptive structured leg actions."""
+
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+
+@configclass
 class B2WZ1DynamicTrackingFilter50MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
     actions: B2WZ1LegFilter50ActionsCfg = B2WZ1LegFilter50ActionsCfg()
 
@@ -999,6 +1026,11 @@ class B2WZ1DynamicTrackingFilter35MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEn
 @configclass
 class B2WZ1DynamicTrackingMirroredFilter35MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
     actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingAdaptiveMirroredFilter35MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
 
 
 @configclass
@@ -1024,6 +1056,11 @@ class B2WZ1EEWBCStage10Filter35EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg_PLAY):
 @configclass
 class B2WZ1EEWBCStage10MirroredFilter35EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg_PLAY):
     actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1EEWBCStage10AdaptiveMirroredFilter35EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg_PLAY):
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
 
 
 @configclass
@@ -1064,6 +1101,13 @@ class B2WZ1DynamicTrackingMirroredFilter35SixDEnvCfg_PLAY(B2WZ1DynamicTrackingSi
     """Six-dimensional demo using the structured mirrored leg action."""
 
     actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingAdaptiveMirroredFilter35SixDEnvCfg_PLAY(B2WZ1DynamicTrackingSixDEnvCfg_PLAY):
+    """Six-dimensional demo using reach-aware structured leg actions."""
+
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
 
 
 @configclass

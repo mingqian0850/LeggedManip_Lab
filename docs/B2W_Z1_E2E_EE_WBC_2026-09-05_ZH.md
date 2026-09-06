@@ -246,6 +246,34 @@ Stage 14 在闭合后把 TCP 沿把手圆弧近似向下 7.5 cm、横向 1.5 cm�
 
 目前剩余的主要 WBC 问题不是普通目标 tracking，而是极端低位目标下的自碰撞约束、不可达边界附近更自然的姿态选择，以及把当前 PD plant 迁移到真机执行器模型。
 
+### 5.7 初始化目标泄漏与极低位修复（Stage 17，2026-09-06）
+
+Stage16d `model_700` 在原 Stage10 的 -12～-18 cm 极低前方目标中只有 77/128 首回合存活，其中 51 个因 `gripper_stator`/`lidar_link` 附近非法接触终止。新增 body-pair 距离探针后得到：
+
+- 成功环境的 gripper stator—lidar 最小中心距平均约 0.344 m；
+- 失败环境平均约 0.173 m，最大约 0.199 m；
+- 失败平均发生在第 58 步，而 settle window 为 100 步。
+
+关节并非无控制地坠落。真正问题是 policy observation 中的 `tcp_final_position_error` 和 `tcp_final_orientation_error` 在 reset 后立即暴露完整最终目标。虽然当前 reference 和 trajectory preview 仍处于落地等待，actor 已经提前响应极低目标，从而在四轮尚未稳定前扭动机械臂和本体。
+
+以下两个直觉方案均被确定性回归否决：
+
+- 对所有目标在前 2 秒隐藏 final error：Stage10 提升到 382/384，但 Stage5/6 出现后期姿态回归；
+- 对所有目标平滑揭示 final error：Stage5/6 仍退化，不能采用。
+
+最终采用条件门控：只有 `ghost_translation_b.z <= -0.12 m` 的极低目标，在前 2 秒隐藏 final error；普通平面、浅低位和动态目标保持原观测。无需重新训练，仍直接加载 Stage16d `model_700`。最终结果：
+
+| 回归 | 结果 | 位置误差均值 / p95 |
+|---|---:|---:|
+| Stage5，seed 42 | **128/128** | 5.76 / 10.81 mm |
+| Stage6，seed 42 | **128/128** | 5.31 / 10.68 mm |
+| Stage10，seed 42/43/44 | **384/384** | 约 5.46–6.15 / 14.23–18.44 mm |
+| Dynamic mixed，seed 42 | **256/256** | 4.73 / 9.62 mm |
+
+Stage10 的低底盘、坏姿态和非法接触均为 0。额外保留了按实测距离标定的中心距 barrier（stator 0.24 m、mover 0.20 m 起效），供未来专门低位训练提前避碰；它是保守代理，不等价于精确 mesh signed distance。
+
+曾尝试在普通 dynamic 分布和 Stage10 上继续微调。前者的 clearance reward 始终为 0，后者反而退化到 373/384，因此两个新 checkpoint 均拒绝。当前默认模型仍为 `model_700 + 条件 settling 门控`。
+
 ## 6. 如何运行
 
 新 worktree 未安装到共享 conda 环境，运行时要让本分支源码优先：
@@ -401,5 +429,5 @@ Windows/WSL 本地镜像：implementation/e2e_ee_wbc/artifacts/stage15_complete_
 - Stage 5 最佳模型在 192 个环境中没有终止；后续低位/接触课程仍必须继续跟踪 `lidar_link`、`link2`、gripper 和 calf，而不能只看平均误差。
 - 单环境视频只用于直观检查；鲁棒性结论来自确定性三 seed 批量评估。
 - Stage16d 默认模型将落地最大髋偏差从约 16.5° 降到约 12°，仍不是完全对称的官方站姿；继续压到约 9° 的 `model_724` 已出现 2/768 边界失败，因此不能只追求外观。
-- 极端低位 Stage10 仍有 51/128 环境因 gripper/lidar 邻域接触终止；下一轮应引入显式 self-collision distance 或安全 critic，而不是继续提高姿态奖励。
+- 极端低位 Stage10 已通过条件 settling 门控达到三 seed 384/384；当前中心距 barrier 仍只是针对 gripper/lidar 的标定代理。扩展到未知自碰撞对时仍需精确 mesh distance 或安全 critic。
 - 不同应用使用不同 checkpoint：通用动态 EE tracking 用 `model_700`，当前脚本化开门仍用 `model_625`。不能把门成功与通用 WBC 质量混成单一指标。

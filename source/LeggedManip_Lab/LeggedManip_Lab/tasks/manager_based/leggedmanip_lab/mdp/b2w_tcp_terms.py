@@ -35,6 +35,15 @@ def _reference_pose(env: ManagerBasedRLEnv, command_name: str) -> torch.Tensor:
     return env.command_manager.get_command(command_name)[:, :7]
 
 
+def _hide_extreme_low_goal_mask(command, minimum_height_offset_m: float) -> torch.Tensor:
+    """Mask only the deep-low commands that disturbed the settling phase."""
+    if minimum_height_offset_m >= 0.0:
+        raise ValueError("minimum_height_offset_m must be negative")
+    extreme_low = command.ghost_translation_b[:, 2] <= minimum_height_offset_m
+    settling = command.elapsed_s <= command.cfg.settle_time_s
+    return extreme_low & settling
+
+
 def tcp_reference_position_error_b(
     env: ManagerBasedRLEnv,
     command_name: str,
@@ -68,21 +77,33 @@ def tcp_final_position_error_b(
     env: ManagerBasedRLEnv,
     command_name: str,
     asset_cfg: SceneEntityCfg,
+    hide_during_settle: bool = False,
+    minimum_hidden_height_offset_m: float = -0.12,
 ) -> torch.Tensor:
     """TCP-to-immutable-goal displacement expressed in the current root frame."""
     robot, tcp_pos_w, _ = _robot_and_tcp(env, asset_cfg)
-    goal = env.command_manager.get_term(command_name).final_command
-    return quat_apply_inverse(robot.data.root_quat_w, goal[:, :3] - tcp_pos_w)
+    command = env.command_manager.get_term(command_name)
+    goal = command.final_command
+    error = quat_apply_inverse(robot.data.root_quat_w, goal[:, :3] - tcp_pos_w)
+    if hide_during_settle:
+        hidden = _hide_extreme_low_goal_mask(
+            command, minimum_hidden_height_offset_m
+        )
+        error = torch.where(hidden.unsqueeze(-1), torch.zeros_like(error), error)
+    return error
 
 
 def tcp_final_orientation_error_b(
     env: ManagerBasedRLEnv,
     command_name: str,
     asset_cfg: SceneEntityCfg,
+    hide_during_settle: bool = False,
+    minimum_hidden_height_offset_m: float = -0.12,
 ) -> torch.Tensor:
     """Immutable-goal orientation error as a current-root axis-angle vector."""
     robot, tcp_pos_w, tcp_quat_w = _robot_and_tcp(env, asset_cfg)
-    goal = env.command_manager.get_term(command_name).final_command
+    command = env.command_manager.get_term(command_name)
+    goal = command.final_command
     _, rotation_error_w = compute_pose_error(
         tcp_pos_w,
         tcp_quat_w,
@@ -90,7 +111,13 @@ def tcp_final_orientation_error_b(
         goal[:, 3:],
         rot_error_type="axis_angle",
     )
-    return quat_apply_inverse(robot.data.root_quat_w, rotation_error_w)
+    error = quat_apply_inverse(robot.data.root_quat_w, rotation_error_w)
+    if hide_during_settle:
+        hidden = _hide_extreme_low_goal_mask(
+            command, minimum_hidden_height_offset_m
+        )
+        error = torch.where(hidden.unsqueeze(-1), torch.zeros_like(error), error)
+    return error
 
 
 def desired_tcp_twist_b(

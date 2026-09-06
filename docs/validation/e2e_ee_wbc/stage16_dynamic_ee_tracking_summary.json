@@ -79,8 +79,36 @@
     "model_711": "766/768 mixed completion with worse tracking than model_700",
     "model_724": "766/768 mixed completion; more natural 9-degree maximum settling hip deviation but two boundary failures"
   },
+  "stage17_conditional_settling_gate": {
+    "root_cause": "The immutable final-goal error was visible to the actor immediately after reset, so extreme-low commands triggered whole-body motion before the 2-second settling window ended.",
+    "condition": "Hide final position/orientation error during settling only when ghost_translation_b.z <= -0.12 m.",
+    "checkpoint_changed": false,
+    "stage5_seed_42": {"completed": 128, "total": 128},
+    "stage6_seed_42": {"completed": 128, "total": 128},
+    "stage10_three_seed": {
+      "seeds": [42, 43, 44],
+      "completed": 384,
+      "total": 384,
+      "undesired_contact_terminations": 0,
+      "bad_orientation_terminations": 0,
+      "position_error_mean_mm_range": [5.46, 6.15],
+      "position_error_p95_mm_range": [14.23, 18.44]
+    },
+    "dynamic_mixed_seed_42": {
+      "completed": 256,
+      "total": 256,
+      "position_error_mean_mm": 4.73,
+      "position_error_p95_mm": 9.62
+    },
+    "calibrated_clearance_proxy": {
+      "successful_gripper_stator_lidar_minimum_center_distance_mean_m": 0.344,
+      "failed_gripper_stator_lidar_minimum_center_distance_mean_m": 0.173,
+      "stator_barrier_safe_distance_m": 0.24,
+      "mover_barrier_safe_distance_m": 0.20
+    }
+  },
   "known_limitations": [
-    "Extreme low-front targets still need explicit self-collision distance or a constrained safety layer.",
+    "The calibrated gripper/lidar center-distance barrier is not a general mesh signed-distance self-collision model.",
     "The selected posture remains measurably offset from the official nominal stance.",
     "Actuator dynamics, delays, mounting transform, inertial parameters, and TCP calibration are not yet validated for sim-to-real."
   ]

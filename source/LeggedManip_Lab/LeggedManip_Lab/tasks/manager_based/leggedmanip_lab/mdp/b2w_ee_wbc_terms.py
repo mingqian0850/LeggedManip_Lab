@@ -187,6 +187,34 @@ def root_roll_rate_l2(
     return torch.square(robot.data.root_ang_vel_b[:, 0])
 
 
+def body_pair_center_distance_barrier(
+    env: ManagerBasedRLEnv,
+    first_asset_cfg: SceneEntityCfg,
+    second_asset_cfg: SceneEntityCfg,
+    safe_distance: float,
+    collision_distance: float,
+) -> torch.Tensor:
+    """Smooth early-warning proxy for a calibrated self-collision pair.
+
+    This is deliberately a center-distance barrier rather than a claim about
+    exact mesh separation.  ``safe_distance`` and ``collision_distance`` must
+    be calibrated from deterministic contact probes for the specific asset.
+    """
+    if collision_distance < 0.0 or safe_distance <= collision_distance:
+        raise ValueError("safe_distance must be greater than a non-negative collision_distance")
+    if first_asset_cfg.name != second_asset_cfg.name:
+        raise ValueError("body-pair barrier currently requires both bodies on the same articulation")
+    robot: Articulation = env.scene[first_asset_cfg.name]
+    first_position = robot.data.body_pos_w[:, first_asset_cfg.body_ids[0]]
+    second_position = robot.data.body_pos_w[:, second_asset_cfg.body_ids[0]]
+    distance = torch.linalg.vector_norm(first_position - second_position, dim=-1)
+    normalized_shortfall = torch.clamp(
+        (safe_distance - distance) / (safe_distance - collision_distance),
+        min=0.0,
+    )
+    return torch.square(normalized_shortfall)
+
+
 def base_height_safety_barrier(
     env: ManagerBasedRLEnv,
     safe_height: float,

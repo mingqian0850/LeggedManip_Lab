@@ -118,6 +118,23 @@ def main() -> dict:
         undesired_body_names = [undesired_sensor.body_names[index] for index in undesired_body_ids]
         undesired_body_counts = {name: 0 for name in undesired_body_names}
         undesired_body_peak_force = {name: 0.0 for name in undesired_body_names}
+        monitored_body_pairs = {}
+        for first_name, second_name in (
+            ("gripper_stator", "lidar_link"),
+            ("gripper_mover", "lidar_link"),
+            ("link2", "lidar_link"),
+            ("link3", "lidar_link"),
+        ):
+            first_ids = robot.find_bodies(first_name)[0]
+            second_ids = robot.find_bodies(second_name)[0]
+            if len(first_ids) > 0 and len(second_ids) > 0:
+                monitored_body_pairs[f"{first_name}__{second_name}"] = {
+                    "first_id": first_ids[0],
+                    "second_id": second_ids[0],
+                    "minimum_distance": torch.full(
+                        (task.num_envs,), math.inf, device=task.device
+                    ),
+                }
         action_abs_sum = torch.zeros(3, device=task.device)
         action_element_count = torch.zeros(3, device=task.device)
         door = task.scene.articulations.get("door")
@@ -155,6 +172,15 @@ def main() -> dict:
 
             valid = alive & ~dones
             newly_done = alive & dones
+            for pair in monitored_body_pairs.values():
+                center_distance = torch.linalg.vector_norm(
+                    robot.data.body_pos_w[:, pair["first_id"]]
+                    - robot.data.body_pos_w[:, pair["second_id"]],
+                    dim=-1,
+                )
+                pair["minimum_distance"][alive] = torch.minimum(
+                    pair["minimum_distance"][alive], center_distance[alive]
+                )
             if torch.any(newly_done):
                 termination_steps.append(
                     torch.full(
@@ -350,6 +376,14 @@ def main() -> dict:
                 "legs": _as_float(action_abs_sum[0] / torch.clamp(action_element_count[0], min=1.0)),
                 "arm": _as_float(action_abs_sum[1] / torch.clamp(action_element_count[1], min=1.0)),
                 "wheels": _as_float(action_abs_sum[2] / torch.clamp(action_element_count[2], min=1.0)),
+            },
+            "minimum_monitored_body_pair_center_distance_m": {
+                pair_name: {
+                    "all_environments": _summary(pair["minimum_distance"]),
+                    "completed_environments": _summary(pair["minimum_distance"][alive]),
+                    "terminated_environments": _summary(pair["minimum_distance"][~alive]),
+                }
+                for pair_name, pair in monitored_body_pairs.items()
             },
         }
         if door is not None:

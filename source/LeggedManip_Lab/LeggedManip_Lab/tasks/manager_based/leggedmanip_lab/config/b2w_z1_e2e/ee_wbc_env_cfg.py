@@ -44,6 +44,9 @@ TCP_CFG = SceneEntityCfg("robot", body_names="tcp_frame")
 ARM_CFG = SceneEntityCfg("robot", joint_names=ARM_JOINTS, preserve_order=True)
 LEG_CFG = SceneEntityCfg("robot", joint_names=LEG_JOINTS, preserve_order=True)
 HIP_CFG = SceneEntityCfg("robot", joint_names=".*_hip_joint")
+GRIPPER_STATOR_CFG = SceneEntityCfg("robot", body_names="gripper_stator")
+GRIPPER_MOVER_CFG = SceneEntityCfg("robot", body_names="gripper_mover")
+LIDAR_CFG = SceneEntityCfg("robot", body_names="lidar_link")
 LEG_ARM_CFG = SceneEntityCfg("robot", joint_names=LEG_JOINTS + ARM_JOINTS, preserve_order=True)
 CONTROLLED_CFG = SceneEntityCfg("robot", joint_names=CONTROLLED_JOINTS, preserve_order=True)
 WHEEL_BODY_CFG = SceneEntityCfg(
@@ -196,11 +199,19 @@ class B2WZ1EEWBCPolicyObsCfg(ObsGroup):
     )
     tcp_final_position_error = ObsTerm(
         func=mdp.tcp_final_position_error_b,
-        params={"command_name": "tcp_pose", "asset_cfg": TCP_CFG},
+        params={
+            "command_name": "tcp_pose",
+            "asset_cfg": TCP_CFG,
+            "hide_during_settle": True,
+        },
     )
     tcp_final_orientation_error = ObsTerm(
         func=mdp.tcp_final_orientation_error_b,
-        params={"command_name": "tcp_pose", "asset_cfg": TCP_CFG},
+        params={
+            "command_name": "tcp_pose",
+            "asset_cfg": TCP_CFG,
+            "hide_during_settle": True,
+        },
     )
     desired_tcp_twist = ObsTerm(
         func=mdp.desired_tcp_twist_b,
@@ -598,8 +609,53 @@ class B2WZ1EEWBCStage9EnvCfg_PLAY(B2WZ1EEWBCStage9EnvCfg):
 
 
 @configclass
+class B2WZ1EEWBCStage10SafetyRewardsCfg(B2WZ1EEWBCRewardsCfg):
+    """Posture and calibrated clearance terms for the extreme-low curriculum."""
+
+    settling_leg_posture = RewTerm(
+        func=mdp.settling_joint_default_deviation_l2,
+        weight=-8.0,
+        params={"command_name": "tcp_pose", "asset_cfg": LEG_CFG},
+    )
+    hip_posture = RewTerm(
+        func=mdp.joint_default_deviation_l2,
+        weight=-1.0,
+        params={"asset_cfg": HIP_CFG},
+    )
+    leg_left_right_symmetry = RewTerm(
+        func=mdp.leg_left_right_symmetry_l2,
+        weight=-0.5,
+        params={"asset_cfg": LEG_CFG},
+    )
+    root_roll = RewTerm(func=mdp.root_roll_l2, weight=-20.0)
+    root_roll_rate = RewTerm(func=mdp.root_roll_rate_l2, weight=-1.0)
+    gripper_stator_lidar_clearance = RewTerm(
+        func=mdp.body_pair_center_distance_barrier,
+        weight=-20.0,
+        params={
+            "first_asset_cfg": GRIPPER_STATOR_CFG,
+            "second_asset_cfg": LIDAR_CFG,
+            "safe_distance": 0.24,
+            "collision_distance": 0.17,
+        },
+    )
+    gripper_mover_lidar_clearance = RewTerm(
+        func=mdp.body_pair_center_distance_barrier,
+        weight=-10.0,
+        params={
+            "first_asset_cfg": GRIPPER_MOVER_CFG,
+            "second_asset_cfg": LIDAR_CFG,
+            "safe_distance": 0.20,
+            "collision_distance": 0.13,
+        },
+    )
+
+
+@configclass
 class B2WZ1EEWBCStage10EnvCfg(B2WZ1EEWBCStage9EnvCfg):
     """Stage 10: extend front-sector low TCP goals to eighteen centimetres."""
+
+    rewards: B2WZ1EEWBCStage10SafetyRewardsCfg = B2WZ1EEWBCStage10SafetyRewardsCfg()
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -727,6 +783,26 @@ class B2WZ1DynamicTrackingRewardsCfg(B2WZ1EEWBCRewardsCfg):
     )
     root_roll = RewTerm(func=mdp.root_roll_l2, weight=-20.0)
     root_roll_rate = RewTerm(func=mdp.root_roll_rate_l2, weight=-1.0)
+    gripper_stator_lidar_clearance = RewTerm(
+        func=mdp.body_pair_center_distance_barrier,
+        weight=-20.0,
+        params={
+            "first_asset_cfg": GRIPPER_STATOR_CFG,
+            "second_asset_cfg": LIDAR_CFG,
+            "safe_distance": 0.24,
+            "collision_distance": 0.17,
+        },
+    )
+    gripper_mover_lidar_clearance = RewTerm(
+        func=mdp.body_pair_center_distance_barrier,
+        weight=-10.0,
+        params={
+            "first_asset_cfg": GRIPPER_MOVER_CFG,
+            "second_asset_cfg": LIDAR_CFG,
+            "safe_distance": 0.20,
+            "collision_distance": 0.13,
+        },
+    )
 
 
 @configclass

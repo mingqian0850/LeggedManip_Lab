@@ -259,6 +259,22 @@ $PY scripts/rsl_rl/play.py \
   --load_run <训练目录名> --checkpoint <checkpoint文件名>
 ```
 
+复现完整的接近、闭合夹爪、旋转把手和后退拉门回放：
+
+```bash
+$PY scripts/rsl_rl/play.py \
+  --task B2W-Z1-EE-WBC-Door-Pull-Play-v0 \
+  --device cuda:0 --num_envs 1 \
+  --checkpoint logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt
+```
+
+确定性单环境录像没有提交到 GitHub（该 fork 拒绝新的 LFS 对象）。当前保存位置为：
+
+```text
+4090 远端：logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/videos/play/rl-video-step-0.mp4
+Windows/WSL 本地镜像：implementation/e2e_ee_wbc/artifacts/stage15_complete_door_open_model_625.mp4
+```
+
 ## 7. 下一步顺序
 
 ### 阶段 1：nominal EE tracking（已通过）

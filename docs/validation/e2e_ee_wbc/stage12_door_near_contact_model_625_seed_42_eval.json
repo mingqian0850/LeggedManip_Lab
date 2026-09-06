@@ -1,0 +1,203 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt",
+  "door_interaction": {
+    "final_door_angle_rad": {
+      "max": -8.457768448273673e-13,
+      "mean": -1.9911834403529838e-09,
+      "min": -5.099586530832312e-08,
+      "p05": -8.192714735788531e-12,
+      "p95": -8.475040330982453e-13
+    },
+    "final_gripper_joint_position_rad": {
+      "max": -1.360761046409607,
+      "mean": -1.3615975379943848,
+      "min": -1.3627293109893799,
+      "p05": -1.3623814582824707,
+      "p95": -1.3612910509109497
+    },
+    "final_handle_angle_rad": {
+      "max": 0.01924380101263523,
+      "mean": 0.019243504852056503,
+      "min": 0.019243497401475906,
+      "p05": 0.019243497401475906,
+      "p95": 0.01924351043999195
+    },
+    "final_tcp_handle_center_distance_m": {
+      "max": 0.03416595980525017,
+      "mean": 0.028303764760494232,
+      "p95": 0.0323207713663578
+    },
+    "handle_applied_torque_nm": {
+      "max": -0.23092179000377655,
+      "mean": -0.2309218943119049,
+      "min": -0.23092544078826904,
+      "p05": -0.23092195391654968,
+      "p95": -0.23092179000377655
+    },
+    "handle_joint_damping_nm_s_per_rad": {
+      "max": 0.5,
+      "mean": 0.5,
+      "min": 0.5,
+      "p05": 0.5,
+      "p95": 0.5
+    },
+    "handle_joint_stiffness_nm_per_rad": {
+      "max": 12.0,
+      "mean": 12.0,
+      "min": 12.0,
+      "p05": 12.0,
+      "p95": 12.0
+    },
+    "handle_position_target_rad": {
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p05": 0.0,
+      "p95": 0.0
+    },
+    "maximum_gripper_contact_force_n": {
+      "max": 0.0,
+      "mean": 0.0,
+      "p95": 0.0
+    },
+    "minimum_tcp_handle_center_distance_m": {
+      "max": 0.03349936380982399,
+      "mean": 0.027823112905025482,
+      "p95": 0.03205437213182449
+    }
+  },
+  "final_goal_orientation_error_deg": {
+    "max": 0.3556530994048679,
+    "mean": 0.2747966529995958,
+    "p95": 0.3369777347080399
+  },
+  "final_goal_position_error_m": {
+    "max": 0.007537588477134705,
+    "mean": 0.007014013361185789,
+    "p95": 0.007294660434126854
+  },
+  "final_root_height_m": {
+    "max": 0.5352081060409546,
+    "mean": 0.5273975133895874,
+    "min": 0.5239410996437073,
+    "p05": 0.5242122411727905,
+    "p95": 0.5341323018074036
+  },
+  "final_root_pitch_deg": {
+    "max": -0.7591984714136603,
+    "mean": -1.3251914884968756,
+    "min": -1.5209327572783935,
+    "p05": -1.471955498452642,
+    "p95": -1.076417536069911
+  },
+  "final_root_pitch_delta_by_target_type_deg": {
+    "planar_replay": {
+      "max": NaN,
+      "mean": NaN,
+      "min": NaN,
+      "p05": NaN,
+      "p95": NaN
+    },
+    "spatial": {
+      "max": -0.39046769418233357,
+      "mean": -0.9105921756879317,
+      "min": -1.122563894928104,
+      "p05": -1.053598621104839,
+      "p95": -0.7042984247213027
+    }
+  },
+  "final_root_pitch_delta_deg": {
+    "max": -0.39046769418233357,
+    "mean": -0.9105921756879317,
+    "min": -1.122563894928104,
+    "p05": -1.053598621104839,
+    "p95": -0.7042984247213027
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_completion_by_target_type": {
+    "planar_replay": {
+      "completed_envs": 0,
+      "completion_rate": NaN,
+      "total_envs": 0
+    },
+    "spatial": {
+      "completed_envs": 128,
+      "completion_rate": 1.0,
+      "total_envs": 128
+    }
+  },
+  "first_episode_survival": {
+    "completed_envs": 128,
+    "completion_rate": 1.0,
+    "maximum_tilt_deg": 5.79393250593228,
+    "minimum_root_height_m": 0.5115396976470947,
+    "terminated_envs": 0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "termination_step": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "undesired_contact_by_body": {}
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.40153342485427856,
+    "legs": 0.32740795612335205,
+    "wheels": 0.08400251716375351
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 1.984956706303725,
+    "mean": 0.617863981600378,
+    "p95": 1.847784523098478
+  },
+  "motion_reference_position_error_by_target_type_m": {
+    "planar_replay": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "spatial": {
+      "max": 0.009516562335193157,
+      "mean": 0.00711439223960042,
+      "p95": 0.008813188411295414
+    }
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.009516562335193157,
+    "mean": 0.00711439223960042,
+    "p95": 0.008813188411295414
+  },
+  "num_envs": 128,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.6256847381591797,
+    "mean": 0.6113297343254089,
+    "p95": 0.6215154528617859
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7060073018074036,
+    "mean": 0.6969379186630249,
+    "p95": 0.7048258185386658
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7070669531822205,
+    "mean": 0.6978756189346313,
+    "p95": 0.7057970762252808
+  },
+  "sampled_target_vertical_translation_m": {
+    "max": 0.03869485855102539,
+    "mean": 0.036156266927719116,
+    "min": 0.03441154956817627,
+    "p05": 0.03486337140202522,
+    "p95": 0.03781183436512947
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Door-Near-Contact-Play-v0"
+}

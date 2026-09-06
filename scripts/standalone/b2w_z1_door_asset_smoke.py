@@ -42,6 +42,11 @@ def main() -> None:
     grasp_id = door.find_bodies("handle_grasp")[0][0]
     initial_grasp = door.data.body_pos_w[0, grasp_id].clone()
 
+    # The spring-loaded lever must stay near horizontal without any robot
+    # contact. This catches accidental importer-assigned mass on marker links.
+    step(sim, door, max(40, args.steps))
+    passive_handle_angle = float(door.data.joint_pos[0, handle_id].item())
+
     effort = torch.zeros((1, door.num_joints), device=door.device)
     effort[:, handle_id] = 6.0
     door.set_joint_effort_target(effort)
@@ -59,6 +64,7 @@ def main() -> None:
         "joint_names": door.joint_names,
         "body_names": door.body_names,
         "handle_angle_after_6Nm_rad": handle_after_torque,
+        "passive_handle_angle_rad": passive_handle_angle,
         "door_angle_after_35Nm_rad": door_after_torque,
         "handle_grasp_motion_m": grasp_motion,
         "finite": bool(
@@ -72,6 +78,8 @@ def main() -> None:
         raise RuntimeError("Door simulation produced non-finite state")
     if handle_after_torque < 0.20:
         raise RuntimeError("Lever handle did not rotate under test torque")
+    if abs(passive_handle_angle) > 0.05:
+        raise RuntimeError("Lever handle fell away from its spring-loaded rest pose")
     if door_after_torque < 0.10:
         raise RuntimeError("Door panel did not rotate under test torque")
 

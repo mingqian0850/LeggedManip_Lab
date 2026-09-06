@@ -222,3 +222,83 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
     },
 )
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Near-Contact-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorNearContactEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Near-Contact-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorNearContactEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Grasp-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorGraspEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Grasp-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorGraspEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Turn-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorTurnEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Turn-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorTurnEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Pull-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorPullEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Door-Pull-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DoorPullEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)

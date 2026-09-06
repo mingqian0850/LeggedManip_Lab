@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-06",
+  "checkpoint": "logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt",
+  "stages": {
+    "12_near_contact": {
+      "task": "B2W-Z1-EE-WBC-Door-Near-Contact-Play-v0",
+      "approach_offset_m": -0.03,
+      "result": "384/384 survived and passed 3 cm / 6 deg tracking; the closed spring-loaded handle did not move."
+    },
+    "13_grasp": {
+      "task": "B2W-Z1-EE-WBC-Door-Grasp-Play-v0",
+      "contact_consistent_tcp_offset_m": -0.02,
+      "gripper_open_position_rad": -1.45,
+      "gripper_closed_target_rad": -0.35,
+      "close_duration_s": 1.5,
+      "result": "Stable physical preload after removing an infeasible TCP penetration command."
+    },
+    "14_handle_turn": {
+      "task": "B2W-Z1-EE-WBC-Door-Turn-Play-v0",
+      "seeds": [42, 43, 44],
+      "environments_per_seed": 128,
+      "completed_environments": 384,
+      "total_environments": 384,
+      "handle_angle_mean_rad": 0.358793,
+      "tcp_position_error_mean_m": 0.013796,
+      "result": "PASS"
+    },
+    "15_door_pull": {
+      "task": "B2W-Z1-EE-WBC-Door-Pull-Play-v0",
+      "seeds": [42, 43, 44],
+      "environments_per_seed": 128,
+      "completed_environments": 384,
+      "total_environments": 384,
+      "completion_rate": 1.0,
+      "successful_door_opens": 384,
+      "door_open_success_rate": 1.0,
+      "door_angle_mean_rad": 0.41746,
+      "door_angle_min_rad": 0.407807,
+      "handle_angle_mean_rad": 0.30207,
+      "handle_angle_min_rad": 0.274282,
+      "tcp_handle_distance_mean_m": 0.035949,
+      "tcp_handle_distance_max_m": 0.040071,
+      "tcp_position_error_mean_m": 0.01949,
+      "tcp_position_error_max_m": 0.022032,
+      "tcp_orientation_error_mean_deg": 2.570676,
+      "compliant_grasp_max_force_mean_n": 21.71,
+      "compliant_grasp_max_force_max_n": 29.431,
+      "physical_gripper_contact_force_max_n": 93.701,
+      "root_planar_displacement_mean_m": 0.365856,
+      "minimum_final_root_height_m": 0.503741,
+      "low_base_terminations": 0,
+      "bad_orientation_terminations": 0,
+      "undesired_contact_terminations": 0,
+      "result": "PASS"
+    }
+  },
+  "door_success_criteria": {
+    "door_angle_min_rad": 0.35,
+    "handle_angle_min_rad": 0.25,
+    "tcp_handle_distance_max_m": 0.08,
+    "first_episode_alive": true
+  },
+  "important_modeling_note": "The coarse one-DOF gripper uses a bidirectional compliant grasp proxy after valid physical closure. It applies the pull load to the door joints and an equal reaction force at the robot TCP; it is not a kinematic teleport or a claim of calibrated sim-to-real contact.",
+  "critical_geometry_fix": "The original 2.00 m door panel touched the ground plane and produced environment-position-dependent static friction. The final panel is 1.98 m tall, centered at z=1.02 m, leaving 3 cm floor clearance."
+}

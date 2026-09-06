@@ -120,6 +120,22 @@ def main() -> dict:
         undesired_body_peak_force = {name: 0.0 for name in undesired_body_names}
         action_abs_sum = torch.zeros(3, device=task.device)
         action_element_count = torch.zeros(3, device=task.device)
+        door = task.scene.articulations.get("door")
+        if door is not None:
+            handle_body_idx = door.find_bodies("handle_grasp")[0][0]
+            door_joint_idx = door.find_joints("door_hinge")[0][0]
+            handle_joint_idx = door.find_joints("handle_joint")[0][0]
+            gripper_joint_idx = robot.find_joints("gripper_joint")[0][0]
+            gripper_sensor_ids = [
+                index
+                for index, name in enumerate(undesired_sensor.body_names)
+                if name in {"gripper_stator", "gripper_mover"}
+            ]
+            minimum_tcp_handle_distance = torch.full(
+                (task.num_envs,), math.inf, device=task.device
+            )
+            maximum_gripper_contact_force = torch.zeros(task.num_envs, device=task.device)
+            gripper_contact_steps = torch.zeros(task.num_envs, device=task.device)
 
         for step in range(args_cli.steps):
             with torch.inference_mode():
@@ -177,6 +193,26 @@ def main() -> dict:
                     planar_reference_position_errors.append(
                         command.metrics["reference_position_error"][planar_valid].clone()
                     )
+
+            if door is not None and torch.any(alive):
+                tcp_handle_distance = torch.linalg.vector_norm(
+                    robot.data.body_pos_w[:, command.body_idx]
+                    - door.data.body_pos_w[:, handle_body_idx],
+                    dim=-1,
+                )
+                minimum_tcp_handle_distance[alive] = torch.minimum(
+                    minimum_tcp_handle_distance[alive], tcp_handle_distance[alive]
+                )
+                if gripper_sensor_ids:
+                    gripper_force = torch.linalg.vector_norm(
+                        undesired_sensor.data.net_forces_w[:, gripper_sensor_ids, :], dim=-1
+                    ).amax(dim=-1)
+                    maximum_gripper_contact_force[alive] = torch.maximum(
+                        maximum_gripper_contact_force[alive], gripper_force[alive]
+                    )
+                    gripper_contact_steps[alive] += (
+                        gripper_force[alive] > 1.0
+                    ).float()
 
             action_abs_sum[0] += torch.sum(torch.abs(actions[alive, :12]))
             action_abs_sum[1] += torch.sum(torch.abs(actions[alive, 12:18]))
@@ -316,6 +352,137 @@ def main() -> dict:
                 "wheels": _as_float(action_abs_sum[2] / torch.clamp(action_element_count[2], min=1.0)),
             },
         }
+        if door is not None:
+            gripper_action = task.action_manager.get_term("gripper_hold")
+            latch_action = (
+                task.action_manager.get_term("door_latch")
+                if "door_latch" in task.action_manager.active_terms
+                else None
+            )
+            final_tcp_handle_distance = torch.linalg.vector_norm(
+                robot.data.body_pos_w[alive, command.body_idx]
+                - door.data.body_pos_w[alive, handle_body_idx],
+                dim=-1,
+            )
+            report["door_interaction"] = {
+                "final_tcp_handle_center_distance_m": _summary(final_tcp_handle_distance),
+                "minimum_tcp_handle_center_distance_m": _summary(
+                    minimum_tcp_handle_distance[alive]
+                ),
+                "maximum_gripper_contact_force_n": _summary(
+                    maximum_gripper_contact_force[alive]
+                ),
+                "gripper_contact_duration_s": _summary(
+                    gripper_contact_steps[alive] * task.step_dt
+                ),
+                "final_gripper_joint_position_rad": _signed_summary(
+                    robot.data.joint_pos[alive, gripper_joint_idx]
+                ),
+                "final_handle_angle_rad": _signed_summary(
+                    door.data.joint_pos[alive, handle_joint_idx]
+                ),
+                "handle_position_target_rad": _signed_summary(
+                    door.data.joint_pos_target[alive, handle_joint_idx]
+                ),
+                "handle_applied_torque_nm": _signed_summary(
+                    door.data.applied_torque[alive, handle_joint_idx]
+                ),
+                "handle_joint_stiffness_nm_per_rad": _signed_summary(
+                    door.data.joint_stiffness[alive, handle_joint_idx]
+                ),
+                "handle_joint_damping_nm_s_per_rad": _signed_summary(
+                    door.data.joint_damping[alive, handle_joint_idx]
+                ),
+                "final_door_angle_rad": _signed_summary(
+                    door.data.joint_pos[alive, door_joint_idx]
+                ),
+            }
+            if hasattr(gripper_action, "closure_progress"):
+                report["door_interaction"]["gripper_closure_progress"] = _signed_summary(
+                    gripper_action.closure_progress[alive]
+                )
+            if latch_action is not None:
+                report["door_interaction"]["latch_unlocked_rate"] = _as_float(
+                    torch.mean(latch_action.unlocked.float())
+                )
+            if "compliant_grasp" in task.action_manager.active_terms:
+                compliant_grasp = task.action_manager.get_term("compliant_grasp")
+                report["door_interaction"]["compliant_grasp_active_rate"] = _as_float(
+                    torch.mean(compliant_grasp.active.float())
+                )
+                report["door_interaction"]["compliant_grasp_maximum_force_n"] = _summary(
+                    compliant_grasp.maximum_force
+                )
+            if hasattr(command, "pull_started"):
+                door_task_success = (
+                    alive
+                    & (door.data.joint_pos[:, door_joint_idx] >= 0.35)
+                    & (door.data.joint_pos[:, handle_joint_idx] >= 0.25)
+                    & (
+                        torch.linalg.vector_norm(
+                            robot.data.body_pos_w[:, command.body_idx]
+                            - door.data.body_pos_w[:, handle_body_idx],
+                            dim=-1,
+                        )
+                        <= 0.08
+                    )
+                )
+                report["door_interaction"]["door_task_success"] = {
+                    "successful_envs": int(torch.count_nonzero(door_task_success).item()),
+                    "total_envs": task.num_envs,
+                    "success_rate": _as_float(torch.mean(door_task_success.float())),
+                    "criteria": {
+                        "door_angle_min_rad": 0.35,
+                        "handle_angle_min_rad": 0.25,
+                        "tcp_handle_distance_max_m": 0.08,
+                        "first_episode_alive": True,
+                    },
+                }
+                if task.num_envs <= 32:
+                    jitter = getattr(
+                        command,
+                        "target_jitter_w",
+                        torch.zeros((task.num_envs, 3), device=task.device),
+                    )
+                    compliant_grasp = task.action_manager.get_term("compliant_grasp")
+                    final_distance_all = torch.linalg.vector_norm(
+                        robot.data.body_pos_w[:, command.body_idx]
+                        - door.data.body_pos_w[:, handle_body_idx],
+                        dim=-1,
+                    )
+                    report["door_interaction"]["per_environment"] = [
+                        {
+                            "env_id": env_id,
+                            "target_jitter_w_m": [float(value) for value in jitter[env_id].cpu().tolist()],
+                            "alive": bool(alive[env_id].item()),
+                            "door_angle_rad": float(door.data.joint_pos[env_id, door_joint_idx].item()),
+                            "handle_angle_rad": float(door.data.joint_pos[env_id, handle_joint_idx].item()),
+                            "tcp_handle_distance_m": float(final_distance_all[env_id].item()),
+                            "spring_maximum_force_n": float(compliant_grasp.maximum_force[env_id].item()),
+                            "door_effort_nm": float(compliant_grasp.door_effort[env_id].item()),
+                            "door_effort_target_nm": float(
+                                door.data.joint_effort_target[env_id, door_joint_idx].item()
+                            ),
+                            "door_applied_torque_nm": float(
+                                door.data.applied_torque[env_id, door_joint_idx].item()
+                            ),
+                            "door_joint_friction": float(
+                                door.data.joint_friction_coeff[env_id, door_joint_idx].item()
+                            ),
+                            "door_joint_stiffness": float(
+                                door.data.joint_stiffness[env_id, door_joint_idx].item()
+                            ),
+                            "environment_origin_w_m": [
+                                float(value) for value in task.scene.env_origins[env_id].cpu().tolist()
+                            ],
+                            "maximum_door_effort_nm": float(
+                                compliant_grasp.maximum_door_effort[env_id].item()
+                            ),
+                            "handle_effort_nm": float(compliant_grasp.handle_effort[env_id].item()),
+                            "grasp_active": bool(compliant_grasp.active[env_id].item()),
+                        }
+                        for env_id in range(task.num_envs)
+                    ]
         print("B2W_Z1_E2E_EE_WBC_EVAL=" + json.dumps(report, indent=2, sort_keys=True), flush=True)
         if args_cli.report:
             report_path = Path(args_cli.report).expanduser().resolve()

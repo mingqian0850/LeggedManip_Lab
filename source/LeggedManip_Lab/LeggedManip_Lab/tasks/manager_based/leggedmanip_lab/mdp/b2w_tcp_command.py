@@ -536,3 +536,158 @@ class DoorHandlePoseCommandCfg(FKReachableWorldPoseCommandCfg):
                 raise ValueError(f"Invalid door-target jitter range: {bounds}")
         if len(self.orientation_offset_handle) != 4:
             raise ValueError("orientation_offset_handle must be a wxyz quaternion")
+
+
+class DoorHandleTurnCommand(DoorHandlePoseCommand):
+    """Approach a handle, wait for grasp closure, then command a turn arc."""
+
+    cfg: DoorHandleTurnCommandCfg
+
+    def __init__(self, cfg: DoorHandleTurnCommandCfg, env: ManagerBasedRLEnv) -> None:
+        super().__init__(cfg, env)
+        self.turn_started = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
+        self.phase_clock_s = torch.zeros(self.num_envs, device=self.device)
+        self.turn_goal_pose_w = torch.zeros_like(self.goal_pose_w)
+        self.turn_goal_pose_w[:, 3] = 1.0
+
+    def _refresh_turn_goal(self, env_ids: Sequence[int]) -> None:
+        translation = torch.tensor(
+            self.cfg.turn_translation_w,
+            dtype=self.goal_pose_w.dtype,
+            device=self.device,
+        )
+        self.turn_goal_pose_w[env_ids] = self.goal_pose_w[env_ids]
+        self.turn_goal_pose_w[env_ids, :3] += translation
+
+    def _resample_command(self, env_ids: Sequence[int]) -> None:
+        if len(env_ids) == 0:
+            return
+        self.turn_started[env_ids] = False
+        self.phase_clock_s[env_ids] = 0.0
+        super()._resample_command(env_ids)
+        self._refresh_turn_goal(env_ids)
+
+    def _recapture_settling_reference(self, env_ids: torch.Tensor) -> None:
+        # Recapture only belongs to the approach phase.  After the phase switch
+        # elapsed_s is deliberately reset to settle_time_s, so guard against a
+        # floating-point equality re-anchoring the turn goal to the live handle.
+        approach_ids = env_ids[~self.turn_started[env_ids]]
+        if approach_ids.numel() == 0:
+            return
+        super()._recapture_settling_reference(approach_ids)
+        self._refresh_turn_goal(approach_ids)
+
+    def _update_command(self) -> None:
+        self.phase_clock_s += self._env.step_dt
+        super()._update_command()
+        transition_ids = torch.nonzero(
+            (~self.turn_started) & (self.phase_clock_s >= self.cfg.turn_start_s),
+            as_tuple=False,
+        ).squeeze(-1)
+        if transition_ids.numel() == 0:
+            return
+
+        current_pos_w = self.robot.data.body_pos_w[transition_ids, self.body_idx]
+        current_quat_w = self.robot.data.body_quat_w[transition_ids, self.body_idx]
+        self.start_pose_w[transition_ids, :3] = current_pos_w
+        self.start_pose_w[transition_ids, 3:] = current_quat_w
+        self.goal_pose_w[transition_ids] = self.turn_goal_pose_w[transition_ids]
+        if self.cfg.preserve_start_orientation:
+            self.goal_pose_w[transition_ids, 3:] = current_quat_w
+        self.pose_command_w[transition_ids] = self.start_pose_w[transition_ids]
+        self.twist_command_w[transition_ids] = 0.0
+        self.command_buffer[transition_ids, :7] = self.pose_command_w[transition_ids]
+        self.command_buffer[transition_ids, 7:] = 0.0
+        self.elapsed_s[transition_ids] = self.cfg.settle_time_s
+        self.motion_progress[transition_ids] = 0.0
+        self.turn_started[transition_ids] = True
+
+
+@configclass
+class DoorHandleTurnCommandCfg(DoorHandlePoseCommandCfg):
+    """Configuration for the grasp-then-turn command state machine."""
+
+    class_type: type = DoorHandleTurnCommand
+    turn_start_s: float = 7.0
+    turn_translation_w: tuple[float, float, float] = (0.0, 0.015, -0.075)
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if self.turn_start_s <= self.settle_time_s + self.motion_time_s:
+            raise ValueError("turn_start_s must leave time for approach and grasp closure")
+        if len(self.turn_translation_w) != 3:
+            raise ValueError("turn_translation_w must have three elements")
+
+
+class DoorHandlePullCommand(DoorHandleTurnCommand):
+    """Add a third minimum-jerk phase that pulls an unlatched door open."""
+
+    cfg: DoorHandlePullCommandCfg
+
+    def __init__(self, cfg: DoorHandlePullCommandCfg, env: ManagerBasedRLEnv) -> None:
+        super().__init__(cfg, env)
+        self.pull_started = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
+        self.pull_goal_pose_w = torch.zeros_like(self.goal_pose_w)
+        self.pull_goal_pose_w[:, 3] = 1.0
+
+    def _refresh_pull_goal(self, env_ids: Sequence[int]) -> None:
+        translation = torch.tensor(
+            self.cfg.pull_translation_w,
+            dtype=self.goal_pose_w.dtype,
+            device=self.device,
+        )
+        self.pull_goal_pose_w[env_ids] = self.turn_goal_pose_w[env_ids]
+        self.pull_goal_pose_w[env_ids, :3] += translation
+
+    def _resample_command(self, env_ids: Sequence[int]) -> None:
+        if len(env_ids) == 0:
+            return
+        self.pull_started[env_ids] = False
+        super()._resample_command(env_ids)
+        self._refresh_pull_goal(env_ids)
+
+    def _recapture_settling_reference(self, env_ids: torch.Tensor) -> None:
+        super()._recapture_settling_reference(env_ids)
+        approach_ids = env_ids[~self.turn_started[env_ids]]
+        if approach_ids.numel() > 0:
+            self._refresh_pull_goal(approach_ids)
+
+    def _update_command(self) -> None:
+        super()._update_command()
+        transition_ids = torch.nonzero(
+            (~self.pull_started) & (self.phase_clock_s >= self.cfg.pull_start_s),
+            as_tuple=False,
+        ).squeeze(-1)
+        if transition_ids.numel() == 0:
+            return
+
+        current_pos_w = self.robot.data.body_pos_w[transition_ids, self.body_idx]
+        current_quat_w = self.robot.data.body_quat_w[transition_ids, self.body_idx]
+        self.start_pose_w[transition_ids, :3] = current_pos_w
+        self.start_pose_w[transition_ids, 3:] = current_quat_w
+        self.goal_pose_w[transition_ids] = self.pull_goal_pose_w[transition_ids]
+        if self.cfg.preserve_start_orientation:
+            self.goal_pose_w[transition_ids, 3:] = current_quat_w
+        self.pose_command_w[transition_ids] = self.start_pose_w[transition_ids]
+        self.twist_command_w[transition_ids] = 0.0
+        self.command_buffer[transition_ids, :7] = self.pose_command_w[transition_ids]
+        self.command_buffer[transition_ids, 7:] = 0.0
+        self.elapsed_s[transition_ids] = self.cfg.settle_time_s
+        self.motion_progress[transition_ids] = 0.0
+        self.pull_started[transition_ids] = True
+
+
+@configclass
+class DoorHandlePullCommandCfg(DoorHandleTurnCommandCfg):
+    """Configuration for the final pull phase."""
+
+    class_type: type = DoorHandlePullCommand
+    pull_start_s: float = 11.0
+    pull_translation_w: tuple[float, float, float] = (-0.22, -0.13, 0.0)
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if self.pull_start_s <= self.turn_start_s + self.motion_time_s:
+            raise ValueError("pull_start_s must leave time to complete the turn phase")
+        if len(self.pull_translation_w) != 3:
+            raise ValueError("pull_translation_w must have three elements")

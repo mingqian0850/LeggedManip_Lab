@@ -38,15 +38,18 @@ DOOR_WITH_LEVER_CFG = ArticulationCfg(
             effort_limit_sim=180.0,
             velocity_limit_sim=1.5,
             stiffness=0.0,
-            damping=3.0,
-            friction=2.0,
+            damping=1.0,
+            friction=0.2,
         ),
         "handle": ImplicitActuatorCfg(
             joint_names_expr=["handle_joint"],
             effort_limit_sim=25.0,
             velocity_limit_sim=2.5,
-            stiffness=0.0,
-            damping=0.25,
+            # A real lever is spring-loaded.  Without this return stiffness,
+            # gravity rotates the offset handle to its lower stop and lets the
+            # policy bypass the unlatching task without making contact.
+            stiffness=12.0,
+            damping=0.50,
             friction=0.35,
         ),
     },

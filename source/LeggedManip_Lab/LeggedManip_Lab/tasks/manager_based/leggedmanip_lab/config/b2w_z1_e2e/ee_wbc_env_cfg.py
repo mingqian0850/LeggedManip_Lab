@@ -64,6 +64,15 @@ UNDESIRED_CONTACT_CFG = SceneEntityCfg(
         "gripper_.*",
     ],
 )
+DOOR_GRASP_UNDESIRED_CONTACT_CFG = SceneEntityCfg(
+    "contact_forces",
+    body_names=[
+        "base_link",
+        ".*_calf",
+        "lidar_link",
+        "link[0-6]",
+    ],
+)
 
 
 def _make_training_asset_cfg():
@@ -649,6 +658,187 @@ class B2WZ1DoorAlignEnvCfg(B2WZ1EEWBCEnvCfg):
 
 @configclass
 class B2WZ1DoorAlignEnvCfg_PLAY(B2WZ1DoorAlignEnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+
+
+@configclass
+class B2WZ1DoorNearContactEnvCfg(B2WZ1DoorAlignEnvCfg):
+    """Stage 12: approach to 3 cm while holding the gripper fully open."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.approach_offset_handle = (-0.03, 0.0, 0.0)
+        self.commands.tcp_pose.position_jitter_range = (
+            (-0.005, 0.005),
+            (-0.005, 0.005),
+            (-0.005, 0.005),
+        )
+        # The Z1 URDF limit is [-pi/2, 0].  Negative rotates the movable jaw
+        # away from the fixed jaw; zero closes it.
+        self.actions.gripper_hold.target_position = -1.45
+
+
+@configclass
+class B2WZ1DoorNearContactEnvCfg_PLAY(B2WZ1DoorNearContactEnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+
+
+@configclass
+class B2WZ1DoorGraspEnvCfg(B2WZ1DoorNearContactEnvCfg):
+    """Stage 13: enter the grasp center, then close the Z1 gripper."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        # The nominal TCP lies near the front face of the gripper.  Placing it
+        # at the handle center creates a permanently infeasible 2 cm
+        # penetration command; this contact-consistent offset still lets the
+        # fingers wrap around the handle without the WBC pushing into the door.
+        self.commands.tcp_pose.approach_offset_handle = (-0.02, 0.0, 0.0)
+        self.commands.tcp_pose.position_jitter_range = (
+            (0.0, 0.0),
+            (-0.002, 0.002),
+            (-0.002, 0.002),
+        )
+        self.actions.gripper_hold = mdp.PhasedJointPositionActionCfg(
+            asset_name="robot",
+            joint_names=["gripper_joint"],
+            command_name="tcp_pose",
+            open_position=-1.45,
+            # The 50 mm handle blocks the mover near -0.43 rad.  A zero-radian
+            # target produced roughly 100 N contact and destabilized the base;
+            # retain a small preload instead of commanding hard closure.
+            closed_position=-0.35,
+            close_start_progress=0.90,
+            capture_distance=0.04,
+            close_duration_s=1.5,
+        )
+        # Contact at the gripper is the objective in this phase.  Contacts on
+        # the arm, lidar, base, and calves remain illegal.
+        self.rewards.undesired_contacts.params["sensor_cfg"] = DOOR_GRASP_UNDESIRED_CONTACT_CFG
+        self.terminations.undesired_contact.params["sensor_cfg"] = DOOR_GRASP_UNDESIRED_CONTACT_CFG
+
+
+@configclass
+class B2WZ1DoorGraspEnvCfg_PLAY(B2WZ1DoorGraspEnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+
+
+@configclass
+class B2WZ1DoorTurnCommandsCfg:
+    """Approach, close the gripper, then push the lever downward."""
+
+    tcp_pose = mdp.DoorHandleTurnCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        door_asset_name="door",
+        handle_body_name="handle_grasp",
+        resampling_time_range=(1.0e9, 1.0e9),
+        approach_offset_handle=(-0.02, 0.0, 0.0),
+        position_jitter_range=((0.0, 0.0), (-0.002, 0.002), (-0.002, 0.002)),
+        preserve_start_orientation=True,
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=3.5,
+        recapture_during_settle=True,
+        turn_start_s=7.0,
+        turn_translation_w=(0.0, 0.015, -0.075),
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1DoorTurnEnvCfg(B2WZ1DoorGraspEnvCfg):
+    """Stage 14: test handle rotation using the existing low-target WBC."""
+
+    commands: B2WZ1DoorTurnCommandsCfg = B2WZ1DoorTurnCommandsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.episode_length_s = 16.0
+
+
+@configclass
+class B2WZ1DoorTurnEnvCfg_PLAY(B2WZ1DoorTurnEnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+
+
+@configclass
+class B2WZ1DoorPullCommandsCfg:
+    tcp_pose = mdp.DoorHandlePullCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        door_asset_name="door",
+        handle_body_name="handle_grasp",
+        resampling_time_range=(1.0e9, 1.0e9),
+        approach_offset_handle=(-0.02, 0.0, 0.0),
+        position_jitter_range=((0.0, 0.0), (-0.002, 0.002), (-0.002, 0.002)),
+        preserve_start_orientation=True,
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=3.5,
+        recapture_during_settle=True,
+        turn_start_s=7.0,
+        turn_translation_w=(0.0, 0.015, -0.075),
+        pull_start_s=11.0,
+        pull_translation_w=(-0.22, -0.13, 0.0),
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1DoorPullActionsCfg(B2WZ1EEWBCActionsCfg):
+    door_latch = mdp.DoorLatchActionCfg(
+        asset_name="door",
+        door_joint_name="door_hinge",
+        handle_joint_name="handle_joint",
+        release_angle=0.30,
+        lock_stiffness=500.0,
+        lock_damping=20.0,
+        maximum_lock_effort=120.0,
+    )
+    compliant_grasp = mdp.CompliantGraspActionCfg(
+        asset_name="robot",
+        door_asset_name="door",
+        tcp_body_name="tcp_frame",
+        handle_body_name="handle_grasp",
+        robot_force_body_name="gripper_stator",
+        door_force_body_name="door_panel",
+        gripper_action_name="gripper_hold",
+        activation_closure_progress=0.95,
+        activation_distance=0.06,
+        stiffness=800.0,
+        damping=40.0,
+        maximum_force=80.0,
+        break_distance=0.20,
+    )
+
+
+@configclass
+class B2WZ1DoorPullEnvCfg(B2WZ1DoorTurnEnvCfg):
+    """Stage 15: release the latch and pull the door toward the robot."""
+
+    commands: B2WZ1DoorPullCommandsCfg = B2WZ1DoorPullCommandsCfg()
+    actions: B2WZ1DoorPullActionsCfg = B2WZ1DoorPullActionsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.episode_length_s = 22.0
+
+
+@configclass
+class B2WZ1DoorPullEnvCfg_PLAY(B2WZ1DoorPullEnvCfg):
     def __post_init__(self) -> None:
         super().__post_init__()
         self.scene.num_envs = 16

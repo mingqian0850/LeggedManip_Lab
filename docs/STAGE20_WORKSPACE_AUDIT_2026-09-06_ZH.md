@@ -82,3 +82,5 @@ Stage20 改变了对当前模型的评价：
 视频未放入 Git 历史：仓库的 `*.mp4` 由 Git LFS 管理，而 GitHub 不允许当前 public fork 上传新的 LFS 对象。代码、报告、JSON 和接触表正常进入分支，视频保留在上述两台机器的明确路径中。
 
 录像共 54 s、1280×720、50 fps。时间轴：0–2 s 落稳；之后每 4 s 依次为 home、front、left、right、rear、high、low_front、low_left、low_right、far_front、pose_combo、rear_pose、return_home。
+
+> 后续已按审阅意见把位置扩大到前向 1.25 m、后向 1.0 m、侧向 0.94 m、对角约 1.24 m、高低 ±0.3125 m。扩大后仅 28/33 存活，并暴露纯右侧三档全部异常接触和连续轨迹路径依赖；详见 `docs/STAGE20B_WIDE_WORKSPACE_STRESS_2026-09-06_ZH.md`。

@@ -851,6 +851,145 @@ class B2WZ1WorkspaceSweepCommandsCfg:
     )
 
 
+WIDE_WORKSPACE_TARGET_NAMES = (
+    "home",
+    "front_1m",
+    "rear_0p8m",
+    "high_0p25m",
+    "low_0p25m",
+    "diagonal_right",
+    "large_6d_pose",
+    "diagonal_left",
+    "left_0p75m",
+    "right_0p75m",
+    "return_home",
+)
+WIDE_WORKSPACE_TARGET_OFFSETS_B = (
+    (0.00, 0.00, 0.00),
+    (1.00, 0.00, 0.00),
+    (-0.80, 0.00, 0.00),
+    (0.35, 0.00, 0.25),
+    (0.45, 0.00, -0.25),
+    (0.70, -0.70, 0.00),
+    (0.45, 0.20, 0.12),
+    (0.70, 0.70, 0.00),
+    (0.15, 0.75, 0.00),
+    (0.15, -0.75, 0.00),
+    (0.00, 0.00, 0.00),
+)
+WIDE_WORKSPACE_TARGET_RPY = (
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, math.radians(-20.0), 0.0),
+    (0.0, math.radians(20.0), 0.0),
+    (0.0, 0.0, math.radians(-20.0)),
+    (math.radians(25.0), math.radians(-20.0), math.radians(45.0)),
+    (0.0, 0.0, math.radians(20.0)),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+)
+
+# The review sequence inserts explicit home waypoints between unrelated hard
+# targets.  This prevents an unsafe cross-workspace chord from invalidating all
+# later video labels while still leaving the known right-side failure last.
+WIDE_SWEEP_TARGET_NAMES = (
+    "home",
+    "front_1m",
+    "rear_0p8m",
+    "high_0p25m",
+    "low_0p25m",
+    "diagonal_right",
+    "mid_home_1",
+    "large_6d_pose",
+    "mid_home_2",
+    "diagonal_left",
+    "left_0p75m",
+    "mid_home_3",
+    "right_0p75m",
+    "return_home",
+)
+WIDE_SWEEP_TARGET_OFFSETS_B = (
+    (0.00, 0.00, 0.00),
+    (1.00, 0.00, 0.00),
+    (-0.80, 0.00, 0.00),
+    (0.35, 0.00, 0.25),
+    (0.45, 0.00, -0.25),
+    (0.70, -0.70, 0.00),
+    (0.00, 0.00, 0.00),
+    (0.45, 0.20, 0.12),
+    (0.00, 0.00, 0.00),
+    (0.70, 0.70, 0.00),
+    (0.15, 0.75, 0.00),
+    (0.00, 0.00, 0.00),
+    (0.15, -0.75, 0.00),
+    (0.00, 0.00, 0.00),
+)
+WIDE_SWEEP_TARGET_RPY = (
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, math.radians(-20.0), 0.0),
+    (0.0, math.radians(20.0), 0.0),
+    (0.0, 0.0, math.radians(-20.0)),
+    (0.0, 0.0, 0.0),
+    (math.radians(25.0), math.radians(-20.0), math.radians(45.0)),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, math.radians(20.0)),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+)
+
+
+@configclass
+class B2WZ1WideWorkspaceGridCommandsCfg:
+    """Stage-20b stress grid extending well beyond the 70 cm training radius."""
+
+    tcp_pose = mdp.WorkspaceSweepWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        settle_time_s=2.0,
+        motion_time_s=4.0,
+        ramp_time_s=4.0,
+        transition_time_s=4.0,
+        hold_time_s=3.0,
+        cycle_targets=False,
+        target_names=WIDE_WORKSPACE_TARGET_NAMES,
+        target_offsets_b=WIDE_WORKSPACE_TARGET_OFFSETS_B,
+        target_rpy=WIDE_WORKSPACE_TARGET_RPY,
+        target_scales=(0.75, 1.0, 1.25),
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1WideWorkspaceSweepCommandsCfg:
+    """Single-robot wide sweep for visibly auditing whole-body locomotion."""
+
+    tcp_pose = mdp.WorkspaceSweepWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        settle_time_s=2.0,
+        motion_time_s=4.0,
+        ramp_time_s=4.0,
+        transition_time_s=4.0,
+        hold_time_s=1.5,
+        cycle_targets=True,
+        target_names=WIDE_SWEEP_TARGET_NAMES,
+        target_offsets_b=WIDE_SWEEP_TARGET_OFFSETS_B,
+        target_rpy=WIDE_SWEEP_TARGET_RPY,
+        target_scales=(1.0,),
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
 @configclass
 class B2WZ1DynamicTrackingRewardsCfg(B2WZ1EEWBCRewardsCfg):
     """Tracking rewards plus explicit natural-posture objectives."""
@@ -1081,6 +1220,40 @@ class B2WZ1WorkspaceSweepAdaptiveMirroredFilter35EnvCfg_PLAY(B2WZ1DynamicTrackin
         self.commands.tcp_pose.debug_vis = True
         self.viewer.eye = (2.8, 2.8, 1.9)
         self.viewer.lookat = (0.10, 0.0, 0.55)
+
+
+@configclass
+class B2WZ1WideWorkspaceGridAdaptiveMirroredFilter35EnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-20b parallel extrapolation audit with 0.75/1.0/1.25 target scales."""
+
+    commands: B2WZ1WideWorkspaceGridCommandsCfg = B2WZ1WideWorkspaceGridCommandsCfg()
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 33
+        self.scene.env_spacing = 4.0
+        self.episode_length_s = 12.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1WideWorkspaceSweepAdaptiveMirroredFilter35EnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-20b wide single-robot review sequence."""
+
+    commands: B2WZ1WideWorkspaceSweepCommandsCfg = B2WZ1WideWorkspaceSweepCommandsCfg()
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 1
+        self.scene.env_spacing = 4.0
+        target_count = len(self.commands.tcp_pose.target_names)
+        segment_time = self.commands.tcp_pose.transition_time_s + self.commands.tcp_pose.hold_time_s
+        self.episode_length_s = self.commands.tcp_pose.settle_time_s + target_count * segment_time + 2.0
+        self.commands.tcp_pose.debug_vis = True
+        self.viewer.eye = (4.4, 4.4, 2.8)
+        self.viewer.lookat = (0.05, 0.0, 0.55)
 
 
 @configclass

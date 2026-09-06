@@ -204,6 +204,10 @@ def main() -> dict:
         previous_previous_action = previous_action.clone()
         previous_root_velocity = robot.data.root_lin_vel_w.clone()
         termination_counts = {name: 0 for name in task.termination_manager.active_terms}
+        first_termination_step = torch.full(
+            (task.num_envs,), -1, dtype=torch.long, device=task.device
+        )
+        first_termination_target_id = torch.full_like(first_termination_step, -1)
         arrival_required_steps = max(1, math.ceil(0.25 / task.step_dt))
         arrival_run_length = torch.zeros(task.num_envs, dtype=torch.long, device=task.device)
         arrival_time_s = torch.full((task.num_envs,), math.nan, device=task.device)
@@ -233,6 +237,11 @@ def main() -> dict:
         valid_series = []
 
         for step in range(args_cli.steps):
+            target_ids_before_step = (
+                command.current_target_ids.clone()
+                if hasattr(command, "current_target_ids")
+                else trajectory_ids
+            )
             with torch.inference_mode():
                 actions = policy(obs)
                 obs, _, dones, _ = env.step(actions)
@@ -247,6 +256,8 @@ def main() -> dict:
                 settled_root_quaternion_w = robot.data.root_quat_w.clone()
 
             newly_done = alive & dones
+            first_termination_step[newly_done] = step + 1
+            first_termination_target_id[newly_done] = target_ids_before_step[newly_done]
             for name in termination_counts:
                 termination_counts[name] += int(
                     torch.count_nonzero(newly_done & task.termination_manager.get_term(name).bool()).item()
@@ -479,6 +490,21 @@ def main() -> dict:
                 "completion_rate": _as_float(torch.mean(alive.float())),
                 "termination_counts": termination_counts,
             },
+            "first_episode_termination_events": [
+                {
+                    "environment_id": env_id,
+                    "step": int(first_termination_step[env_id].item()),
+                    "time_s": _as_float(first_termination_step[env_id].float() * task.step_dt),
+                    "target_id": int(first_termination_target_id[env_id].item()),
+                    "target_name": (
+                        trajectory_names[int(first_termination_target_id[env_id].item())]
+                        if 0 <= int(first_termination_target_id[env_id].item()) < len(trajectory_names)
+                        else None
+                    ),
+                }
+                for env_id in range(task.num_envs)
+                if first_termination_step[env_id] >= 0
+            ],
             "overall": metrics_for(torch.ones(task.num_envs, dtype=torch.bool, device=task.device)),
             "by_trajectory": {
                 name: metrics_for(trajectory_ids == index)

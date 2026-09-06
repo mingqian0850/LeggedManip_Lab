@@ -80,3 +80,23 @@ class B2WZ1EEWBCPosturePPORunnerCfg(B2WZ1EEWBCPPORunnerCfg):
         desired_kl=0.003,
         max_grad_norm=0.5,
     )
+
+
+@configclass
+class B2WZ1EEWBCStage21PPORunnerCfg(B2WZ1EEWBCPPORunnerCfg):
+    """Small updates for wide-range heading curriculum without precision collapse."""
+
+    algorithm = RslRlPpoAlgorithmCfg(
+        value_loss_coef=1.0,
+        use_clipped_value_loss=True,
+        clip_param=0.06,
+        entropy_coef=0.0005,
+        num_learning_epochs=3,
+        num_mini_batches=4,
+        learning_rate=2.5e-5,
+        schedule="adaptive",
+        gamma=0.99,
+        lam=0.95,
+        desired_kl=0.0025,
+        max_grad_norm=0.5,
+    )

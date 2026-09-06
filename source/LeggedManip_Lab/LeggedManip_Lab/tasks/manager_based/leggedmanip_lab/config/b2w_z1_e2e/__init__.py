@@ -630,3 +630,32 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
     },
 )
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Stage21-Heading-Adaptive-Mirrored-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": (
+            f"{__name__}.ee_wbc_env_cfg:B2WZ1Stage21HeadingAdaptiveMirroredFilter35EnvCfg"
+        ),
+        "rsl_rl_cfg_entry_point": (
+            f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCStage21PPORunnerCfg"
+        ),
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Stage21b-Limited-Heading-Adaptive-Mirrored-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": (
+            f"{__name__}.ee_wbc_env_cfg:"
+            "B2WZ1Stage21BLimitedHeadingAdaptiveMirroredFilter35EnvCfg"
+        ),
+        "rsl_rl_cfg_entry_point": (
+            f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCStage21PPORunnerCfg"
+        ),
+    },
+)

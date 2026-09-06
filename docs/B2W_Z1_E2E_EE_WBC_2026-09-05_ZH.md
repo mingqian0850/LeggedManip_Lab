@@ -449,3 +449,17 @@ docs/STAGE18_NATURAL_LEG_RESULTS_2026-09-06_ZH.md
 Stage18 的关键结论是：B2W 的四轮持续接地动作不应套用足式步态模仿；同时，由于 Z1 和传感器载荷不完全对称，也不能把左右几何完全一致当作唯一目标。后续应转向“语义机身/支撑动作 + 四腿 IK + 小 residual”的新控制架构，并把四轮承载均衡与 TCP 精度共同作为约束。
 
 Stage19 已增加不改网络维度的软镜像动作投影，并通过 TCP 高度与平面本体位移连续释放非对称自由度。最终 Stage19e 直接复用 `model_725`，普通 0.20 Hz 位置误差 5.49 mm、镜像误差降低 31%、接触力 CV 改善，Stage10 三 seed 仍为 383/384。综合自然模式任务为 `B2W-Z1-EE-WBC-Dynamic-Adaptive-Mirrored-Filter35-SixD-Play-v0`；详细门控、消融和录像路径见 Stage18/19 专项报告。
+
+## 10. 2026-09-06 Stage 20/21：工作空间审计与宽范围航向课程
+
+Stage20/20b 将评估从少量演示扩展为 39 个名义目标和 33 个大范围目标。基线 `model_725` 在名义目标上 39/39，在宽范围目标上 28/33；主要缺陷是纯右侧目标 0/3 和侧向大 roll。
+
+Stage21a 的全角度航向奖励被实验拒绝。Stage21b 采用 ±35° 限角、6 s 轨迹、侧向重点采样、旧范围 replay 和轮载均衡，候选 `model_774` 达到宽范围 31/33、名义 39/39、连续轨迹 128/128。纯右侧从 0/3 提升到 2/3，但左右 0.9375 m 极限点仍失败；连续顺序测试在 59.94 s 的 `left_0p75m` 发生路径依赖接触。
+
+完整数据、失败消融、checkpoint、视频边界和 Stage22 方案见：
+
+```text
+docs/STAGE20_WORKSPACE_AUDIT_2026-09-06_ZH.md
+docs/STAGE20B_WIDE_WORKSPACE_STRESS_2026-09-06_ZH.md
+docs/STAGE21_WIDE_HEADING_CURRICULUM_2026-09-06_ZH.md
+```

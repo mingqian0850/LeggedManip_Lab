@@ -1,0 +1,2852 @@
+{
+  "by_trajectory": {
+    "diagonal_left": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "diagonal_right": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "front_1m": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "high_0p25m": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "home": {
+      "absolute_root_pitch_deg": {
+        "max": 7.768183317598833,
+        "mean": 2.355367043060214,
+        "p95": 6.402858811477726,
+        "rms": 3.007373486135046
+      },
+      "absolute_root_roll_deg": {
+        "max": 29.99545534393341,
+        "mean": 5.9056837922637975,
+        "p95": 17.528842099117107,
+        "rms": 8.517406404451396
+      },
+      "action_delta_norm": {
+        "max": 0.21322305500507355,
+        "mean": 0.03576343134045601,
+        "p95": 0.09979595988988876,
+        "rms": 0.047403734177351
+      },
+      "angular_velocity_error_rad_s": {
+        "max": 0.5783516764640808,
+        "mean": 0.059761956334114075,
+        "p95": 0.16034753620624542,
+        "rms": 0.08327287435531616
+      },
+      "arrival_time_s": {
+        "max": 4.0,
+        "mean": 4.0,
+        "p95": 4.0,
+        "rms": 4.0
+      },
+      "arrived_fraction": 1.0,
+      "environment_count": 1,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": 0.06976312398910522,
+          "mean": 0.06976312398910522,
+          "p95": 0.06976312398910522,
+          "rms": 0.06976312398910522
+        },
+        "x": {
+          "max": 0.06711464375257492,
+          "mean": 0.06711464375257492,
+          "p95": 0.06711464375257492,
+          "rms": 0.06711464375257492
+        },
+        "y": {
+          "max": 0.01903991587460041,
+          "mean": 0.01903991587460041,
+          "p95": 0.01903991587460041,
+          "rms": 0.01903991587460041
+        },
+        "z": {
+          "max": -0.0014944103313609958,
+          "mean": -0.0014944103313609958,
+          "p95": -0.0014944103313609958,
+          "rms": 0.0014944103313609958
+        }
+      },
+      "fraction_within_3cm_6deg": 0.9855394959449768,
+      "hip_deviation_norm_rad": {
+        "max": 0.7148439884185791,
+        "mean": 0.25758102536201477,
+        "p95": 0.5112425088882446,
+        "rms": 0.2942444384098053
+      },
+      "leg_action_delta_norm": {
+        "max": 0.15976829826831818,
+        "mean": 0.02409740723669529,
+        "p95": 0.06385599821805954,
+        "rms": 0.03155741095542908
+      },
+      "leg_action_second_difference_norm": {
+        "max": 0.16512350738048553,
+        "mean": 0.01855435222387314,
+        "p95": 0.059465471655130386,
+        "rms": 0.02764148823916912
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": 406.4107666015625,
+        "mean": 27.70992660522461,
+        "p95": 93.75015258789062,
+        "rms": 48.85807418823242
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": 3.6258881092071533,
+        "mean": 0.4200602173805237,
+        "p95": 1.1622745990753174,
+        "rms": 0.560405969619751
+      },
+      "linear_velocity_error_m_s": {
+        "max": 0.1223304495215416,
+        "mean": 0.014933908358216286,
+        "p95": 0.03542180731892586,
+        "rms": 0.018962951377034187
+      },
+      "orientation_error_deg": {
+        "max": 10.02426651744033,
+        "mean": 1.7986880561273686,
+        "p95": 4.284586204085461,
+        "rms": 2.296126037624343
+      },
+      "position_error_m": {
+        "max": 0.023352643474936485,
+        "mean": 0.011338452808558941,
+        "p95": 0.018936997279524803,
+        "rms": 0.012244715355336666
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": 1.6740410327911377,
+        "mean": 0.31434985995292664,
+        "p95": 0.8580427765846252,
+        "rms": 0.42139559984207153
+      },
+      "root_height_m": {
+        "max": 0.6059482097625732,
+        "mean": 0.5514489412307739,
+        "p95": 0.5868513584136963,
+        "rms": 0.5521404147148132
+      },
+      "root_speed_m_s": {
+        "max": 0.8826028108596802,
+        "mean": 0.15820616483688354,
+        "p95": 0.5022842288017273,
+        "rms": 0.24044716358184814
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": 0.8321799039840698,
+        "mean": 0.16362467408180237,
+        "p95": 0.49620023369789124,
+        "rms": 0.24356399476528168
+      },
+      "wheel_contact_force_cv": {
+        "max": 1.6483219861984253,
+        "mean": 0.4185624122619629,
+        "p95": 0.9231249094009399,
+        "rms": 0.5061331391334534
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": 0.2995922267436981,
+        "mean": 0.11611398309469223,
+        "p95": 0.1860506385564804,
+        "rms": 0.12295056134462357
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": 0.2684969902038574,
+        "mean": 0.07942461967468262,
+        "p95": 0.15247732400894165,
+        "rms": 0.08977951109409332
+      }
+    },
+    "large_6d_pose": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "left_0p75m": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "low_0p25m": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "mid_home_1": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "mid_home_2": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "mid_home_3": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "rear_0p8m": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "return_home": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    },
+    "right_0p75m": {
+      "absolute_root_pitch_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "absolute_root_roll_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "angular_velocity_error_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrival_time_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "arrived_fraction": NaN,
+      "environment_count": 0,
+      "final_orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "final_root_translation_b_m": {
+        "planar_norm": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "x": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "y": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "z": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        }
+      },
+      "fraction_within_3cm_6deg": NaN,
+      "hip_deviation_norm_rad": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_delta_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_action_second_difference_norm": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_acceleration_norm_rad_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "leg_joint_velocity_norm_rad_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "linear_velocity_error_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "orientation_error_deg": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_error_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "position_lag_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_acceleration_m_s2": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_height_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "root_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "survived_count": 0,
+      "tcp_speed_m_s": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_contact_force_cv": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_nominal_deviation_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      },
+      "wheel_pair_symmetry_error_rms_m": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN,
+        "rms": NaN
+      }
+    }
+  },
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_15-26-22_stage21b_limited_heading_from725_50/model_774.pt",
+  "first_episode_survival": {
+    "completed_envs": 0,
+    "completion_rate": 0.0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 1
+    }
+  },
+  "first_episode_termination_events": [
+    {
+      "environment_id": 0,
+      "step": 2997,
+      "target_id": 10,
+      "target_name": "left_0p75m",
+      "time_s": 59.939998626708984
+    }
+  ],
+  "measurement_start_step": 300,
+  "num_envs": 1,
+  "overall": {
+    "absolute_root_pitch_deg": {
+      "max": 7.768183317598833,
+      "mean": 2.355367043060214,
+      "p95": 6.402858811477726,
+      "rms": 3.007373486135046
+    },
+    "absolute_root_roll_deg": {
+      "max": 29.99545534393341,
+      "mean": 5.9056837922637975,
+      "p95": 17.528842099117107,
+      "rms": 8.517406404451396
+    },
+    "action_delta_norm": {
+      "max": 0.21322305500507355,
+      "mean": 0.03576343134045601,
+      "p95": 0.09979595988988876,
+      "rms": 0.047403734177351
+    },
+    "angular_velocity_error_rad_s": {
+      "max": 0.5783516764640808,
+      "mean": 0.059761956334114075,
+      "p95": 0.16034753620624542,
+      "rms": 0.08327287435531616
+    },
+    "arrival_time_s": {
+      "max": 4.0,
+      "mean": 4.0,
+      "p95": 4.0,
+      "rms": 4.0
+    },
+    "arrived_fraction": 1.0,
+    "environment_count": 1,
+    "final_orientation_error_deg": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN,
+      "rms": NaN
+    },
+    "final_position_error_m": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN,
+      "rms": NaN
+    },
+    "final_root_translation_b_m": {
+      "planar_norm": {
+        "max": 0.06976312398910522,
+        "mean": 0.06976312398910522,
+        "p95": 0.06976312398910522,
+        "rms": 0.06976312398910522
+      },
+      "x": {
+        "max": 0.06711464375257492,
+        "mean": 0.06711464375257492,
+        "p95": 0.06711464375257492,
+        "rms": 0.06711464375257492
+      },
+      "y": {
+        "max": 0.01903991587460041,
+        "mean": 0.01903991587460041,
+        "p95": 0.01903991587460041,
+        "rms": 0.01903991587460041
+      },
+      "z": {
+        "max": -0.0014944103313609958,
+        "mean": -0.0014944103313609958,
+        "p95": -0.0014944103313609958,
+        "rms": 0.0014944103313609958
+      }
+    },
+    "fraction_within_3cm_6deg": 0.9855394959449768,
+    "hip_deviation_norm_rad": {
+      "max": 0.7148439884185791,
+      "mean": 0.25758102536201477,
+      "p95": 0.5112425088882446,
+      "rms": 0.2942444384098053
+    },
+    "leg_action_delta_norm": {
+      "max": 0.15976829826831818,
+      "mean": 0.02409740723669529,
+      "p95": 0.06385599821805954,
+      "rms": 0.03155741095542908
+    },
+    "leg_action_second_difference_norm": {
+      "max": 0.16512350738048553,
+      "mean": 0.01855435222387314,
+      "p95": 0.059465471655130386,
+      "rms": 0.02764148823916912
+    },
+    "leg_joint_acceleration_norm_rad_s2": {
+      "max": 406.4107666015625,
+      "mean": 27.70992660522461,
+      "p95": 93.75015258789062,
+      "rms": 48.85807418823242
+    },
+    "leg_joint_velocity_norm_rad_s": {
+      "max": 3.6258881092071533,
+      "mean": 0.4200602173805237,
+      "p95": 1.1622745990753174,
+      "rms": 0.560405969619751
+    },
+    "linear_velocity_error_m_s": {
+      "max": 0.1223304495215416,
+      "mean": 0.014933908358216286,
+      "p95": 0.03542180731892586,
+      "rms": 0.018962951377034187
+    },
+    "orientation_error_deg": {
+      "max": 10.02426651744033,
+      "mean": 1.7986880561273686,
+      "p95": 4.284586204085461,
+      "rms": 2.296126037624343
+    },
+    "position_error_m": {
+      "max": 0.023352643474936485,
+      "mean": 0.011338452808558941,
+      "p95": 0.018936997279524803,
+      "rms": 0.012244715355336666
+    },
+    "position_lag_s": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN,
+      "rms": NaN
+    },
+    "root_acceleration_m_s2": {
+      "max": 1.6740410327911377,
+      "mean": 0.31434985995292664,
+      "p95": 0.8580427765846252,
+      "rms": 0.42139559984207153
+    },
+    "root_height_m": {
+      "max": 0.6059482097625732,
+      "mean": 0.5514489412307739,
+      "p95": 0.5868513584136963,
+      "rms": 0.5521404147148132
+    },
+    "root_speed_m_s": {
+      "max": 0.8826028108596802,
+      "mean": 0.15820616483688354,
+      "p95": 0.5022842288017273,
+      "rms": 0.24044716358184814
+    },
+    "survived_count": 0,
+    "tcp_speed_m_s": {
+      "max": 0.8321799039840698,
+      "mean": 0.16362467408180237,
+      "p95": 0.49620023369789124,
+      "rms": 0.24356399476528168
+    },
+    "wheel_contact_force_cv": {
+      "max": 1.6483219861984253,
+      "mean": 0.4185624122619629,
+      "p95": 0.9231249094009399,
+      "rms": 0.5061331391334534
+    },
+    "wheel_nominal_deviation_rms_m": {
+      "max": 0.2995922267436981,
+      "mean": 0.11611398309469223,
+      "p95": 0.1860506385564804,
+      "rms": 0.12295056134462357
+    },
+    "wheel_pair_symmetry_error_rms_m": {
+      "max": 0.2684969902038574,
+      "mean": 0.07942461967468262,
+      "p95": 0.15247732400894165,
+      "rms": 0.08977951109409332
+    }
+  },
+  "seed": 42,
+  "settling_posture": {
+    "hip_change_from_default_rad": {
+      "FL_hip_joint": {
+        "maximum": -0.044985782355070114,
+        "mean": -0.044985782355070114,
+        "mean_absolute": 0.044985782355070114,
+        "minimum": -0.044985782355070114
+      },
+      "FR_hip_joint": {
+        "maximum": 0.013210617005825043,
+        "mean": 0.013210617005825043,
+        "mean_absolute": 0.013210617005825043,
+        "minimum": 0.013210617005825043
+      },
+      "RL_hip_joint": {
+        "maximum": -0.000941254198551178,
+        "mean": -0.000941254198551178,
+        "mean_absolute": 0.000941254198551178,
+        "minimum": -0.000941254198551178
+      },
+      "RR_hip_joint": {
+        "maximum": 0.006204068660736084,
+        "mean": 0.006204068660736084,
+        "mean_absolute": 0.006204068660736084,
+        "minimum": 0.006204068660736084
+      }
+    },
+    "maximum_hip_change_from_default_rad": 0.044985782355070114,
+    "maximum_joint_change_from_default_rad": 0.6935808062553406,
+    "maximum_leg_change_from_default_rad": 0.19930922985076904,
+    "mean_hip_change_from_default_rad": 0.01633543148636818,
+    "nominal_wheel_position_b_m": {
+      "FL_wheel": [
+        0.3029015362262726,
+        0.2421129047870636,
+        -0.4970424473285675
+      ],
+      "FR_wheel": [
+        0.30290159583091736,
+        -0.24310791492462158,
+        -0.496942400932312
+      ],
+      "RL_wheel": [
+        -0.45521581172943115,
+        0.24058721959590912,
+        -0.48183614015579224
+      ],
+      "RR_wheel": [
+        -0.4552156925201416,
+        -0.2415822297334671,
+        -0.4817364513874054
+      ]
+    },
+    "settled_wheel_position_b_m": {
+      "FL_wheel": [
+        0.3127906918525696,
+        0.21685907244682312,
+        -0.45462533831596375
+      ],
+      "FR_wheel": [
+        0.3053797483444214,
+        -0.2333229035139084,
+        -0.46232059597969055
+      ],
+      "RL_wheel": [
+        -0.4347792863845825,
+        0.2389979511499405,
+        -0.47056782245635986
+      ],
+      "RR_wheel": [
+        -0.43610918521881104,
+        -0.2379358559846878,
+        -0.4758232533931732
+      ]
+    },
+    "wheel_nominal_deviation_rms_m": {
+      "max": 0.0346258319914341,
+      "mean": 0.0346258319914341,
+      "p95": 0.0346258319914341,
+      "rms": 0.0346258319914341
+    },
+    "wheel_pair_symmetry_error_rms_m": {
+      "max": 0.008323791436851025,
+      "mean": 0.008323791436851025,
+      "p95": 0.008323791436851025,
+      "rms": 0.008323791436851025
+    }
+  },
+  "step_dt_s": 0.02,
+  "steps": 4050,
+  "task": "B2W-Z1-EE-WBC-Stage20b-Wide-Sweep-Adaptive-Mirrored-Filter35-Play-v0",
+  "trajectory_frequency_hz": {
+    "max": 0.15180066227912903,
+    "mean": 0.15180066227912903,
+    "p95": 0.15180066227912903,
+    "rms": 0.15180066227912903
+  },
+  "workspace_audit": {
+    "arrival_definition": "first 0.25 s continuously within 3 cm and 6 deg after transition",
+    "by_target_and_scale": {
+      "home@1.00": {
+        "absolute_root_pitch_deg": {
+          "max": 7.768183317598833,
+          "mean": 2.355367043060214,
+          "p95": 6.402858811477726,
+          "rms": 3.007373486135046
+        },
+        "absolute_root_roll_deg": {
+          "max": 29.99545534393341,
+          "mean": 5.9056837922637975,
+          "p95": 17.528842099117107,
+          "rms": 8.517406404451396
+        },
+        "action_delta_norm": {
+          "max": 0.21322305500507355,
+          "mean": 0.03576343134045601,
+          "p95": 0.09979595988988876,
+          "rms": 0.047403734177351
+        },
+        "angular_velocity_error_rad_s": {
+          "max": 0.5783516764640808,
+          "mean": 0.059761956334114075,
+          "p95": 0.16034753620624542,
+          "rms": 0.08327287435531616
+        },
+        "arrival_time_s": {
+          "max": 4.0,
+          "mean": 4.0,
+          "p95": 4.0,
+          "rms": 4.0
+        },
+        "arrived_fraction": 1.0,
+        "environment_count": 1,
+        "final_orientation_error_deg": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "final_position_error_m": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "final_root_translation_b_m": {
+          "planar_norm": {
+            "max": 0.06976312398910522,
+            "mean": 0.06976312398910522,
+            "p95": 0.06976312398910522,
+            "rms": 0.06976312398910522
+          },
+          "x": {
+            "max": 0.06711464375257492,
+            "mean": 0.06711464375257492,
+            "p95": 0.06711464375257492,
+            "rms": 0.06711464375257492
+          },
+          "y": {
+            "max": 0.01903991587460041,
+            "mean": 0.01903991587460041,
+            "p95": 0.01903991587460041,
+            "rms": 0.01903991587460041
+          },
+          "z": {
+            "max": -0.0014944103313609958,
+            "mean": -0.0014944103313609958,
+            "p95": -0.0014944103313609958,
+            "rms": 0.0014944103313609958
+          }
+        },
+        "fraction_within_3cm_6deg": 0.9855394959449768,
+        "hip_deviation_norm_rad": {
+          "max": 0.7148439884185791,
+          "mean": 0.25758102536201477,
+          "p95": 0.5112425088882446,
+          "rms": 0.2942444384098053
+        },
+        "leg_action_delta_norm": {
+          "max": 0.15976829826831818,
+          "mean": 0.02409740723669529,
+          "p95": 0.06385599821805954,
+          "rms": 0.03155741095542908
+        },
+        "leg_action_second_difference_norm": {
+          "max": 0.16512350738048553,
+          "mean": 0.01855435222387314,
+          "p95": 0.059465471655130386,
+          "rms": 0.02764148823916912
+        },
+        "leg_joint_acceleration_norm_rad_s2": {
+          "max": 406.4107666015625,
+          "mean": 27.70992660522461,
+          "p95": 93.75015258789062,
+          "rms": 48.85807418823242
+        },
+        "leg_joint_velocity_norm_rad_s": {
+          "max": 3.6258881092071533,
+          "mean": 0.4200602173805237,
+          "p95": 1.1622745990753174,
+          "rms": 0.560405969619751
+        },
+        "linear_velocity_error_m_s": {
+          "max": 0.1223304495215416,
+          "mean": 0.014933908358216286,
+          "p95": 0.03542180731892586,
+          "rms": 0.018962951377034187
+        },
+        "orientation_error_deg": {
+          "max": 10.02426651744033,
+          "mean": 1.7986880561273686,
+          "p95": 4.284586204085461,
+          "rms": 2.296126037624343
+        },
+        "position_error_m": {
+          "max": 0.023352643474936485,
+          "mean": 0.011338452808558941,
+          "p95": 0.018936997279524803,
+          "rms": 0.012244715355336666
+        },
+        "position_lag_s": {
+          "max": NaN,
+          "mean": NaN,
+          "p95": NaN,
+          "rms": NaN
+        },
+        "root_acceleration_m_s2": {
+          "max": 1.6740410327911377,
+          "mean": 0.31434985995292664,
+          "p95": 0.8580427765846252,
+          "rms": 0.42139559984207153
+        },
+        "root_height_m": {
+          "max": 0.6059482097625732,
+          "mean": 0.5514489412307739,
+          "p95": 0.5868513584136963,
+          "rms": 0.5521404147148132
+        },
+        "root_speed_m_s": {
+          "max": 0.8826028108596802,
+          "mean": 0.15820616483688354,
+          "p95": 0.5022842288017273,
+          "rms": 0.24044716358184814
+        },
+        "survived_count": 0,
+        "tcp_speed_m_s": {
+          "max": 0.8321799039840698,
+          "mean": 0.16362467408180237,
+          "p95": 0.49620023369789124,
+          "rms": 0.24356399476528168
+        },
+        "wheel_contact_force_cv": {
+          "max": 1.6483219861984253,
+          "mean": 0.4185624122619629,
+          "p95": 0.9231249094009399,
+          "rms": 0.5061331391334534
+        },
+        "wheel_nominal_deviation_rms_m": {
+          "max": 0.2995922267436981,
+          "mean": 0.11611398309469223,
+          "p95": 0.1860506385564804,
+          "rms": 0.12295056134462357
+        },
+        "wheel_pair_symmetry_error_rms_m": {
+          "max": 0.2684969902038574,
+          "mean": 0.07942461967468262,
+          "p95": 0.15247732400894165,
+          "rms": 0.08977951109409332
+        }
+      }
+    },
+    "target_scales": [
+      1.0
+    ]
+  }
+}

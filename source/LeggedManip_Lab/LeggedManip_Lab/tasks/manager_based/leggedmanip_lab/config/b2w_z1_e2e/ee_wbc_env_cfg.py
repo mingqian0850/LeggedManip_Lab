@@ -816,6 +816,98 @@ class B2WZ1DynamicTrainingCommandsCfg:
 
 
 @configclass
+class B2WZ1Stage21HeadingTrainingCommandsCfg:
+    """Wide planar curriculum with replay of the proven precision workspace."""
+
+    tcp_pose = mdp.PeriodicWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        trajectory_types=(
+            "waypoint_planar",
+            "waypoint_low",
+            "hold",
+            "line_x",
+            "line_y",
+            "circle_xy",
+            "figure8_xy",
+            "vertical",
+            "yaw_scan",
+            "six_d",
+        ),
+        # Concentrate Stage 21 on locomotion-producing goals while retaining
+        # 40% continuous/hold replay and 60% close-radius waypoint replay.
+        trajectory_weights=(0.45, 0.15, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05),
+        frequency_range_hz=(0.08, 0.35),
+        center_offset_b=(0.25, 0.0, 0.0),
+        radius_range=(0.70, 0.90),
+        short_radius_range=(0.03, 0.70),
+        short_radius_probability=0.60,
+        bearing_range=(-math.pi, math.pi),
+        spatial_bearing_range=(-0.60, 0.60),
+        height_offset_range=(-0.18, -0.005),
+        yaw_range=(-0.25, 0.25),
+        line_amplitude_m=0.10,
+        circle_radius_m=0.08,
+        figure8_amplitude_m=(0.12, 0.06),
+        vertical_amplitude_m=0.08,
+        orientation_amplitude_rpy=(math.radians(7.0), math.radians(7.0), math.radians(15.0)),
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=5.0,
+        ramp_time_s=5.0,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1Stage21BLimitedHeadingTrainingCommandsCfg:
+    """Side-focused, slower curriculum for safe wheel-compatible expansion."""
+
+    tcp_pose = mdp.PeriodicWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        trajectory_types=(
+            "waypoint_planar",
+            "waypoint_low",
+            "hold",
+            "line_x",
+            "line_y",
+            "circle_xy",
+            "figure8_xy",
+            "vertical",
+            "yaw_scan",
+            "six_d",
+        ),
+        trajectory_weights=(0.50, 0.10, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05),
+        lateral_bearing_probability=0.65,
+        lateral_bearing_half_width=0.25,
+        frequency_range_hz=(0.08, 0.35),
+        center_offset_b=(0.25, 0.0, 0.0),
+        radius_range=(0.60, 0.82),
+        short_radius_range=(0.03, 0.60),
+        short_radius_probability=0.50,
+        bearing_range=(-math.pi, math.pi),
+        spatial_bearing_range=(-0.60, 0.60),
+        height_offset_range=(-0.18, -0.005),
+        yaw_range=(-0.25, 0.25),
+        line_amplitude_m=0.10,
+        circle_radius_m=0.08,
+        figure8_amplitude_m=(0.12, 0.06),
+        vertical_amplitude_m=0.08,
+        orientation_amplitude_rpy=(math.radians(7.0), math.radians(7.0), math.radians(15.0)),
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=6.0,
+        ramp_time_s=6.0,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
 class B2WZ1WorkspaceGridCommandsCfg:
     """Parallel Stage-20 targets with three deterministic magnitude variants."""
 
@@ -1097,6 +1189,50 @@ class B2WZ1DynamicTrackingBalancedStanceRewardsCfg(B2WZ1DynamicTrackingRewardsCf
 
 
 @configclass
+class B2WZ1Stage21HeadingRewardsCfg(B2WZ1DynamicTrackingRewardsCfg):
+    """Teach distant EE commands to use the B2-W's rolling direction."""
+
+    wheeled_travel_heading = RewTerm(
+        func=mdp.wheeled_travel_heading_tracking_exp,
+        weight=2.0,
+        params={
+            "command_name": "tcp_pose",
+            "activation_radius": 0.45,
+            "full_radius": 0.70,
+            "std": math.radians(18.0),
+            "turn_in_end": 0.25,
+            "turn_out_start": 0.70,
+        },
+    )
+
+
+@configclass
+class B2WZ1Stage21BLimitedHeadingRewardsCfg(B2WZ1DynamicTrackingRewardsCfg):
+    """Limited steering with stronger anti-tip and load-balance shaping."""
+
+    wheeled_travel_heading = RewTerm(
+        func=mdp.wheeled_travel_heading_tracking_exp,
+        weight=0.75,
+        params={
+            "command_name": "tcp_pose",
+            "activation_radius": 0.45,
+            "full_radius": 0.65,
+            "std": math.radians(20.0),
+            "turn_in_end": 0.30,
+            "turn_out_start": 0.72,
+            "maximum_heading": math.radians(35.0),
+        },
+    )
+    root_roll = RewTerm(func=mdp.root_roll_l2, weight=-35.0)
+    root_roll_rate = RewTerm(func=mdp.root_roll_rate_l2, weight=-2.0)
+    wheel_contact_force_balance = RewTerm(
+        func=mdp.wheel_contact_force_balance_l2,
+        weight=-0.5,
+        params={"sensor_cfg": WHEEL_CONTACT_CFG},
+    )
+
+
+@configclass
 class B2WZ1DynamicTrackingEnvCfg(B2WZ1EEWBCStage6EnvCfg):
     """Training distribution for continuous general-purpose 6D EE tracking."""
 
@@ -1185,6 +1321,26 @@ class B2WZ1DynamicTrackingMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
 class B2WZ1DynamicTrackingAdaptiveMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
     """Stage-19b task with height-adaptive structured leg actions."""
 
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1Stage21HeadingAdaptiveMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-21 fine-tune: wheel-compatible travel for 0.70--0.90 m EE goals."""
+
+    commands: B2WZ1Stage21HeadingTrainingCommandsCfg = B2WZ1Stage21HeadingTrainingCommandsCfg()
+    rewards: B2WZ1Stage21HeadingRewardsCfg = B2WZ1Stage21HeadingRewardsCfg()
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1Stage21BLimitedHeadingAdaptiveMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-21b fine-tune from the pre-ablation model with limited steering."""
+
+    commands: B2WZ1Stage21BLimitedHeadingTrainingCommandsCfg = (
+        B2WZ1Stage21BLimitedHeadingTrainingCommandsCfg()
+    )
+    rewards: B2WZ1Stage21BLimitedHeadingRewardsCfg = B2WZ1Stage21BLimitedHeadingRewardsCfg()
     actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
 
 

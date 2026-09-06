@@ -644,6 +644,26 @@ class PeriodicWorldPoseCommand(FKReachableWorldPoseCommand):
                 else self.cfg.bearing_range
             )
             bearing = torch.empty(waypoint_ids.numel(), device=self.device).uniform_(*bearing_range)
+            if (
+                trajectory_name == "waypoint_planar"
+                and self.cfg.lateral_bearing_probability > 0.0
+            ):
+                lateral_mask = (
+                    torch.rand(waypoint_ids.numel(), device=self.device)
+                    < self.cfg.lateral_bearing_probability
+                )
+                lateral_sign = torch.where(
+                    torch.rand(waypoint_ids.numel(), device=self.device) < 0.5,
+                    -torch.ones_like(bearing),
+                    torch.ones_like(bearing),
+                )
+                lateral_bearing = lateral_sign * (0.5 * math.pi) + torch.empty_like(
+                    bearing
+                ).uniform_(
+                    -self.cfg.lateral_bearing_half_width,
+                    self.cfg.lateral_bearing_half_width,
+                )
+                bearing = torch.where(lateral_mask, lateral_bearing, bearing)
             self.reference_center_offset_b[waypoint_ids, 0] = radius * torch.cos(bearing)
             self.reference_center_offset_b[waypoint_ids, 1] = radius * torch.sin(bearing)
             if trajectory_name == "waypoint_low":
@@ -707,6 +727,10 @@ class PeriodicWorldPoseCommandCfg(FKReachableWorldPoseCommandCfg):
     trajectory_types: tuple[str, ...] = PeriodicWorldPoseCommand._SUPPORTED_TYPES
     trajectory_weights: tuple[float, ...] | None = None
     """Optional categorical training weights; ``None`` assigns types round-robin."""
+    lateral_bearing_probability: float = 0.0
+    """Probability that a planar waypoint is sampled near either lateral axis."""
+    lateral_bearing_half_width: float = 0.25
+    """Half-width in radians of each lateral bearing sampling sector."""
     frequency_range_hz: tuple[float, float] = (0.10, 0.30)
     center_offset_b: tuple[float, float, float] = (0.25, 0.0, 0.0)
     line_amplitude_m: float = 0.10
@@ -738,6 +762,10 @@ class PeriodicWorldPoseCommandCfg(FKReachableWorldPoseCommandCfg):
             raise ValueError("figure8_amplitude_m must have two elements")
         if len(self.orientation_amplitude_rpy) != 3:
             raise ValueError("orientation_amplitude_rpy must have three elements")
+        if not 0.0 <= self.lateral_bearing_probability <= 1.0:
+            raise ValueError("lateral_bearing_probability must be in [0, 1]")
+        if not 0.0 < self.lateral_bearing_half_width <= 0.5 * math.pi:
+            raise ValueError("lateral_bearing_half_width must be in (0, pi/2]")
         if min(
             self.line_amplitude_m,
             self.circle_radius_m,

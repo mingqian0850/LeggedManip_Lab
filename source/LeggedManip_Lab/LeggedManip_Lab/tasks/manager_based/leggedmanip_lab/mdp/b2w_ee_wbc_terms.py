@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
@@ -110,6 +111,25 @@ def wheel_contact_count(
         dim=-1,
         keepdim=True,
     )
+
+
+def wheel_contact_force_balance_l2(
+    env: ManagerBasedRLEnv,
+    sensor_cfg: SceneEntityCfg,
+    minimum_mean_force: float = 1.0,
+) -> torch.Tensor:
+    """Squared coefficient of variation of the four wheel contact loads."""
+    if minimum_mean_force <= 0.0:
+        raise ValueError("minimum_mean_force must be positive")
+    sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    force = torch.linalg.vector_norm(
+        sensor.data.net_forces_w[:, sensor_cfg.body_ids], dim=-1
+    )
+    mean_force = torch.mean(force, dim=-1)
+    coefficient_of_variation = torch.std(force, dim=-1) / torch.clamp(
+        mean_force, min=minimum_mean_force
+    )
+    return torch.square(coefficient_of_variation)
 
 
 def action_term_l2(env: ManagerBasedRLEnv, action_name: str) -> torch.Tensor:
@@ -266,6 +286,79 @@ def spatial_base_pitch_tracking_exp(
     phase = command.motion_progress
     active = command.spatial_mask.float()
     return active * phase * torch.exp(-torch.square(root_pitch - desired_pitch) / std**2)
+
+
+def wheeled_travel_heading_tracking_exp(
+    env: ManagerBasedRLEnv,
+    command_name: str,
+    activation_radius: float,
+    full_radius: float,
+    std: float,
+    turn_in_end: float = 0.25,
+    turn_out_start: float = 0.70,
+    maximum_heading: float = math.pi / 2.0,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Reward a turn--travel--realign maneuver for distant planar EE goals.
+
+    B2-W cannot translate sideways without wheel scrub.  For a distant lateral
+    TCP displacement, this term asks the root to face the direction of travel
+    during the middle of the minimum-jerk transition and to recover its initial
+    yaw before the EE settles.  Rear goals use the equivalent reverse-driving
+    heading, so the robot backs up instead of turning through 180 degrees.
+
+    The radius gate keeps the original close-range manipulation policy intact.
+    The returned value is zero below ``activation_radius`` and smoothly reaches
+    full strength at ``full_radius``.
+    """
+    if (
+        activation_radius < 0.0
+        or full_radius <= activation_radius
+        or std <= 0.0
+        or maximum_heading <= 0.0
+    ):
+        raise ValueError("heading radius bounds and std must be positive and ordered")
+    if not 0.0 < turn_in_end < turn_out_start < 1.0:
+        raise ValueError("turn phases must satisfy 0 < turn_in_end < turn_out_start < 1")
+
+    command = env.command_manager.get_term(command_name)
+    robot: Articulation = env.scene[asset_cfg.name]
+
+    planar_offset = command.ghost_translation_b[:, :2]
+    planar_radius = torch.linalg.vector_norm(planar_offset, dim=-1)
+    radius_gate = torch.clamp(
+        (planar_radius - activation_radius) / (full_radius - activation_radius),
+        min=0.0,
+        max=1.0,
+    )
+
+    # Select the forward or reverse direction requiring the smaller yaw change.
+    travel_heading = torch.atan2(planar_offset[:, 1], planar_offset[:, 0])
+    reverse = torch.cos(travel_heading) < 0.0
+    travel_heading = torch.where(
+        reverse,
+        travel_heading - torch.sign(travel_heading) * math.pi,
+        travel_heading,
+    )
+    travel_heading = torch.clamp(
+        travel_heading, min=-maximum_heading, max=maximum_heading
+    )
+
+    def smoothstep(value: torch.Tensor) -> torch.Tensor:
+        value = torch.clamp(value, min=0.0, max=1.0)
+        return value * value * (3.0 - 2.0 * value)
+
+    progress = torch.clamp(command.motion_progress, min=0.0, max=1.0)
+    turn_in = smoothstep(progress / turn_in_end)
+    turn_out = 1.0 - smoothstep((progress - turn_out_start) / (1.0 - turn_out_start))
+    desired_yaw = turn_in * turn_out * travel_heading
+
+    reference_to_root = quat_mul(quat_inv(command.reference_root_pose_w[:, 3:]), robot.data.root_quat_w)
+    w, x, y, z = reference_to_root.unbind(dim=-1)
+    root_yaw = torch.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+    yaw_error = root_yaw - desired_yaw
+    yaw_error = torch.atan2(torch.sin(yaw_error), torch.cos(yaw_error))
+    return radius_gate * torch.exp(-torch.square(yaw_error) / std**2)
 
 
 def tcp_goal_distance(

@@ -118,6 +118,75 @@ def action_term_l2(env: ManagerBasedRLEnv, action_name: str) -> torch.Tensor:
     return torch.sum(torch.square(action), dim=-1)
 
 
+def joint_default_deviation_l2(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+) -> torch.Tensor:
+    """Squared deviation from the nominal joint posture for a selected group."""
+    robot: Articulation = env.scene[asset_cfg.name]
+    deviation = (
+        robot.data.joint_pos[:, asset_cfg.joint_ids]
+        - robot.data.default_joint_pos[:, asset_cfg.joint_ids]
+    )
+    return torch.sum(torch.square(deviation), dim=-1)
+
+
+def settling_joint_default_deviation_l2(
+    env: ManagerBasedRLEnv,
+    command_name: str,
+    asset_cfg: SceneEntityCfg,
+) -> torch.Tensor:
+    """Nominal-posture cost active only during the reference settling window."""
+    command = env.command_manager.get_term(command_name)
+    settling = command.elapsed_s <= command.cfg.settle_time_s
+    return settling.float() * joint_default_deviation_l2(env, asset_cfg)
+
+
+def leg_left_right_symmetry_l2(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg,
+) -> torch.Tensor:
+    """Penalize visually crooked left/right leg pairs without tying front to rear.
+
+    The required order is FR, FL, RR, RL with hip/thigh/calf inside each leg.
+    Hip abduction has mirrored signs; thigh and calf flexion have equal signs.
+    """
+    robot: Articulation = env.scene[asset_cfg.name]
+    joint_position = robot.data.joint_pos[:, asset_cfg.joint_ids]
+    if joint_position.shape[1] != 12:
+        raise ValueError("leg_left_right_symmetry_l2 requires exactly 12 ordered leg joints")
+    errors = torch.stack(
+        (
+            joint_position[:, 0] + joint_position[:, 3],
+            joint_position[:, 1] - joint_position[:, 4],
+            joint_position[:, 2] - joint_position[:, 5],
+            joint_position[:, 6] + joint_position[:, 9],
+            joint_position[:, 7] - joint_position[:, 10],
+            joint_position[:, 8] - joint_position[:, 11],
+        ),
+        dim=-1,
+    )
+    return torch.sum(torch.square(errors), dim=-1)
+
+
+def root_roll_l2(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Roll-only upright cost; pitch remains available for low forward targets."""
+    robot: Articulation = env.scene[asset_cfg.name]
+    return torch.square(robot.data.projected_gravity_b[:, 1])
+
+
+def root_roll_rate_l2(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Squared body roll rate while leaving pitch and yaw rates unconstrained."""
+    robot: Articulation = env.scene[asset_cfg.name]
+    return torch.square(robot.data.root_ang_vel_b[:, 0])
+
+
 def base_height_safety_barrier(
     env: ManagerBasedRLEnv,
     safe_height: float,

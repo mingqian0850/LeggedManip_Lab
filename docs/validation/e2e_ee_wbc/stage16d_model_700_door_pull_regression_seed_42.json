@@ -1,0 +1,233 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_09-41-30_stage16d_mixed_from625_lr5e5_100/model_700.pt",
+  "door_interaction": {
+    "compliant_grasp_active_rate": 1.0,
+    "compliant_grasp_maximum_force_n": {
+      "max": 34.27501678466797,
+      "mean": 13.07468032836914,
+      "p95": 13.611668586730957
+    },
+    "door_task_success": {
+      "criteria": {
+        "door_angle_min_rad": 0.35,
+        "first_episode_alive": true,
+        "handle_angle_min_rad": 0.25,
+        "tcp_handle_distance_max_m": 0.08
+      },
+      "success_rate": 0.0,
+      "successful_envs": 0,
+      "total_envs": 128
+    },
+    "final_door_angle_rad": {
+      "max": 0.0574079193174839,
+      "mean": 0.05173475295305252,
+      "min": 0.01133142039179802,
+      "p05": 0.04202589765191078,
+      "p95": 0.05660954490303993
+    },
+    "final_gripper_joint_position_rad": {
+      "max": -0.32652270793914795,
+      "mean": -0.4244796335697174,
+      "min": -0.4441007673740387,
+      "p05": -0.435801237821579,
+      "p95": -0.3807617425918579
+    },
+    "final_handle_angle_rad": {
+      "max": 0.34527555108070374,
+      "mean": 0.3322925567626953,
+      "min": 0.2061476707458496,
+      "p05": 0.31778329610824585,
+      "p95": 0.34428322315216064
+    },
+    "final_tcp_handle_center_distance_m": {
+      "max": 0.04787910729646683,
+      "mean": 0.033094581216573715,
+      "p95": 0.03855862468481064
+    },
+    "gripper_closure_progress": {
+      "max": 1.0,
+      "mean": 1.0,
+      "min": 1.0,
+      "p05": 1.0,
+      "p95": 1.0
+    },
+    "gripper_contact_duration_s": {
+      "max": 6.759999752044678,
+      "mean": 6.757968425750732,
+      "p95": 6.759999752044678
+    },
+    "handle_applied_torque_nm": {
+      "max": 1.503017544746399,
+      "mean": -4.594287872314453,
+      "min": -4.922945976257324,
+      "p05": -4.882260322570801,
+      "p95": -4.34981107711792
+    },
+    "handle_joint_damping_nm_s_per_rad": {
+      "max": 0.5,
+      "mean": 0.5,
+      "min": 0.5,
+      "p05": 0.5,
+      "p95": 0.5
+    },
+    "handle_joint_stiffness_nm_per_rad": {
+      "max": 12.0,
+      "mean": 12.0,
+      "min": 12.0,
+      "p05": 12.0,
+      "p95": 12.0
+    },
+    "handle_position_target_rad": {
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "p05": 0.0,
+      "p95": 0.0
+    },
+    "latch_unlocked_rate": 1.0,
+    "maximum_gripper_contact_force_n": {
+      "max": 80.90738677978516,
+      "mean": 39.35942840576172,
+      "p95": 40.81755447387695
+    },
+    "minimum_tcp_handle_center_distance_m": {
+      "max": 0.02262035198509693,
+      "mean": 0.021915359422564507,
+      "p95": 0.02251359634101391
+    }
+  },
+  "final_goal_orientation_error_deg": {
+    "max": 3.0043735389855293,
+    "mean": 1.2022021931031601,
+    "p95": 1.2697208542045575
+  },
+  "final_goal_position_error_m": {
+    "max": 0.21966244280338287,
+    "mean": 0.2125023901462555,
+    "p95": 0.21308082342147827
+  },
+  "final_root_height_m": {
+    "max": 0.553297758102417,
+    "mean": 0.5519479513168335,
+    "min": 0.5512826442718506,
+    "p05": 0.5515164732933044,
+    "p95": 0.5525099635124207
+  },
+  "final_root_pitch_deg": {
+    "max": 0.39278632996214136,
+    "mean": 0.25258399736464165,
+    "min": -0.2917662046316396,
+    "p05": 0.0663282405043649,
+    "p95": 0.3505562041388781
+  },
+  "final_root_pitch_delta_by_target_type_deg": {
+    "planar_replay": {
+      "max": NaN,
+      "mean": NaN,
+      "min": NaN,
+      "p05": NaN,
+      "p95": NaN
+    },
+    "spatial": {
+      "max": 1.825494414185553,
+      "mean": 1.7312253171998004,
+      "min": 1.2460698300995074,
+      "p05": 1.6041362007567848,
+      "p95": 1.800206492557227
+    }
+  },
+  "final_root_pitch_delta_deg": {
+    "max": 1.825494414185553,
+    "mean": 1.7312253171998004,
+    "min": 1.2460698300995074,
+    "p05": 1.6041362007567848,
+    "p95": 1.800206492557227
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 0.0,
+  "first_episode_completion_by_target_type": {
+    "planar_replay": {
+      "completed_envs": 0,
+      "completion_rate": NaN,
+      "total_envs": 0
+    },
+    "spatial": {
+      "completed_envs": 128,
+      "completion_rate": 1.0,
+      "total_envs": 128
+    }
+  },
+  "first_episode_survival": {
+    "completed_envs": 128,
+    "completion_rate": 1.0,
+    "maximum_tilt_deg": 5.559434182479171,
+    "minimum_root_height_m": 0.5324136018753052,
+    "terminated_envs": 0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "termination_step": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "undesired_contact_by_body": {}
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.4642813205718994,
+    "legs": 0.2523527443408966,
+    "wheels": 0.08936285972595215
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 3.4746297154633803,
+    "mean": 1.1210255015392643,
+    "p95": 1.9205990354058682
+  },
+  "motion_reference_position_error_by_target_type_m": {
+    "planar_replay": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "spatial": {
+      "max": 0.01909058168530464,
+      "mean": 0.010190514847636223,
+      "p95": 0.014418874867260456
+    }
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.01909058168530464,
+    "mean": 0.010190514847636223,
+    "p95": 0.014418874867260456
+  },
+  "num_envs": 128,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.6030232310295105,
+    "mean": 0.5945889949798584,
+    "p95": 0.5974666476249695
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7231483459472656,
+    "mean": 0.7223790287971497,
+    "p95": 0.7229884266853333
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7246624827384949,
+    "mean": 0.7238924503326416,
+    "p95": 0.7244928479194641
+  },
+  "sampled_target_vertical_translation_m": {
+    "max": 0.04771685600280762,
+    "mean": 0.04678269103169441,
+    "min": 0.045928955078125,
+    "p05": 0.046179160475730896,
+    "p95": 0.047531288117170334
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Door-Pull-Play-v0"
+}

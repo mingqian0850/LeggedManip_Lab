@@ -42,6 +42,8 @@ CONTROLLED_JOINTS = LEG_JOINTS + ARM_JOINTS + WHEEL_JOINTS
 
 TCP_CFG = SceneEntityCfg("robot", body_names="tcp_frame")
 ARM_CFG = SceneEntityCfg("robot", joint_names=ARM_JOINTS, preserve_order=True)
+LEG_CFG = SceneEntityCfg("robot", joint_names=LEG_JOINTS, preserve_order=True)
+HIP_CFG = SceneEntityCfg("robot", joint_names=".*_hip_joint")
 LEG_ARM_CFG = SceneEntityCfg("robot", joint_names=LEG_JOINTS + ARM_JOINTS, preserve_order=True)
 CONTROLLED_CFG = SceneEntityCfg("robot", joint_names=CONTROLLED_JOINTS, preserve_order=True)
 WHEEL_BODY_CFG = SceneEntityCfg(
@@ -614,6 +616,192 @@ class B2WZ1EEWBCStage10EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg):
         self.scene.num_envs = 16
         self.scene.env_spacing = 3.0
         self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1DynamicTrackingCommandsCfg:
+    """Continuous trajectories used to measure latency, jitter, and posture."""
+
+    tcp_pose = mdp.PeriodicWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        trajectory_types=(
+            "hold",
+            "line_x",
+            "line_y",
+            "circle_xy",
+            "figure8_xy",
+            "vertical",
+            "yaw_scan",
+            "six_d",
+        ),
+        frequency_range_hz=(0.10, 0.30),
+        center_offset_b=(0.25, 0.0, 0.0),
+        line_amplitude_m=0.10,
+        circle_radius_m=0.08,
+        figure8_amplitude_m=(0.12, 0.06),
+        vertical_amplitude_m=0.08,
+        orientation_amplitude_rpy=(math.radians(7.0), math.radians(7.0), math.radians(15.0)),
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=2.5,
+        ramp_time_s=2.5,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1DynamicTrainingCommandsCfg:
+    """Mixed dynamic and wide-workspace replay distribution."""
+
+    tcp_pose = mdp.PeriodicWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        trajectory_types=(
+            "waypoint_planar",
+            "waypoint_low",
+            "hold",
+            "line_x",
+            "line_y",
+            "circle_xy",
+            "figure8_xy",
+            "vertical",
+            "yaw_scan",
+            "six_d",
+        ),
+        trajectory_weights=(0.35, 0.25, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05),
+        frequency_range_hz=(0.08, 0.35),
+        center_offset_b=(0.25, 0.0, 0.0),
+        radius_range=(0.30, 0.70),
+        short_radius_range=(0.03, 0.30),
+        short_radius_probability=0.30,
+        bearing_range=(-math.pi, math.pi),
+        spatial_bearing_range=(-0.60, 0.60),
+        height_offset_range=(-0.18, -0.005),
+        yaw_range=(-0.25, 0.25),
+        line_amplitude_m=0.10,
+        circle_radius_m=0.08,
+        figure8_amplitude_m=(0.12, 0.06),
+        vertical_amplitude_m=0.08,
+        orientation_amplitude_rpy=(math.radians(7.0), math.radians(7.0), math.radians(15.0)),
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=2.5,
+        ramp_time_s=2.5,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1DynamicTrackingRewardsCfg(B2WZ1EEWBCRewardsCfg):
+    """Tracking rewards plus explicit natural-posture objectives."""
+
+    spatial_pitch = RewTerm(
+        func=mdp.spatial_base_pitch_tracking_exp,
+        weight=1.0,
+        params={
+            "command_name": "tcp_pose",
+            "maximum_height_offset": 0.18,
+            "maximum_pitch": math.radians(18.0),
+            "std": math.radians(5.0),
+        },
+    )
+    settling_leg_posture = RewTerm(
+        func=mdp.settling_joint_default_deviation_l2,
+        weight=-8.0,
+        params={"command_name": "tcp_pose", "asset_cfg": LEG_CFG},
+    )
+    hip_posture = RewTerm(
+        func=mdp.joint_default_deviation_l2,
+        weight=-1.0,
+        params={"asset_cfg": HIP_CFG},
+    )
+    leg_left_right_symmetry = RewTerm(
+        func=mdp.leg_left_right_symmetry_l2,
+        weight=-0.5,
+        params={"asset_cfg": LEG_CFG},
+    )
+    root_roll = RewTerm(func=mdp.root_roll_l2, weight=-20.0)
+    root_roll_rate = RewTerm(func=mdp.root_roll_rate_l2, weight=-1.0)
+
+
+@configclass
+class B2WZ1DynamicTrackingEnvCfg(B2WZ1EEWBCStage6EnvCfg):
+    """Training distribution for continuous general-purpose 6D EE tracking."""
+
+    commands: B2WZ1DynamicTrainingCommandsCfg = B2WZ1DynamicTrainingCommandsCfg()
+    rewards: B2WZ1DynamicTrackingRewardsCfg = B2WZ1DynamicTrackingRewardsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.episode_length_s = 24.0
+        # A moving target must not be punished by the point-to-point
+        # "stop once close" regularizer.  Keep a weak home bias so the actor
+        # may still move the arm instead of delegating every task to the base.
+        self.rewards.settled_velocity = None
+        self.rewards.terminal_arm_home.weight = -0.15
+        self.rewards.final_success.weight = 0.5
+
+
+@configclass
+class B2WZ1DynamicTrackingEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg):
+    commands: B2WZ1DynamicTrackingCommandsCfg = B2WZ1DynamicTrackingCommandsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1DynamicTrackingSlowEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg_PLAY):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.frequency_range_hz = (0.10, 0.10)
+
+
+@configclass
+class B2WZ1DynamicTrackingMediumEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg_PLAY):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.frequency_range_hz = (0.20, 0.20)
+
+
+@configclass
+class B2WZ1DynamicTrackingFastEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg_PLAY):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.frequency_range_hz = (0.35, 0.35)
+
+
+@configclass
+class B2WZ1DynamicTrackingSixDEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
+    """Single-environment friendly demo with a visible continuous 6D target."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.trajectory_types = ("six_d",)
+        self.commands.tcp_pose.trajectory_weights = None
+
+
+@configclass
+class B2WZ1DynamicTrackingWaypointEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg_PLAY):
+    """Demo a target beyond arm-only reach so whole-body base motion is visible."""
+
+    commands: B2WZ1DynamicTrainingCommandsCfg = B2WZ1DynamicTrainingCommandsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.commands.tcp_pose.trajectory_types = ("waypoint_planar",)
+        self.commands.tcp_pose.trajectory_weights = None
+        self.commands.tcp_pose.radius_range = (0.55, 0.65)
+        self.commands.tcp_pose.short_radius_probability = 0.0
+        self.commands.tcp_pose.bearing_range = (-0.35, 0.35)
 
 
 @configclass

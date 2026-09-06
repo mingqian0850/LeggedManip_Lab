@@ -60,3 +60,23 @@ class B2WZ1EEWBCFineTunePPORunnerCfg(B2WZ1EEWBCPPORunnerCfg):
         desired_kl=0.005,
         max_grad_norm=0.7,
     )
+
+
+@configclass
+class B2WZ1EEWBCPosturePPORunnerCfg(B2WZ1EEWBCPPORunnerCfg):
+    """Very conservative updates for retaining workspace while refining posture."""
+
+    algorithm = RslRlPpoAlgorithmCfg(
+        value_loss_coef=1.0,
+        use_clipped_value_loss=True,
+        clip_param=0.08,
+        entropy_coef=0.0005,
+        num_learning_epochs=3,
+        num_mini_batches=4,
+        learning_rate=5.0e-5,
+        schedule="adaptive",
+        gamma=0.99,
+        lam=0.95,
+        desired_kl=0.003,
+        max_grad_norm=0.5,
+    )

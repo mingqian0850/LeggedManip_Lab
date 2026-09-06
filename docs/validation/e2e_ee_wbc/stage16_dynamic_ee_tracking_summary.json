@@ -1,0 +1,87 @@
+{
+  "objective": "general stable natural-posture end-to-end whole-body 6D EE/TCP tracking",
+  "selected_checkpoint": "logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_09-41-30_stage16d_mixed_from625_lr5e5_100/model_700.pt",
+  "selection_priority": [
+    "first-episode survival and illegal-contact safety",
+    "wide-workspace and low-target retention",
+    "tracking error and latency",
+    "natural posture"
+  ],
+  "initialization_diagnosis": {
+    "joints_unpowered": false,
+    "leg_actuator_stiffness": 250.0,
+    "leg_actuator_damping": 5.0,
+    "ground_static_friction": 0.8,
+    "root_cause": "The previous PPO objective had no explicit default-leg, hip, left-right symmetry, or roll terms, so the actor repeatedly commanded a wide asymmetric stance.",
+    "previous_model_625_maximum_settling_hip_deviation_deg": 16.5,
+    "selected_model_700_maximum_settling_hip_deviation_deg_range": [11.94, 11.98]
+  },
+  "mixed_workspace_three_seed": {
+    "seeds": [42, 43, 44],
+    "environments_per_seed": 256,
+    "completed_environments": 768,
+    "total_environments": 768,
+    "completion_rate": 1.0,
+    "position_error_mean_mm_range": [4.73, 5.05],
+    "position_error_p95_mm_range": [9.62, 9.93],
+    "orientation_error_mean_deg_range": [0.98, 1.05],
+    "absolute_root_roll_p95_deg_range": [12.93, 13.73]
+  },
+  "continuous_speed_sweep": {
+    "seeds": [42, 43, 44],
+    "environments_per_speed_per_seed": 64,
+    "completed_environments": 576,
+    "total_environments": 576,
+    "note": "The deterministic PLAY configuration disables random perturbations and assigns trajectories by environment index, so the three seed results are identical.",
+    "0.10_hz": {
+      "position_error_mean_mm": 3.32,
+      "position_error_p95_mm": 6.85,
+      "orientation_error_mean_deg": 0.88,
+      "orientation_error_p95_deg": 1.74,
+      "position_lag_mean_ms": 16.7,
+      "absolute_root_roll_p95_deg": 3.25
+    },
+    "0.20_hz": {
+      "position_error_mean_mm": 4.81,
+      "position_error_p95_mm": 9.94,
+      "orientation_error_mean_deg": 1.07,
+      "orientation_error_p95_deg": 2.61,
+      "position_lag_mean_ms": 20.0,
+      "absolute_root_roll_p95_deg": 3.70
+    },
+    "0.35_hz": {
+      "position_error_mean_mm": 9.26,
+      "position_error_p95_mm": 23.22,
+      "orientation_error_mean_deg": 1.42,
+      "orientation_error_p95_deg": 4.26,
+      "position_lag_mean_ms": 33.3,
+      "absolute_root_roll_p95_deg": 3.94
+    }
+  },
+  "legacy_regression_seed_42": {
+    "stage5": {"completed": 128, "total": 128},
+    "stage6": {"completed": 128, "total": 128},
+    "stage10_extreme_low": {
+      "completed": 77,
+      "total": 128,
+      "failure_mode": "undesired contact around gripper_stator/lidar_link"
+    },
+    "door_align": {"completed": 128, "total": 128},
+    "door_pull": {
+      "robot_survival": 128,
+      "total": 128,
+      "latch_unlocked_rate": 1.0,
+      "door_task_success_rate": 0.0,
+      "note": "Keep model_625 as the scripted-door checkpoint; door success is no longer the primary model-selection objective."
+    }
+  },
+  "rejected_or_secondary_checkpoints": {
+    "model_711": "766/768 mixed completion with worse tracking than model_700",
+    "model_724": "766/768 mixed completion; more natural 9-degree maximum settling hip deviation but two boundary failures"
+  },
+  "known_limitations": [
+    "Extreme low-front targets still need explicit self-collision distance or a constrained safety layer.",
+    "The selected posture remains measurably offset from the official nominal stance.",
+    "Actuator dynamics, delays, mounting transform, inertial parameters, and TCP calibration are not yet validated for sim-to-real."
+  ]
+}

@@ -25,7 +25,9 @@ from isaaclab.utils.math import (
     compute_pose_error,
     quat_from_angle_axis,
     quat_from_euler_xyz,
+    quat_apply,
     quat_apply_inverse,
+    quat_inv,
     quat_mul,
     subtract_frame_transforms,
 )
@@ -398,6 +400,352 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
             raise ValueError("spatial_probability must lie in [0, 1]")
         if self.motion_time_s <= 0.0:
             raise ValueError("motion_time_s must be positive")
+
+
+class PeriodicWorldPoseCommand(FKReachableWorldPoseCommand):
+    """Continuous deterministic 6D trajectories for EE-WBC training and evaluation.
+
+    Each environment is assigned one trajectory family by its environment index.
+    The reference starts at the physically settled TCP pose and is introduced with
+    a quintic ramp, so a benchmark never injects a Cartesian step.  The public
+    buffers intentionally match :class:`FKReachableWorldPoseCommand`; existing
+    policies therefore keep exactly the same 216 observations.
+    """
+
+    cfg: PeriodicWorldPoseCommandCfg
+    _SUPPORTED_TYPES = (
+        "waypoint_planar",
+        "waypoint_low",
+        "hold",
+        "line_x",
+        "line_y",
+        "circle_xy",
+        "figure8_xy",
+        "vertical",
+        "yaw_scan",
+        "six_d",
+    )
+
+    def __init__(self, cfg: PeriodicWorldPoseCommandCfg, env: ManagerBasedRLEnv) -> None:
+        super().__init__(cfg, env)
+        self.trajectory_ids = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+        self.frequency_hz = torch.zeros(self.num_envs, device=self.device)
+        self.reference_root_pose_w = torch.zeros_like(self.start_pose_w)
+        self.reference_root_pose_w[:, 3] = 1.0
+        self.reference_frame_quat_w = torch.zeros((self.num_envs, 4), device=self.device)
+        self.reference_frame_quat_w[:, 0] = 1.0
+        self.reference_center_offset_b = torch.zeros((self.num_envs, 3), device=self.device)
+        self.reference_orientation_offset_rpy = torch.zeros((self.num_envs, 3), device=self.device)
+        self.is_periodic_mask = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
+
+    @property
+    def trajectory_names(self) -> tuple[str, ...]:
+        return self.cfg.trajectory_types
+
+    def __str__(self) -> str:
+        return (
+            "PeriodicWorldPoseCommand:\n"
+            f"\tTrajectory types: {self.cfg.trajectory_types}\n"
+            f"\tFrequency range: {self.cfg.frequency_range_hz} Hz\n"
+            f"\tTiming: settle={self.cfg.settle_time_s}s, ramp={self.cfg.ramp_time_s}s"
+        )
+
+    @staticmethod
+    def _minimum_jerk(linear_progress: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        progress = linear_progress**3 * (10.0 - 15.0 * linear_progress + 6.0 * linear_progress**2)
+        derivative = 30.0 * linear_progress**2 - 60.0 * linear_progress**3 + 30.0 * linear_progress**4
+        return progress, derivative
+
+    def _evaluate_reference(
+        self, elapsed_s: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Return pose, world twist, and ramp progress for ``(N, K)`` times."""
+        if elapsed_s.ndim == 1:
+            elapsed_s = elapsed_s.unsqueeze(-1)
+        count, preview_count = elapsed_s.shape
+        active_s = torch.clamp(elapsed_s - self.cfg.settle_time_s, min=0.0)
+        linear_ramp = torch.clamp(active_s / self.cfg.ramp_time_s, min=0.0, max=1.0)
+        ramp, ramp_shape_rate = self._minimum_jerk(linear_ramp)
+        ramp_rate = ramp_shape_rate / self.cfg.ramp_time_s
+        omega = (2.0 * math.pi * self.frequency_hz[:count]).unsqueeze(-1)
+        phase = omega * active_s
+        sin_phase = torch.sin(phase)
+        cos_phase = torch.cos(phase)
+
+        offset_b = torch.zeros((count, preview_count, 3), device=self.device)
+        offset_rate_b = torch.zeros_like(offset_b)
+        rpy = self.reference_orientation_offset_rpy[:count, None, :].expand(
+            -1, preview_count, -1
+        ).clone()
+        rpy_rate = torch.zeros_like(offset_b)
+        center = self.reference_center_offset_b[:count, None, :]
+        trajectory_ids = self.trajectory_ids[:count]
+
+        def mask_for(name: str) -> torch.Tensor:
+            return trajectory_ids == self.cfg.trajectory_types.index(name)
+
+        if "line_x" in self.cfg.trajectory_types:
+            mask = mask_for("line_x")
+            offset_b[mask, :, 0] = self.cfg.line_amplitude_m * sin_phase[mask]
+            offset_rate_b[mask, :, 0] = self.cfg.line_amplitude_m * omega[mask] * cos_phase[mask]
+        if "line_y" in self.cfg.trajectory_types:
+            mask = mask_for("line_y")
+            offset_b[mask, :, 1] = self.cfg.line_amplitude_m * sin_phase[mask]
+            offset_rate_b[mask, :, 1] = self.cfg.line_amplitude_m * omega[mask] * cos_phase[mask]
+        if "circle_xy" in self.cfg.trajectory_types:
+            mask = mask_for("circle_xy")
+            offset_b[mask, :, 0] = self.cfg.circle_radius_m * (cos_phase[mask] - 1.0)
+            offset_b[mask, :, 1] = self.cfg.circle_radius_m * sin_phase[mask]
+            offset_rate_b[mask, :, 0] = -self.cfg.circle_radius_m * omega[mask] * sin_phase[mask]
+            offset_rate_b[mask, :, 1] = self.cfg.circle_radius_m * omega[mask] * cos_phase[mask]
+        if "figure8_xy" in self.cfg.trajectory_types:
+            mask = mask_for("figure8_xy")
+            offset_b[mask, :, 0] = self.cfg.figure8_amplitude_m[0] * sin_phase[mask]
+            offset_b[mask, :, 1] = self.cfg.figure8_amplitude_m[1] * torch.sin(2.0 * phase[mask])
+            offset_rate_b[mask, :, 0] = self.cfg.figure8_amplitude_m[0] * omega[mask] * cos_phase[mask]
+            offset_rate_b[mask, :, 1] = (
+                2.0 * self.cfg.figure8_amplitude_m[1] * omega[mask] * torch.cos(2.0 * phase[mask])
+            )
+        if "vertical" in self.cfg.trajectory_types:
+            mask = mask_for("vertical")
+            offset_b[mask, :, 2] = self.cfg.vertical_amplitude_m * sin_phase[mask]
+            offset_rate_b[mask, :, 2] = self.cfg.vertical_amplitude_m * omega[mask] * cos_phase[mask]
+        if "yaw_scan" in self.cfg.trajectory_types:
+            mask = mask_for("yaw_scan")
+            rpy[mask, :, 2] += self.cfg.orientation_amplitude_rpy[2] * sin_phase[mask]
+            rpy_rate[mask, :, 2] = self.cfg.orientation_amplitude_rpy[2] * omega[mask] * cos_phase[mask]
+        if "six_d" in self.cfg.trajectory_types:
+            mask = mask_for("six_d")
+            offset_b[mask, :, 0] = self.cfg.circle_radius_m * (cos_phase[mask] - 1.0)
+            offset_b[mask, :, 1] = self.cfg.circle_radius_m * sin_phase[mask]
+            offset_b[mask, :, 2] = self.cfg.vertical_amplitude_m * torch.sin(0.5 * phase[mask])
+            offset_rate_b[mask, :, 0] = -self.cfg.circle_radius_m * omega[mask] * sin_phase[mask]
+            offset_rate_b[mask, :, 1] = self.cfg.circle_radius_m * omega[mask] * cos_phase[mask]
+            offset_rate_b[mask, :, 2] = (
+                0.5 * self.cfg.vertical_amplitude_m * omega[mask] * torch.cos(0.5 * phase[mask])
+            )
+            roll_amp, pitch_amp, yaw_amp = self.cfg.orientation_amplitude_rpy
+            rpy[mask, :, 0] += roll_amp * sin_phase[mask]
+            rpy[mask, :, 1] += pitch_amp * torch.sin(0.5 * phase[mask])
+            rpy[mask, :, 2] += yaw_amp * torch.sin(0.75 * phase[mask])
+            rpy_rate[mask, :, 0] = roll_amp * omega[mask] * cos_phase[mask]
+            rpy_rate[mask, :, 1] = 0.5 * pitch_amp * omega[mask] * torch.cos(0.5 * phase[mask])
+            rpy_rate[mask, :, 2] = 0.75 * yaw_amp * omega[mask] * torch.cos(0.75 * phase[mask])
+
+        raw_delta_b = center + offset_b
+        delta_b = ramp.unsqueeze(-1) * raw_delta_b
+        delta_rate_b = ramp_rate.unsqueeze(-1) * raw_delta_b + ramp.unsqueeze(-1) * offset_rate_b
+        scaled_rpy = ramp.unsqueeze(-1) * rpy
+        scaled_rpy_rate = ramp_rate.unsqueeze(-1) * rpy + ramp.unsqueeze(-1) * rpy_rate
+
+        frame_quat = self.reference_frame_quat_w[:count, None, :].expand(-1, preview_count, -1)
+        delta_w = quat_apply(frame_quat.reshape(-1, 4), delta_b.reshape(-1, 3)).reshape(count, preview_count, 3)
+        delta_rate_w = quat_apply(
+            frame_quat.reshape(-1, 4), delta_rate_b.reshape(-1, 3)
+        ).reshape(count, preview_count, 3)
+        angular_rate_w = quat_apply(
+            frame_quat.reshape(-1, 4), scaled_rpy_rate.reshape(-1, 3)
+        ).reshape(count, preview_count, 3)
+
+        local_rotation = quat_from_euler_xyz(
+            scaled_rpy[..., 0].reshape(-1),
+            scaled_rpy[..., 1].reshape(-1),
+            scaled_rpy[..., 2].reshape(-1),
+        ).reshape(count, preview_count, 4)
+        world_rotation = quat_mul(
+            quat_mul(frame_quat.reshape(-1, 4), local_rotation.reshape(-1, 4)),
+            quat_inv(frame_quat.reshape(-1, 4)),
+        ).reshape(count, preview_count, 4)
+        start_quat = self.start_pose_w[:count, None, 3:].expand(-1, preview_count, -1)
+
+        pose = torch.zeros((count, preview_count, 7), device=self.device)
+        pose[..., :3] = self.start_pose_w[:count, None, :3] + delta_w
+        pose[..., 3:] = quat_mul(
+            world_rotation.reshape(-1, 4), start_quat.reshape(-1, 4)
+        ).reshape(count, preview_count, 4)
+        twist = torch.cat((delta_rate_w, angular_rate_w), dim=-1)
+        return pose, twist, ramp
+
+    def reference_pose_at_offsets(self, offsets_s: Sequence[float]) -> torch.Tensor:
+        if len(offsets_s) == 0:
+            raise ValueError("offsets_s must contain at least one preview time")
+        if any(offset < 0.0 for offset in offsets_s):
+            raise ValueError("trajectory preview offsets must be non-negative")
+        offsets = torch.as_tensor(offsets_s, device=self.device, dtype=self.elapsed_s.dtype)
+        elapsed = self.elapsed_s.unsqueeze(-1) + offsets.unsqueeze(0)
+        pose, _, _ = self._evaluate_reference(elapsed)
+        return pose
+
+    def _capture_reference(self, env_ids: torch.Tensor) -> None:
+        if env_ids.numel() == 0:
+            return
+        root_pos_w = self.robot.data.root_pos_w[env_ids]
+        root_quat_w = self.robot.data.root_quat_w[env_ids]
+        tcp_pos_w = self.robot.data.body_pos_w[env_ids, self.body_idx]
+        tcp_quat_w = self.robot.data.body_quat_w[env_ids, self.body_idx]
+        sampled_pos_b, sampled_quat_b = subtract_frame_transforms(
+            root_pos_w, root_quat_w, tcp_pos_w, tcp_quat_w
+        )
+        self.start_pose_w[env_ids, :3] = tcp_pos_w
+        self.start_pose_w[env_ids, 3:] = tcp_quat_w
+        self.goal_pose_w[env_ids] = self.start_pose_w[env_ids]
+        self.pose_command_w[env_ids] = self.start_pose_w[env_ids]
+        self.reference_root_pose_w[env_ids, :3] = root_pos_w
+        self.reference_root_pose_w[env_ids, 3:] = root_quat_w
+        self.reference_frame_quat_w[env_ids] = root_quat_w
+        self.ghost_root_pose_w[env_ids] = self.reference_root_pose_w[env_ids]
+        self.sampled_tcp_pose_b[env_ids, :3] = sampled_pos_b
+        self.sampled_tcp_pose_b[env_ids, 3:] = sampled_quat_b
+
+    def _resample_command(self, env_ids: Sequence[int]) -> None:
+        ids = torch.as_tensor(env_ids, dtype=torch.long, device=self.device)
+        if ids.numel() == 0:
+            return
+        if self.cfg.trajectory_weights is None:
+            self.trajectory_ids[ids] = ids % len(self.cfg.trajectory_types)
+        else:
+            weights = torch.as_tensor(self.cfg.trajectory_weights, device=self.device)
+            self.trajectory_ids[ids] = torch.multinomial(weights, ids.numel(), replacement=True)
+        self.frequency_hz[ids] = torch.empty(ids.numel(), device=self.device).uniform_(
+            *self.cfg.frequency_range_hz
+        )
+        trajectory_ids = self.trajectory_ids[ids]
+        non_periodic_ids = [
+            self.cfg.trajectory_types.index(name)
+            for name in ("hold", "waypoint_planar", "waypoint_low")
+            if name in self.cfg.trajectory_types
+        ]
+        periodic_mask = torch.ones(ids.numel(), dtype=torch.bool, device=self.device)
+        for non_periodic_id in non_periodic_ids:
+            periodic_mask &= trajectory_ids != non_periodic_id
+        self.is_periodic_mask[ids] = periodic_mask
+
+        self.reference_center_offset_b[ids] = torch.as_tensor(
+            self.cfg.center_offset_b, device=self.device
+        )
+        self.reference_orientation_offset_rpy[ids] = 0.0
+        for trajectory_name in ("waypoint_planar", "waypoint_low"):
+            if trajectory_name not in self.cfg.trajectory_types:
+                continue
+            local_mask = trajectory_ids == self.cfg.trajectory_types.index(trajectory_name)
+            waypoint_ids = ids[local_mask]
+            if waypoint_ids.numel() == 0:
+                continue
+            radius = torch.empty(waypoint_ids.numel(), device=self.device).uniform_(*self.cfg.radius_range)
+            if self.cfg.short_radius_probability > 0.0:
+                short_mask = torch.rand(waypoint_ids.numel(), device=self.device) < self.cfg.short_radius_probability
+                short_radius = torch.empty(waypoint_ids.numel(), device=self.device).uniform_(
+                    *self.cfg.short_radius_range
+                )
+                radius = torch.where(short_mask, short_radius, radius)
+            bearing_range = (
+                self.cfg.spatial_bearing_range
+                if trajectory_name == "waypoint_low" and self.cfg.spatial_bearing_range is not None
+                else self.cfg.bearing_range
+            )
+            bearing = torch.empty(waypoint_ids.numel(), device=self.device).uniform_(*bearing_range)
+            self.reference_center_offset_b[waypoint_ids, 0] = radius * torch.cos(bearing)
+            self.reference_center_offset_b[waypoint_ids, 1] = radius * torch.sin(bearing)
+            if trajectory_name == "waypoint_low":
+                self.reference_center_offset_b[waypoint_ids, 2] = torch.empty(
+                    waypoint_ids.numel(), device=self.device
+                ).uniform_(*self.cfg.height_offset_range)
+            yaw = torch.empty(waypoint_ids.numel(), device=self.device).uniform_(*self.cfg.yaw_range)
+            self.reference_orientation_offset_rpy[waypoint_ids, 2] = yaw
+
+        spatial_ids = [
+            self.cfg.trajectory_types.index(name)
+            for name in ("waypoint_low", "vertical", "six_d")
+            if name in self.cfg.trajectory_types
+        ]
+        spatial_mask = torch.zeros(ids.numel(), dtype=torch.bool, device=self.device)
+        for spatial_id in spatial_ids:
+            spatial_mask |= trajectory_ids == spatial_id
+        self.spatial_mask[ids] = spatial_mask
+        self.ghost_translation_b[ids] = self.reference_center_offset_b[ids]
+        zeros = torch.zeros(ids.numel(), device=self.device)
+        self.ghost_rotation_b[ids] = quat_from_euler_xyz(
+            zeros,
+            self.reference_orientation_offset_rpy[ids, 1],
+            self.reference_orientation_offset_rpy[ids, 2],
+        )
+        self._capture_reference(ids)
+        self.elapsed_s[ids] = 0.0
+        self.motion_progress[ids] = 0.0
+        self.twist_command_w[ids] = 0.0
+        self.command_buffer[ids, :7] = self.pose_command_w[ids]
+        self.command_buffer[ids, 7:] = 0.0
+
+    def _recapture_settling_reference(self, env_ids: torch.Tensor) -> None:
+        self._capture_reference(env_ids)
+
+    def _update_command(self) -> None:
+        self.elapsed_s += self._env.step_dt
+        if self.cfg.recapture_during_settle:
+            settling_ids = torch.nonzero(
+                self.elapsed_s <= self.cfg.settle_time_s, as_tuple=False
+            ).squeeze(-1)
+            self._recapture_settling_reference(settling_ids)
+        pose, twist, ramp = self._evaluate_reference(self.elapsed_s.unsqueeze(-1))
+        self.pose_command_w.copy_(pose[:, 0])
+        self.goal_pose_w.copy_(pose[:, 0])
+        self.twist_command_w.copy_(twist[:, 0])
+        self.motion_progress.copy_(ramp[:, 0])
+        self.command_buffer[:, :7] = self.pose_command_w
+        self.command_buffer[:, 7:] = self.twist_command_w
+
+        displacement_w = self.pose_command_w[:, :3] - self.start_pose_w[:, :3]
+        self.ghost_root_pose_w[:, :3] = self.reference_root_pose_w[:, :3] + displacement_w
+        self.ghost_root_pose_w[:, 3:] = self.reference_root_pose_w[:, 3:]
+
+
+@configclass
+class PeriodicWorldPoseCommandCfg(FKReachableWorldPoseCommandCfg):
+    """Configuration for continuous EE trajectory generation."""
+
+    class_type: type = PeriodicWorldPoseCommand
+    trajectory_types: tuple[str, ...] = PeriodicWorldPoseCommand._SUPPORTED_TYPES
+    trajectory_weights: tuple[float, ...] | None = None
+    """Optional categorical training weights; ``None`` assigns types round-robin."""
+    frequency_range_hz: tuple[float, float] = (0.10, 0.30)
+    center_offset_b: tuple[float, float, float] = (0.25, 0.0, 0.0)
+    line_amplitude_m: float = 0.10
+    circle_radius_m: float = 0.08
+    figure8_amplitude_m: tuple[float, float] = (0.12, 0.06)
+    vertical_amplitude_m: float = 0.08
+    orientation_amplitude_rpy: tuple[float, float, float] = (0.12, 0.12, 0.25)
+    ramp_time_s: float = 2.5
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if len(self.trajectory_types) == 0:
+            raise ValueError("trajectory_types must not be empty")
+        unknown = set(self.trajectory_types) - set(PeriodicWorldPoseCommand._SUPPORTED_TYPES)
+        if unknown:
+            raise ValueError(f"Unsupported trajectory types: {sorted(unknown)}")
+        if len(set(self.trajectory_types)) != len(self.trajectory_types):
+            raise ValueError("trajectory_types must be unique")
+        if self.trajectory_weights is not None:
+            if len(self.trajectory_weights) != len(self.trajectory_types):
+                raise ValueError("trajectory_weights must match trajectory_types")
+            if min(self.trajectory_weights) < 0.0 or sum(self.trajectory_weights) <= 0.0:
+                raise ValueError("trajectory_weights must be non-negative with positive sum")
+        if self.frequency_range_hz[0] <= 0.0 or self.frequency_range_hz[1] < self.frequency_range_hz[0]:
+            raise ValueError(f"Invalid frequency range: {self.frequency_range_hz}")
+        if len(self.center_offset_b) != 3:
+            raise ValueError("center_offset_b must have three elements")
+        if len(self.figure8_amplitude_m) != 2:
+            raise ValueError("figure8_amplitude_m must have two elements")
+        if len(self.orientation_amplitude_rpy) != 3:
+            raise ValueError("orientation_amplitude_rpy must have three elements")
+        if min(
+            self.line_amplitude_m,
+            self.circle_radius_m,
+            *self.figure8_amplitude_m,
+            self.vertical_amplitude_m,
+            self.ramp_time_s,
+        ) <= 0.0:
+            raise ValueError("Trajectory amplitudes and ramp_time_s must be positive")
 
 
 class DoorHandlePoseCommand(FKReachableWorldPoseCommand):

@@ -194,6 +194,76 @@ gym.register(
 )
 
 gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Slow-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingSlowEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Medium-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingMediumEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Fast-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFastEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-SixD-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingSixDEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Waypoint-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingWaypointEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
     id="B2W-Z1-EE-WBC-Flat-Play-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,

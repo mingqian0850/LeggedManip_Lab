@@ -195,6 +195,57 @@ Stage 14 在闭合后把 TCP 沿把手圆弧近似向下 7.5 cm、横向 1.5 cm�
 - 直接使用 RobotLab actuator preset 而不运行它的冻结 locomotion policy，零动作会反复触发 `low_base`；因此它不适合作为第一阶段的自然稳定 plant，应作为后续 actuator-transfer 阶段。
 - 只把 root 高度设置成落稳后的 0.505 m，而不同时匹配姿态和关节状态，会导致初始几何接触；因此没有采用这种不完整 reset。
 
+### 5.6 项目目标校正与动态 6D EE tracking（Stage 16，2026-09-06）
+
+本项目的最终目标已经明确校正为：**通用、稳定、姿态合理的端到端 whole-body 6D EE/TCP tracking WBC**。开门只保留为回归场景，不再作为策略设计中心。低层 actor 仍一次输出 22 维动作，同时控制 12 个腿关节、6 个 Z1 关节和 4 个轮子；不存在“机械臂 IK + 独立底盘控制器”的人工切换。
+
+新增 `PeriodicWorldPoseCommand` 后，同一策略可在 episode 内连续接收并预览下列世界坐标 6D 目标：
+
+- 固定点、x/y 直线、xy 圆、xy 8 字、竖直扫描；
+- yaw 扫描、位置和姿态同时变化的 6D 轨迹；
+- 30–70 cm 任意方位平面 waypoint；
+- 前方低位 waypoint。
+
+轨迹采用 minimum-jerk 相位插值并向 actor 提供当前目标和短时 preview。训练分布中 60% 为大范围/低位 waypoint replay，40% 为连续轨迹，防止只训练平滑小轨迹后遗忘大范围本体移动。
+
+#### 初始化四腿歪斜的诊断
+
+截图中的四腿歪斜不是关节没有锁死。腿部使用 `DelayedPDActuator`，当前 stiffness=250、damping=5；落稳后 calf 因承重产生约 0.16–0.26 rad 静态偏差属于正常柔顺。地面摩擦系数 0.8 会影响是否滑移，但不是形成固定不自然站姿的根因。
+
+真正原因是旧 `model_625` 的奖励只要求 TCP tracking、存活和基本姿态，没有显式约束自然站姿、左右对称和髋关节偏置。策略因此找到“撑宽四腿换取稳定”的 reward loophole。确定性测量显示，它在完全相同 reset 下每次都会产生相似偏置，最严重髋关节偏离默认值约 0.29 rad（16.5°），平均约 0.10 rad（5.9°）；这说明是策略主动输出，而不是关节自由下落或随机摩擦滑散。
+
+修复没有锁死关节，也没有盲目增大 PD 或摩擦。新增奖励为：
+
+- 落地/静态阶段腿关节回到默认姿态；
+- 髋关节默认姿态与左右镜像对称；
+- root roll 和 roll rate；
+- 低位目标继续保留按目标高度逐渐增加的 pitch shaping。
+
+因此，普通保持时腿趋向自然；当目标确实不可达时，策略仍可移动/转向底盘、改变腿长并俯仰本体。
+
+#### 动态基准与 checkpoint 选择
+
+新增 `scripts/standalone/b2w_z1_dynamic_ee_benchmark.py`，从落地完成后开始统计每种轨迹的存活、位置/姿态误差、3 cm/6° 达标率、速度误差、相位滞后、TCP/底盘速度、底盘加速度、roll/pitch、动作变化和落地髋偏差。checkpoint 选择优先级固定为：存活与非法碰撞 > 大范围能力 > tracking 误差 > 姿态美观。
+
+从原 `model_625` 直接以 60% 大范围 replay、5e-5 学习率微调 100 iterations，得到 Stage 16d。候选结果如下：
+
+| checkpoint | 三 seed 混合场景存活 | 位置误差均值 / p95 | 姿态误差均值 | 落地最大髋偏差 | 结论 |
+|---|---:|---:|---:|---:|---|
+| 原 model_625 | seed 42 为 256/256 | 7.25 / 13.88 mm | 0.94° | 约 16.5° | 稳定但站姿不自然 |
+| model_700 | **768/768** | 约 4.7–5.1 / 9.6–9.9 mm | 约 1.0° | **约 12.0°** | **默认主模型** |
+| model_711 | 766/768 | 约 6.1–6.5 / 10.9–11.6 mm | 约 0.9–1.0° | 约 10.4° | 拒绝：安全性和误差均退化 |
+| model_724 | 766/768 | 约 5.3–5.5 / 9.6–10.2 mm | 约 1.1° | **约 9.0°** | 姿态更自然的实验模型，不作为默认 |
+
+默认 `model_700` 已完成 0.1/0.2/0.35 Hz、seed 42/43/44、每项 64 环境的速度基准，总计 **576/576** 存活：位置误差均值分别为 **3.32/4.81/9.26 mm**，p95 为 **6.85/9.94/23.22 mm**，姿态误差均值为 **0.88/1.07/1.42°**，平均相位滞后为 **16.7/20.0/33.3 ms**。该 PLAY 配置关闭随机扰动且按 env index 分配轨迹，因此三个 seed 的数值完全一致；多 seed 的随机性检验由上面的混合训练配置完成。结果说明当前 actor 能连续 tracking，而不仅是 episode 内一次到点。
+
+`model_700` 的旧任务回归：Stage5 128/128、Stage6 128/128、门前对齐 128/128；Stage10 极低前方目标为 77/128，失败来自 gripper/lidar 邻域非法接触。完整拉门虽然 128/128 不倒且全部解锁把手，但开门成功率退化为 0。因此 checkpoint 必须按任务分开保存：
+
+- 通用动态 EE tracking 默认模型：Stage16d `model_700`；
+- 更自然姿态研究对照：Stage16d `model_724`；
+- 当前脚本化开门回归模型：Stage6 `model_625`。
+
+目前剩余的主要 WBC 问题不是普通目标 tracking，而是极端低位目标下的自碰撞约束、不可达边界附近更自然的姿态选择，以及把当前 PD plant 迁移到真机执行器模型。
+
 ## 6. 如何运行
 
 新 worktree 未安装到共享 conda 环境，运行时要让本分支源码优先：
@@ -229,6 +280,49 @@ $PY scripts/standalone/b2w_z1_e2e_ee_wbc_smoke.py \
 
 ```text
 /home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt
+```
+
+当前通用动态 6D EE tracking 默认 checkpoint：
+
+```text
+/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_09-41-30_stage16d_mixed_from625_lr5e5_100/model_700.pt
+```
+
+Windows/WSL 本地备份（不提交 GitHub）：
+
+```text
+implementation/e2e_ee_wbc/artifacts/stage16_dynamic_ee_wbc_model_700.pt
+implementation/e2e_ee_wbc/artifacts/stage16_dynamic_ee_wbc_posture_model_724.pt
+implementation/e2e_ee_wbc/artifacts/stage16_dynamic_sixd_model_700.mp4
+implementation/e2e_ee_wbc/artifacts/stage16_unreachable_waypoint_model_700.mp4
+```
+
+复跑连续轨迹与混合工作空间基准：
+
+```bash
+$PY scripts/standalone/b2w_z1_dynamic_ee_benchmark.py \
+  --task B2W-Z1-EE-WBC-Dynamic-v0 \
+  --checkpoint logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_09-41-30_stage16d_mixed_from625_lr5e5_100/model_700.pt \
+  --headless --device cuda:0 --num_envs 256 --steps 1099 --seed 42 \
+  --report docs/validation/e2e_ee_wbc/stage16d_mixed_model_700_seed_42_eval.json
+```
+
+可视化连续 6D EE tracking：
+
+```bash
+$PY scripts/rsl_rl/play.py \
+  --task B2W-Z1-EE-WBC-Dynamic-SixD-Play-v0 \
+  --device cuda:0 --num_envs 1 \
+  --checkpoint logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_09-41-30_stage16d_mixed_from625_lr5e5_100/model_700.pt
+```
+
+可视化超出手臂单独可达范围后，机器人主动移动本体：
+
+```bash
+$PY scripts/rsl_rl/play.py \
+  --task B2W-Z1-EE-WBC-Dynamic-Waypoint-Play-v0 \
+  --device cuda:0 --num_envs 1 \
+  --checkpoint logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_09-41-30_stage16d_mixed_from625_lr5e5_100/model_700.pt
 ```
 
 复现固定批量评估：
@@ -285,15 +379,15 @@ Windows/WSL 本地镜像：implementation/e2e_ee_wbc/artifacts/stage15_complete_
 
 已按 20、30、50、70 cm 的顺序完成，并始终保留 30% 旧目标 replay；前方低位目标也已扩到 -18 cm，并验证了随目标降低而增加的本体前倾。下一步进入门把手接触任务，同时保留平面与低位 nominal 回归。之后再扩大 yaw。不要一次同时扩大所有范围。
 
-### 阶段 3：提高动态质量和精度
+### 阶段 3：提高动态质量和精度（基础版已完成）
 
-加入持续的圆、直线和门把手形轨迹，而不是每 episode 只有一个点；分别统计 0.15/0.4 Hz tracking。若纯 RL 仍停留在厘米级，保留统一 actor 负责全身大范围运动，并在末端增加 residual IK/impedance 做毫米级对准。
+直线、圆、8 字、竖直、yaw 和 6D 连续轨迹已经进入训练与确定性基准；Stage16d `model_700` 在三 seed 混合任务中 768/768 存活，位置误差约 5 mm，并完成 0.1/0.2/0.35 Hz、总计 576 环境的 speed sweep。下一步不是回到门任务，而是加入显式自碰撞距离/关节限位 margin，并对极低目标做可达性课程。若真机末端仍需要毫米级接触精度，可让统一 actor 负责大范围 whole-body motion，在末端叠加受限 residual IK/impedance，但不能让该残差绕过碰撞和稳定性约束。
 
 ### 阶段 4：actuator transfer 与 sim-to-real
 
 先把 RobotLab actuator preset 混入课程，再加入延迟、摩擦、质量、COM、传感噪声和外力随机化。每引入一项都要保留 nominal 回归测试。真机前还需要实测 Z1 安装变换、惯量、关节零点和 B2-W 低层接口。
 
-### 阶段 5：门任务
+### 阶段 5：门任务（仅回归/应用层）
 
 门资产、3 cm 近接触、接触一致抓持、把手旋转和后退拉门均已通过确定性多 seed 批量验证。下一步是把当前已知把手位姿和脚本化相位升级为视觉估计 + 可学习高层策略，同时保留 `model_625` 作为低层全身 EE-WBC。真机前必须替换柔顺抓持代理，并标定夹爪碰撞网格、TCP、门参数和力阈值。
 
@@ -306,3 +400,6 @@ Windows/WSL 本地镜像：implementation/e2e_ee_wbc/artifacts/stage15_complete_
 - 当前仍是单 critic PPO。只有标准 PPO 基线收敛后，才值得加入 manipulation/locomotion/safety multi-critic，以免无法判断收益来自算法还是环境修复。
 - Stage 5 最佳模型在 192 个环境中没有终止；后续低位/接触课程仍必须继续跟踪 `lidar_link`、`link2`、gripper 和 calf，而不能只看平均误差。
 - 单环境视频只用于直观检查；鲁棒性结论来自确定性三 seed 批量评估。
+- Stage16d 默认模型将落地最大髋偏差从约 16.5° 降到约 12°，仍不是完全对称的官方站姿；继续压到约 9° 的 `model_724` 已出现 2/768 边界失败，因此不能只追求外观。
+- 极端低位 Stage10 仍有 51/128 环境因 gripper/lidar 邻域接触终止；下一轮应引入显式 self-collision distance 或安全 critic，而不是继续提高姿态奖励。
+- 不同应用使用不同 checkpoint：通用动态 EE tracking 用 `model_700`，当前脚本化开门仍用 `model_625`。不能把门成功与通用 WBC 质量混成单一指标。

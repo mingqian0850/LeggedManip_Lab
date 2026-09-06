@@ -18,6 +18,7 @@ from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 
 from LeggedManip_Lab.assets.b2w_z1.b2w_z1_articulation_cfg import B2W_Z1_TRAINING_CFG
+from LeggedManip_Lab.assets.door import DOOR_WITH_LEVER_CFG
 from LeggedManip_Lab.tasks.manager_based.leggedmanip_lab import mdp
 
 
@@ -604,3 +605,51 @@ class B2WZ1EEWBCStage10EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg):
         self.scene.num_envs = 16
         self.scene.env_spacing = 3.0
         self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1DoorAlignSceneCfg(B2WZ1EEWBCSceneCfg):
+    """Free-standing articulated door added to every replicated scene."""
+
+    door = DOOR_WITH_LEVER_CFG.replace(prim_path="{ENV_REGEX_NS}/Door")
+
+
+@configclass
+class B2WZ1DoorAlignCommandsCfg:
+    """Stage 11: a collision-free target in front of the closed handle."""
+
+    tcp_pose = mdp.DoorHandlePoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        door_asset_name="door",
+        handle_body_name="handle_grasp",
+        resampling_time_range=(1.0e9, 1.0e9),
+        approach_offset_handle=(-0.10, 0.0, 0.0),
+        position_jitter_range=((-0.015, 0.015), (-0.025, 0.025), (-0.02, 0.02)),
+        preserve_start_orientation=True,
+        stationary_probability=0.0,
+        settle_time_s=2.0,
+        motion_time_s=3.5,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1DoorAlignEnvCfg(B2WZ1EEWBCEnvCfg):
+    """Stage 11: reuse the unified WBC to reach a door-handle pre-grasp pose."""
+
+    scene: B2WZ1DoorAlignSceneCfg = B2WZ1DoorAlignSceneCfg(num_envs=1024, env_spacing=3.0)
+    commands: B2WZ1DoorAlignCommandsCfg = B2WZ1DoorAlignCommandsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.episode_length_s = 12.0
+
+
+@configclass
+class B2WZ1DoorAlignEnvCfg_PLAY(B2WZ1DoorAlignEnvCfg):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 16
+        self.scene.env_spacing = 3.0

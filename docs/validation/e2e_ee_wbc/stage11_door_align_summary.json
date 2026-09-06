@@ -1,0 +1,38 @@
+{
+  "stage": 11,
+  "name": "door_handle_pregrasp_alignment",
+  "date": "2026-09-06",
+  "checkpoint": "logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_01-13-13_stage6_low15mm_prob20_refine75/model_625.pt",
+  "task": "B2W-Z1-EE-WBC-Door-Align-Play-v0",
+  "method": {
+    "training_iterations": 0,
+    "evaluation": "zero-shot",
+    "seeds": [42, 43, 44],
+    "environments_per_seed": 128,
+    "door_handle_position_jitter_m": {
+      "x": [-0.015, 0.015],
+      "y": [-0.025, 0.025],
+      "z": [-0.02, 0.02]
+    },
+    "pregrasp_offset_in_handle_frame_m": [-0.1, 0.0, 0.0]
+  },
+  "aggregate": {
+    "completed_environments": 384,
+    "total_environments": 384,
+    "completion_rate": 1.0,
+    "success_rate_3cm_6deg_among_survivors": 1.0,
+    "final_position_error_mean_m": 0.00480329,
+    "final_position_error_max_m": 0.005495293,
+    "final_orientation_error_mean_deg": 0.242758,
+    "final_orientation_error_max_deg": 0.382643,
+    "root_planar_displacement_mean_m": 0.467553,
+    "root_planar_displacement_max_m": 0.502764,
+    "sampled_target_distance_mean_m": 0.558689,
+    "sampled_target_distance_max_m": 0.586264,
+    "low_base_terminations": 0,
+    "bad_orientation_terminations": 0,
+    "undesired_contact_terminations": 0
+  },
+  "decision": "PASS",
+  "next_stage": "Move from the collision-free pregrasp pose to a near-contact pose, validate gripper geometry, then add scripted closure before learning handle rotation."
+}

@@ -25,6 +25,7 @@ from isaaclab.utils.math import (
     compute_pose_error,
     quat_from_angle_axis,
     quat_from_euler_xyz,
+    quat_apply_inverse,
     quat_mul,
     subtract_frame_transforms,
 )
@@ -397,3 +398,141 @@ class FKReachableWorldPoseCommandCfg(CommandTermCfg):
             raise ValueError("spatial_probability must lie in [0, 1]")
         if self.motion_time_s <= 0.0:
             raise ValueError("motion_time_s must be positive")
+
+
+class DoorHandlePoseCommand(FKReachableWorldPoseCommand):
+    """Drive the TCP to a pose anchored to an articulated door handle.
+
+    Stage 11 deliberately uses a collision-free pre-grasp point.  It keeps the
+    actor interface identical to the free-space EE-WBC task, which lets a
+    validated tracking checkpoint be evaluated before contact, gripper, and
+    latch dynamics are introduced.
+    """
+
+    cfg: DoorHandlePoseCommandCfg
+
+    def __init__(self, cfg: DoorHandlePoseCommandCfg, env: ManagerBasedRLEnv) -> None:
+        super().__init__(cfg, env)
+        self.door: Articulation = env.scene[cfg.door_asset_name]
+        body_ids, body_names = self.door.find_bodies(cfg.handle_body_name)
+        if body_names != [cfg.handle_body_name]:
+            raise ValueError(
+                f"Expected exactly one door body named '{cfg.handle_body_name}', found {body_names}."
+            )
+        self.handle_body_idx = body_ids[0]
+        self.target_jitter_w = torch.zeros((self.num_envs, 3), device=self.device)
+        self.is_door_target = torch.ones(self.num_envs, dtype=torch.bool, device=self.device)
+
+    def __str__(self) -> str:
+        return (
+            "DoorHandlePoseCommand:\n"
+            f"\tHandle body: {self.cfg.door_asset_name}/{self.cfg.handle_body_name}\n"
+            f"\tApproach offset: {self.cfg.approach_offset_handle}\n"
+            f"\tMotion timing: settle={self.cfg.settle_time_s}s, move={self.cfg.motion_time_s}s"
+        )
+
+    def _handle_goal_position_w(self, env_ids: Sequence[int]) -> torch.Tensor:
+        count = len(env_ids)
+        offset = torch.tensor(
+            self.cfg.approach_offset_handle,
+            dtype=self.door.data.body_pos_w.dtype,
+            device=self.device,
+        ).expand(count, -1)
+        identity = torch.zeros((count, 4), device=self.device)
+        identity[:, 0] = 1.0
+        goal_pos_w, _ = combine_frame_transforms(
+            self.door.data.body_pos_w[env_ids, self.handle_body_idx],
+            self.door.data.body_quat_w[env_ids, self.handle_body_idx],
+            offset,
+            identity,
+        )
+        return goal_pos_w + self.target_jitter_w[env_ids]
+
+    def _capture_door_reference(self, env_ids: Sequence[int]) -> None:
+        if len(env_ids) == 0:
+            return
+        root_pos_w = self.robot.data.root_pos_w[env_ids]
+        root_quat_w = self.robot.data.root_quat_w[env_ids]
+        start_pos_w = self.robot.data.body_pos_w[env_ids, self.body_idx]
+        start_quat_w = self.robot.data.body_quat_w[env_ids, self.body_idx]
+        sampled_pos_b, sampled_quat_b = subtract_frame_transforms(
+            root_pos_w,
+            root_quat_w,
+            start_pos_w,
+            start_quat_w,
+        )
+        goal_pos_w = self._handle_goal_position_w(env_ids)
+        if self.cfg.preserve_start_orientation:
+            goal_quat_w = start_quat_w
+        else:
+            orientation_offset = torch.tensor(
+                self.cfg.orientation_offset_handle,
+                dtype=start_quat_w.dtype,
+                device=self.device,
+            ).expand(len(env_ids), -1)
+            goal_quat_w = quat_mul(
+                self.door.data.body_quat_w[env_ids, self.handle_body_idx],
+                orientation_offset,
+            )
+
+        tcp_delta_w = goal_pos_w - start_pos_w
+        ghost_root_pos_w = root_pos_w + tcp_delta_w
+        ghost_root_quat_w = root_quat_w
+
+        self.start_pose_w[env_ids, :3] = start_pos_w
+        self.start_pose_w[env_ids, 3:] = start_quat_w
+        self.goal_pose_w[env_ids, :3] = goal_pos_w
+        self.goal_pose_w[env_ids, 3:] = goal_quat_w
+        self.pose_command_w[env_ids] = self.start_pose_w[env_ids]
+        self.twist_command_w[env_ids] = 0.0
+        self.command_buffer[env_ids, :7] = self.pose_command_w[env_ids]
+        self.command_buffer[env_ids, 7:] = 0.0
+        self.ghost_root_pose_w[env_ids, :3] = ghost_root_pos_w
+        self.ghost_root_pose_w[env_ids, 3:] = ghost_root_quat_w
+        self.sampled_tcp_pose_b[env_ids, :3] = sampled_pos_b
+        self.sampled_tcp_pose_b[env_ids, 3:] = sampled_quat_b
+        self.ghost_translation_b[env_ids] = quat_apply_inverse(root_quat_w, tcp_delta_w)
+        self.ghost_rotation_b[env_ids] = 0.0
+        self.ghost_rotation_b[env_ids, 0] = 1.0
+        self.spatial_mask[env_ids] = torch.abs(tcp_delta_w[:, 2]) > 1.0e-3
+
+    def _resample_command(self, env_ids: Sequence[int]) -> None:
+        if len(env_ids) == 0:
+            return
+        for axis, bounds in enumerate(self.cfg.position_jitter_range):
+            self.target_jitter_w[env_ids, axis] = torch.empty(
+                len(env_ids), device=self.device
+            ).uniform_(*bounds)
+        self._capture_door_reference(env_ids)
+        self.elapsed_s[env_ids] = 0.0
+        self.motion_progress[env_ids] = 0.0
+
+    def _recapture_settling_reference(self, env_ids: torch.Tensor) -> None:
+        self._capture_door_reference(env_ids)
+
+
+@configclass
+class DoorHandlePoseCommandCfg(FKReachableWorldPoseCommandCfg):
+    """Configuration for a door-handle anchored pre-grasp command."""
+
+    class_type: type = DoorHandlePoseCommand
+    door_asset_name: str = "door"
+    handle_body_name: str = "handle_grasp"
+    approach_offset_handle: tuple[float, float, float] = (-0.10, 0.0, 0.0)
+    position_jitter_range: tuple[
+        tuple[float, float], tuple[float, float], tuple[float, float]
+    ] = ((0.0, 0.0), (0.0, 0.0), (0.0, 0.0))
+    preserve_start_orientation: bool = True
+    orientation_offset_handle: tuple[float, float, float, float] = (1.0, 0.0, 0.0, 0.0)
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if len(self.approach_offset_handle) != 3:
+            raise ValueError("approach_offset_handle must have three elements")
+        if len(self.position_jitter_range) != 3:
+            raise ValueError("position_jitter_range must contain x/y/z ranges")
+        for bounds in self.position_jitter_range:
+            if bounds[1] < bounds[0]:
+                raise ValueError(f"Invalid door-target jitter range: {bounds}")
+        if len(self.orientation_offset_handle) != 4:
+            raise ValueError("orientation_offset_handle must be a wxyz quaternion")

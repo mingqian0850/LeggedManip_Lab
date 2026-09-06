@@ -816,6 +816,42 @@ class B2WZ1DynamicTrainingCommandsCfg:
 
 
 @configclass
+class B2WZ1WorkspaceGridCommandsCfg:
+    """Parallel Stage-20 targets with three deterministic magnitude variants."""
+
+    tcp_pose = mdp.WorkspaceSweepWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        settle_time_s=2.0,
+        motion_time_s=2.5,
+        transition_time_s=2.5,
+        hold_time_s=2.5,
+        cycle_targets=False,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
+class B2WZ1WorkspaceSweepCommandsCfg:
+    """Sequential Stage-20 target sequence used for the review recording."""
+
+    tcp_pose = mdp.WorkspaceSweepWorldPoseCommandCfg(
+        asset_name="robot",
+        body_name="tcp_frame",
+        resampling_time_range=(1.0e9, 1.0e9),
+        settle_time_s=2.0,
+        motion_time_s=2.5,
+        transition_time_s=2.5,
+        hold_time_s=1.5,
+        cycle_targets=True,
+        recapture_during_settle=True,
+        debug_vis=False,
+    )
+
+
+@configclass
 class B2WZ1DynamicTrackingRewardsCfg(B2WZ1EEWBCRewardsCfg):
     """Tracking rewards plus explicit natural-posture objectives."""
 
@@ -1011,6 +1047,40 @@ class B2WZ1DynamicTrackingAdaptiveMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnv
     """Stage-19b task with height-adaptive structured leg actions."""
 
     actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1WorkspaceGridAdaptiveMirroredFilter35EnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-20 batch audit: one independently evaluated workspace target per environment."""
+
+    commands: B2WZ1WorkspaceGridCommandsCfg = B2WZ1WorkspaceGridCommandsCfg()
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 39
+        self.scene.env_spacing = 3.0
+        self.episode_length_s = 9.0
+        self.commands.tcp_pose.debug_vis = True
+
+
+@configclass
+class B2WZ1WorkspaceSweepAdaptiveMirroredFilter35EnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-20 single-robot review sequence covering difficult EE poses."""
+
+    commands: B2WZ1WorkspaceSweepCommandsCfg = B2WZ1WorkspaceSweepCommandsCfg()
+    actions: B2WZ1AdaptiveMirroredLegFilter35ActionsCfg = B2WZ1AdaptiveMirroredLegFilter35ActionsCfg()
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self.scene.num_envs = 1
+        self.scene.env_spacing = 3.0
+        target_count = len(self.commands.tcp_pose.target_names)
+        segment_time = self.commands.tcp_pose.transition_time_s + self.commands.tcp_pose.hold_time_s
+        self.episode_length_s = self.commands.tcp_pose.settle_time_s + target_count * segment_time + 2.0
+        self.commands.tcp_pose.debug_vis = True
+        self.viewer.eye = (2.8, 2.8, 1.9)
+        self.viewer.lookat = (0.10, 0.0, 0.55)
 
 
 @configclass

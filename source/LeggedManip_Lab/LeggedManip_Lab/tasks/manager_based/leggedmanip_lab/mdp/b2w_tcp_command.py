@@ -748,6 +748,246 @@ class PeriodicWorldPoseCommandCfg(FKReachableWorldPoseCommandCfg):
             raise ValueError("Trajectory amplitudes and ramp_time_s must be positive")
 
 
+class WorkspaceSweepWorldPoseCommand(PeriodicWorldPoseCommand):
+    """Deterministic pose sequence for finding weak regions of the EE workspace.
+
+    In ``cycle_targets`` mode every environment visits the same named targets in
+    order, which is useful for a single review video.  Otherwise each environment
+    receives one target and one magnitude variant, so a batch benchmark can test
+    every direction independently even if another target terminates early.
+
+    Offsets and RPY rotations are expressed in the settled root frame and are
+    introduced with a minimum-jerk transition followed by a constant hold.  The
+    command retains the observation interface used by the trained policy.
+    """
+
+    cfg: WorkspaceSweepWorldPoseCommandCfg
+
+    def __init__(self, cfg: WorkspaceSweepWorldPoseCommandCfg, env: ManagerBasedRLEnv) -> None:
+        super().__init__(cfg, env)
+        self.workspace_target_ids = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+        self.workspace_target_scales = torch.ones(self.num_envs, device=self.device)
+        self.current_target_ids = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
+        self.segment_elapsed_s = torch.zeros(self.num_envs, device=self.device)
+        self.is_holding = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
+
+    @property
+    def target_names(self) -> tuple[str, ...]:
+        return self.cfg.target_names
+
+    @property
+    def trajectory_names(self) -> tuple[str, ...]:
+        # Preserve the interface consumed by the existing benchmark tooling.
+        return self.cfg.target_names
+
+    def __str__(self) -> str:
+        mode = "sequential video sweep" if self.cfg.cycle_targets else "parallel target grid"
+        return (
+            "WorkspaceSweepWorldPoseCommand:\n"
+            f"\tMode: {mode}\n"
+            f"\tTargets: {self.cfg.target_names}\n"
+            f"\tTiming: settle={self.cfg.settle_time_s}s, "
+            f"transition={self.cfg.transition_time_s}s, hold={self.cfg.hold_time_s}s"
+        )
+
+    def _target_state(
+        self, elapsed_s: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Return interpolated local offset/RPY, their rates, and target ids."""
+        if elapsed_s.ndim == 1:
+            elapsed_s = elapsed_s.unsqueeze(-1)
+        count, preview_count = elapsed_s.shape
+        active_s = torch.clamp(elapsed_s - self.cfg.settle_time_s, min=0.0)
+
+        offsets = torch.as_tensor(self.cfg.target_offsets_b, device=self.device, dtype=elapsed_s.dtype)
+        rotations = torch.as_tensor(self.cfg.target_rpy, device=self.device, dtype=elapsed_s.dtype)
+        target_count = offsets.shape[0]
+
+        if self.cfg.cycle_targets:
+            segment_duration = self.cfg.transition_time_s + self.cfg.hold_time_s
+            unwrapped_segment = torch.floor(active_s / segment_duration).to(torch.long)
+            target_ids = torch.remainder(unwrapped_segment, target_count)
+            previous_ids = torch.remainder(target_ids - 1, target_count)
+            segment_elapsed = active_s - unwrapped_segment.to(active_s.dtype) * segment_duration
+            scales = torch.ones_like(active_s)
+        else:
+            target_ids = self.workspace_target_ids[:count, None].expand(-1, preview_count)
+            previous_ids = torch.zeros_like(target_ids)
+            segment_elapsed = active_s
+            scales = self.workspace_target_scales[:count, None].expand(-1, preview_count)
+
+        linear_progress = torch.clamp(segment_elapsed / self.cfg.transition_time_s, min=0.0, max=1.0)
+        blend, blend_shape_rate = self._minimum_jerk(linear_progress)
+        blend_rate = torch.where(
+            segment_elapsed < self.cfg.transition_time_s,
+            blend_shape_rate / self.cfg.transition_time_s,
+            torch.zeros_like(blend_shape_rate),
+        )
+
+        previous_offset = offsets[previous_ids] * scales.unsqueeze(-1)
+        target_offset = offsets[target_ids] * scales.unsqueeze(-1)
+        previous_rpy = rotations[previous_ids] * scales.unsqueeze(-1)
+        target_rpy = rotations[target_ids] * scales.unsqueeze(-1)
+        delta_offset = target_offset - previous_offset
+        delta_rpy = target_rpy - previous_rpy
+
+        local_offset = previous_offset + blend.unsqueeze(-1) * delta_offset
+        local_rpy = previous_rpy + blend.unsqueeze(-1) * delta_rpy
+        local_offset_rate = blend_rate.unsqueeze(-1) * delta_offset
+        local_rpy_rate = blend_rate.unsqueeze(-1) * delta_rpy
+        return local_offset, local_offset_rate, local_rpy, local_rpy_rate, target_ids
+
+    def _evaluate_reference(
+        self, elapsed_s: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        if elapsed_s.ndim == 1:
+            elapsed_s = elapsed_s.unsqueeze(-1)
+        count, preview_count = elapsed_s.shape
+        offset_b, offset_rate_b, rpy, rpy_rate, _ = self._target_state(elapsed_s)
+        frame_quat = self.reference_frame_quat_w[:count, None, :].expand(-1, preview_count, -1)
+
+        offset_w = quat_apply(
+            frame_quat.reshape(-1, 4), offset_b.reshape(-1, 3)
+        ).reshape(count, preview_count, 3)
+        offset_rate_w = quat_apply(
+            frame_quat.reshape(-1, 4), offset_rate_b.reshape(-1, 3)
+        ).reshape(count, preview_count, 3)
+        angular_rate_w = quat_apply(
+            frame_quat.reshape(-1, 4), rpy_rate.reshape(-1, 3)
+        ).reshape(count, preview_count, 3)
+
+        local_rotation = quat_from_euler_xyz(
+            rpy[..., 0].reshape(-1), rpy[..., 1].reshape(-1), rpy[..., 2].reshape(-1)
+        ).reshape(count, preview_count, 4)
+        world_rotation = quat_mul(
+            quat_mul(frame_quat.reshape(-1, 4), local_rotation.reshape(-1, 4)),
+            quat_inv(frame_quat.reshape(-1, 4)),
+        ).reshape(count, preview_count, 4)
+        start_quat = self.start_pose_w[:count, None, 3:].expand(-1, preview_count, -1)
+
+        pose = torch.zeros((count, preview_count, 7), device=self.device)
+        pose[..., :3] = self.start_pose_w[:count, None, :3] + offset_w
+        pose[..., 3:] = quat_mul(
+            world_rotation.reshape(-1, 4), start_quat.reshape(-1, 4)
+        ).reshape(count, preview_count, 4)
+        twist = torch.cat((offset_rate_w, angular_rate_w), dim=-1)
+        active = torch.clamp(elapsed_s - self.cfg.settle_time_s, min=0.0)
+        progress = torch.clamp(active / self.cfg.transition_time_s, min=0.0, max=1.0)
+        return pose, twist, progress
+
+    def _resample_command(self, env_ids: Sequence[int]) -> None:
+        ids = torch.as_tensor(env_ids, dtype=torch.long, device=self.device)
+        if ids.numel() == 0:
+            return
+        super()._resample_command(ids)
+        target_count = len(self.cfg.target_names)
+        variant_count = len(self.cfg.target_scales)
+        if self.cfg.cycle_targets:
+            self.workspace_target_ids[ids] = 0
+            self.workspace_target_scales[ids] = 1.0
+        else:
+            self.workspace_target_ids[ids] = torch.remainder(ids, target_count)
+            variant_ids = torch.remainder(torch.div(ids, target_count, rounding_mode="floor"), variant_count)
+            scales = torch.as_tensor(self.cfg.target_scales, device=self.device)
+            self.workspace_target_scales[ids] = scales[variant_ids]
+        self.trajectory_ids[ids] = self.workspace_target_ids[ids]
+        self.is_periodic_mask[ids] = False
+        self.current_target_ids[ids] = self.workspace_target_ids[ids]
+        self.segment_elapsed_s[ids] = 0.0
+        self.is_holding[ids] = False
+
+    def _update_command(self) -> None:
+        super()._update_command()
+        active_s = torch.clamp(self.elapsed_s - self.cfg.settle_time_s, min=0.0)
+        if self.cfg.cycle_targets:
+            segment_duration = self.cfg.transition_time_s + self.cfg.hold_time_s
+            unwrapped_segment = torch.floor(active_s / segment_duration).to(torch.long)
+            self.current_target_ids.copy_(torch.remainder(unwrapped_segment, len(self.cfg.target_names)))
+            self.segment_elapsed_s.copy_(active_s - unwrapped_segment.to(active_s.dtype) * segment_duration)
+        else:
+            self.current_target_ids.copy_(self.workspace_target_ids)
+            self.segment_elapsed_s.copy_(active_s)
+        self.trajectory_ids.copy_(self.current_target_ids)
+        self.is_holding.copy_(self.segment_elapsed_s >= self.cfg.transition_time_s)
+
+        displacement_w = self.pose_command_w[:, :3] - self.start_pose_w[:, :3]
+        self.ghost_translation_b.copy_(quat_apply_inverse(self.reference_frame_quat_w, displacement_w))
+        _, _, local_rpy, _, _ = self._target_state(self.elapsed_s.unsqueeze(-1))
+        current_rpy = local_rpy[:, 0]
+        zeros = torch.zeros(self.num_envs, device=self.device)
+        self.ghost_rotation_b.copy_(quat_from_euler_xyz(zeros, current_rpy[:, 1], current_rpy[:, 2]))
+        self.spatial_mask.copy_(torch.abs(self.ghost_translation_b[:, 2]) > 1.0e-3)
+
+
+@configclass
+class WorkspaceSweepWorldPoseCommandCfg(PeriodicWorldPoseCommandCfg):
+    """Configuration for the deterministic Stage-20 workspace audit."""
+
+    class_type: type = WorkspaceSweepWorldPoseCommand
+    target_names: tuple[str, ...] = (
+        "home",
+        "front",
+        "left",
+        "right",
+        "rear",
+        "high",
+        "low_front",
+        "low_left",
+        "low_right",
+        "far_front",
+        "pose_combo",
+        "rear_pose",
+        "return_home",
+    )
+    target_offsets_b: tuple[tuple[float, float, float], ...] = (
+        (0.00, 0.00, 0.00),
+        (0.40, 0.00, 0.00),
+        (0.20, 0.32, 0.00),
+        (0.20, -0.32, 0.00),
+        (-0.35, 0.00, 0.00),
+        (0.20, 0.00, 0.16),
+        (0.30, 0.00, -0.16),
+        (0.25, 0.25, -0.12),
+        (0.25, -0.25, -0.12),
+        (0.60, 0.00, 0.00),
+        (0.20, 0.12, 0.05),
+        (-0.25, 0.00, 0.03),
+        (0.00, 0.00, 0.00),
+    )
+    target_rpy: tuple[tuple[float, float, float], ...] = (
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.0, math.radians(-10.0), 0.0),
+        (0.0, math.radians(10.0), 0.0),
+        (math.radians(8.0), math.radians(8.0), math.radians(15.0)),
+        (math.radians(-8.0), math.radians(8.0), math.radians(-15.0)),
+        (0.0, 0.0, 0.0),
+        (math.radians(15.0), math.radians(-10.0), math.radians(25.0)),
+        (math.radians(-10.0), math.radians(10.0), math.radians(-25.0)),
+        (0.0, 0.0, 0.0),
+    )
+    target_scales: tuple[float, ...] = (0.85, 1.0, 1.15)
+    transition_time_s: float = 2.5
+    hold_time_s: float = 1.5
+    cycle_targets: bool = False
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if len(self.target_names) == 0:
+            raise ValueError("target_names must not be empty")
+        if len(self.target_names) != len(self.target_offsets_b) or len(self.target_names) != len(self.target_rpy):
+            raise ValueError("target names, offsets, and RPY rotations must have equal length")
+        if len(set(self.target_names)) != len(self.target_names):
+            raise ValueError("workspace target names must be unique")
+        if len(self.target_scales) == 0 or min(self.target_scales) <= 0.0:
+            raise ValueError("target_scales must contain positive values")
+        if self.transition_time_s <= 0.0 or self.hold_time_s <= 0.0:
+            raise ValueError("workspace transition and hold times must be positive")
+
+
 class DoorHandlePoseCommand(FKReachableWorldPoseCommand):
     """Drive the TCP to a pose anchored to an articulated door handle.
 

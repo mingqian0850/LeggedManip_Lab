@@ -197,11 +197,16 @@ def main() -> dict:
         nominal_wheel_position_b = _body_positions_in_root_frame(robot, wheel_body_ids).clone()
         settled_joint_position = None
         settled_wheel_position_b = None
+        settled_root_position_w = None
+        settled_root_quaternion_w = None
         alive = torch.ones(task.num_envs, dtype=torch.bool, device=task.device)
         previous_action = torch.zeros((task.num_envs, 22), device=task.device)
         previous_previous_action = previous_action.clone()
         previous_root_velocity = robot.data.root_lin_vel_w.clone()
         termination_counts = {name: 0 for name in task.termination_manager.active_terms}
+        arrival_required_steps = max(1, math.ceil(0.25 / task.step_dt))
+        arrival_run_length = torch.zeros(task.num_envs, dtype=torch.long, device=task.device)
+        arrival_time_s = torch.full((task.num_envs,), math.nan, device=task.device)
 
         position_error_series = []
         orientation_error_series = []
@@ -238,6 +243,8 @@ def main() -> dict:
             if step + 1 == settle_steps:
                 settled_joint_position = robot.data.joint_pos.clone()
                 settled_wheel_position_b = _body_positions_in_root_frame(robot, wheel_body_ids).clone()
+                settled_root_position_w = robot.data.root_pos_w.clone()
+                settled_root_quaternion_w = robot.data.root_quat_w.clone()
 
             newly_done = alive & dones
             for name in termination_counts:
@@ -289,6 +296,17 @@ def main() -> dict:
                     (robot.data.root_lin_vel_w - previous_root_velocity) / task.step_dt, dim=-1
                 )
                 within_tolerance = (pos_error <= 0.03) & (ori_error <= math.radians(6.0))
+                not_arrived = ~torch.isfinite(arrival_time_s)
+                arrival_run_length = torch.where(
+                    valid & within_tolerance & not_arrived,
+                    arrival_run_length + 1,
+                    torch.zeros_like(arrival_run_length),
+                )
+                newly_arrived = not_arrived & (arrival_run_length >= arrival_required_steps)
+                arrival_time_s[newly_arrived] = (
+                    (step + 1) * task.step_dt - command.cfg.settle_time_s
+                    - (arrival_required_steps - 1) * task.step_dt
+                )
 
                 position_error_series.append(_masked(pos_error, valid))
                 orientation_error_series.append(_masked(ori_error, valid))
@@ -329,7 +347,7 @@ def main() -> dict:
             previous_root_velocity.copy_(robot.data.root_lin_vel_w)
             alive &= ~dones
 
-        if settled_joint_position is None:
+        if settled_joint_position is None or settled_root_position_w is None or settled_root_quaternion_w is None:
             raise RuntimeError("The run ended before the settling snapshot")
 
         series = {
@@ -357,6 +375,10 @@ def main() -> dict:
         target_position = torch.stack(target_position_series)
         actual_position = torch.stack(actual_position_series)
         valid = torch.stack(valid_series)
+        final_root_translation_b = quat_apply_inverse(
+            settled_root_quaternion_w,
+            robot.data.root_pos_w - settled_root_position_w,
+        )
         position_periodic_mask = torch.zeros_like(periodic_mask)
         for trajectory_name in ("line_x", "line_y", "circle_xy", "figure8_xy", "vertical", "six_d"):
             if trajectory_name in trajectory_names:
@@ -386,6 +408,23 @@ def main() -> dict:
                 "fraction_within_3cm_6deg": (
                     _as_float(torch.mean(tolerance_values)) if tolerance_values.numel() else math.nan
                 ),
+                "arrival_time_s": _summary(arrival_time_s[env_mask]),
+                "arrived_fraction": _as_float(
+                    torch.mean(torch.isfinite(arrival_time_s[env_mask]).float())
+                ),
+                "final_position_error_m": _summary(selected["position_error_m"][-1]),
+                "final_orientation_error_deg": {
+                    key: math.degrees(value)
+                    for key, value in _summary(selected["orientation_error_rad"][-1]).items()
+                },
+                "final_root_translation_b_m": {
+                    "x": _summary(final_root_translation_b[env_mask, 0]),
+                    "y": _summary(final_root_translation_b[env_mask, 1]),
+                    "z": _summary(final_root_translation_b[env_mask, 2]),
+                    "planar_norm": _summary(
+                        torch.linalg.vector_norm(final_root_translation_b[env_mask, :2], dim=-1)
+                    ),
+                },
                 "position_lag_s": _summary(lag_s[env_mask]),
                 "tcp_speed_m_s": _summary(selected["tcp_speed_m_s"]),
                 "root_height_m": _summary(selected["root_height_m"]),
@@ -509,6 +548,28 @@ def main() -> dict:
                 },
             },
         }
+        if hasattr(command, "workspace_target_scales"):
+            workspace_scales = command.workspace_target_scales.clone()
+            report["workspace_audit"] = {
+                "target_scales": sorted(set(float(value) for value in workspace_scales.cpu().tolist())),
+                "arrival_definition": "first 0.25 s continuously within 3 cm and 6 deg after transition",
+                "by_target_and_scale": {
+                    f"{name}@{scale:.2f}": metrics_for(
+                        (trajectory_ids == index) & torch.isclose(
+                            workspace_scales,
+                            torch.tensor(scale, device=workspace_scales.device),
+                        )
+                    )
+                    for index, name in enumerate(trajectory_names)
+                    for scale in sorted(set(float(value) for value in workspace_scales.cpu().tolist()))
+                    if torch.count_nonzero(
+                        (trajectory_ids == index) & torch.isclose(
+                            workspace_scales,
+                            torch.tensor(scale, device=workspace_scales.device),
+                        )
+                    ).item()
+                },
+            }
         print("B2W_Z1_DYNAMIC_EE_BENCHMARK=" + json.dumps(report, indent=2, sort_keys=True), flush=True)
         if args_cli.report:
             path = Path(args_cli.report).expanduser().resolve()

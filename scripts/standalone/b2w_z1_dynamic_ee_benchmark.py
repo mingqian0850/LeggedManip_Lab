@@ -35,7 +35,7 @@ import LeggedManip_Lab.tasks  # noqa: F401
 from isaaclab_rl.rsl_rl import RslRlVecEnvWrapper, handle_deprecated_rsl_rl_cfg
 from isaaclab_tasks.utils import parse_env_cfg
 from isaaclab_tasks.utils.parse_cfg import load_cfg_from_registry
-from isaaclab.utils.math import euler_xyz_from_quat
+from isaaclab.utils.math import euler_xyz_from_quat, quat_apply_inverse
 
 
 def _as_float(value: torch.Tensor) -> float:
@@ -60,6 +60,38 @@ def _summary(values: torch.Tensor) -> dict[str, float]:
 
 def _masked(values: torch.Tensor, valid: torch.Tensor) -> torch.Tensor:
     return torch.where(valid, values, torch.full_like(values, math.nan))
+
+
+def _body_positions_in_root_frame(robot, body_ids: list[int]) -> torch.Tensor:
+    """Return selected body origins in the articulation root frame."""
+    position_w = robot.data.body_pos_w[:, body_ids] - robot.data.root_pos_w[:, None, :]
+    root_quat_w = robot.data.root_quat_w[:, None, :].expand(-1, len(body_ids), -1)
+    return quat_apply_inverse(
+        root_quat_w.reshape(-1, 4), position_w.reshape(-1, 3)
+    ).reshape(robot.data.root_pos_w.shape[0], len(body_ids), 3)
+
+
+def _wheel_pair_symmetry_error(wheel_position_b: torch.Tensor) -> torch.Tensor:
+    """Geometric FR/FL and RR/RL mirror error for wheels ordered FR, FL, RR, RL."""
+    if wheel_position_b.shape[1] != 4:
+        raise ValueError("wheel pair symmetry requires wheel order FR, FL, RR, RL")
+    front_error = torch.stack(
+        (
+            wheel_position_b[:, 0, 0] - wheel_position_b[:, 1, 0],
+            wheel_position_b[:, 0, 1] + wheel_position_b[:, 1, 1],
+            wheel_position_b[:, 0, 2] - wheel_position_b[:, 1, 2],
+        ),
+        dim=-1,
+    )
+    rear_error = torch.stack(
+        (
+            wheel_position_b[:, 2, 0] - wheel_position_b[:, 3, 0],
+            wheel_position_b[:, 2, 1] + wheel_position_b[:, 3, 1],
+            wheel_position_b[:, 2, 2] - wheel_position_b[:, 3, 2],
+        ),
+        dim=-1,
+    )
+    return torch.sqrt(torch.mean(torch.square(torch.cat((front_error, rear_error), dim=-1)), dim=-1))
 
 
 def _estimate_position_lag(
@@ -150,9 +182,24 @@ def main() -> dict:
 
         hip_ids, hip_names = robot.find_joints(".*_hip_joint")
         leg_ids = robot.find_joints(".*_(hip|thigh|calf)_joint")[0]
+        wheel_names_requested = ["FR_wheel", "FL_wheel", "RR_wheel", "RL_wheel"]
+        wheel_body_ids, wheel_body_names = robot.find_bodies(
+            wheel_names_requested, preserve_order=True
+        )
+        if wheel_body_names != wheel_names_requested:
+            raise RuntimeError(f"Unexpected wheel body order: {wheel_body_names}")
+        contact_sensor = task.scene.sensors["contact_forces"]
+        wheel_sensor_ids, wheel_sensor_names = contact_sensor.find_bodies(
+            wheel_names_requested, preserve_order=True
+        )
+        if wheel_sensor_names != wheel_names_requested:
+            raise RuntimeError(f"Unexpected wheel contact-sensor order: {wheel_sensor_names}")
+        nominal_wheel_position_b = _body_positions_in_root_frame(robot, wheel_body_ids).clone()
         settled_joint_position = None
+        settled_wheel_position_b = None
         alive = torch.ones(task.num_envs, dtype=torch.bool, device=task.device)
         previous_action = torch.zeros((task.num_envs, 22), device=task.device)
+        previous_previous_action = previous_action.clone()
         previous_root_velocity = robot.data.root_lin_vel_w.clone()
         termination_counts = {name: 0 for name in task.termination_manager.active_terms}
 
@@ -168,6 +215,13 @@ def main() -> dict:
         root_acceleration_series = []
         hip_deviation_series = []
         action_delta_series = []
+        leg_action_delta_series = []
+        leg_action_second_difference_series = []
+        leg_joint_velocity_series = []
+        leg_joint_acceleration_series = []
+        wheel_nominal_deviation_series = []
+        wheel_pair_symmetry_error_series = []
+        wheel_contact_force_cv_series = []
         within_tolerance_series = []
         target_position_series = []
         actual_position_series = []
@@ -183,6 +237,7 @@ def main() -> dict:
 
             if step + 1 == settle_steps:
                 settled_joint_position = robot.data.joint_pos.clone()
+                settled_wheel_position_b = _body_positions_in_root_frame(robot, wheel_body_ids).clone()
 
             newly_done = alive & dones
             for name in termination_counts:
@@ -201,6 +256,35 @@ def main() -> dict:
                     robot.data.joint_pos[:, hip_ids] - robot.data.default_joint_pos[:, hip_ids], dim=-1
                 )
                 action_delta = torch.linalg.vector_norm(actions - previous_action, dim=-1)
+                leg_action_delta = torch.linalg.vector_norm(
+                    actions[:, : len(leg_ids)] - previous_action[:, : len(leg_ids)], dim=-1
+                )
+                leg_action_second_difference = torch.linalg.vector_norm(
+                    actions[:, : len(leg_ids)]
+                    - 2.0 * previous_action[:, : len(leg_ids)]
+                    + previous_previous_action[:, : len(leg_ids)],
+                    dim=-1,
+                )
+                leg_joint_velocity = torch.linalg.vector_norm(
+                    robot.data.joint_vel[:, leg_ids], dim=-1
+                )
+                leg_joint_acceleration = torch.linalg.vector_norm(
+                    robot.data.joint_acc[:, leg_ids], dim=-1
+                )
+                wheel_position_b = _body_positions_in_root_frame(robot, wheel_body_ids)
+                wheel_nominal_deviation = torch.sqrt(
+                    torch.mean(
+                        torch.sum(torch.square(wheel_position_b - nominal_wheel_position_b), dim=-1),
+                        dim=-1,
+                    )
+                )
+                wheel_pair_symmetry_error = _wheel_pair_symmetry_error(wheel_position_b)
+                wheel_contact_force = torch.linalg.vector_norm(
+                    contact_sensor.data.net_forces_w[:, wheel_sensor_ids], dim=-1
+                )
+                wheel_contact_force_cv = torch.std(wheel_contact_force, dim=-1) / torch.clamp(
+                    torch.mean(wheel_contact_force, dim=-1), min=1.0
+                )
                 root_acceleration = torch.linalg.vector_norm(
                     (robot.data.root_lin_vel_w - previous_root_velocity) / task.step_dt, dim=-1
                 )
@@ -224,11 +308,23 @@ def main() -> dict:
                 root_acceleration_series.append(_masked(root_acceleration, valid))
                 hip_deviation_series.append(_masked(hip_deviation, valid))
                 action_delta_series.append(_masked(action_delta, valid))
+                leg_action_delta_series.append(_masked(leg_action_delta, valid))
+                leg_action_second_difference_series.append(
+                    _masked(leg_action_second_difference, valid)
+                )
+                leg_joint_velocity_series.append(_masked(leg_joint_velocity, valid))
+                leg_joint_acceleration_series.append(_masked(leg_joint_acceleration, valid))
+                wheel_nominal_deviation_series.append(_masked(wheel_nominal_deviation, valid))
+                wheel_pair_symmetry_error_series.append(
+                    _masked(wheel_pair_symmetry_error, valid)
+                )
+                wheel_contact_force_cv_series.append(_masked(wheel_contact_force_cv, valid))
                 within_tolerance_series.append(_masked(within_tolerance.float(), valid))
                 target_position_series.append(command.pose_command_w[:, :3].clone())
                 actual_position_series.append(robot.data.body_pos_w[:, tcp_idx].clone())
                 valid_series.append(valid.clone())
 
+            previous_previous_action.copy_(previous_action)
             previous_action.copy_(actions)
             previous_root_velocity.copy_(robot.data.root_lin_vel_w)
             alive &= ~dones
@@ -249,6 +345,13 @@ def main() -> dict:
             "root_acceleration_m_s2": torch.stack(root_acceleration_series),
             "hip_deviation_norm_rad": torch.stack(hip_deviation_series),
             "action_delta_norm": torch.stack(action_delta_series),
+            "leg_action_delta_norm": torch.stack(leg_action_delta_series),
+            "leg_action_second_difference_norm": torch.stack(leg_action_second_difference_series),
+            "leg_joint_velocity_norm_rad_s": torch.stack(leg_joint_velocity_series),
+            "leg_joint_acceleration_norm_rad_s2": torch.stack(leg_joint_acceleration_series),
+            "wheel_nominal_deviation_rms_m": torch.stack(wheel_nominal_deviation_series),
+            "wheel_pair_symmetry_error_rms_m": torch.stack(wheel_pair_symmetry_error_series),
+            "wheel_contact_force_cv": torch.stack(wheel_contact_force_cv_series),
             "within_tolerance": torch.stack(within_tolerance_series),
         }
         target_position = torch.stack(target_position_series)
@@ -296,8 +399,33 @@ def main() -> dict:
                 "root_acceleration_m_s2": _summary(selected["root_acceleration_m_s2"]),
                 "hip_deviation_norm_rad": _summary(selected["hip_deviation_norm_rad"]),
                 "action_delta_norm": _summary(selected["action_delta_norm"]),
+                "leg_action_delta_norm": _summary(selected["leg_action_delta_norm"]),
+                "leg_action_second_difference_norm": _summary(
+                    selected["leg_action_second_difference_norm"]
+                ),
+                "leg_joint_velocity_norm_rad_s": _summary(
+                    selected["leg_joint_velocity_norm_rad_s"]
+                ),
+                "leg_joint_acceleration_norm_rad_s2": _summary(
+                    selected["leg_joint_acceleration_norm_rad_s2"]
+                ),
+                "wheel_nominal_deviation_rms_m": _summary(
+                    selected["wheel_nominal_deviation_rms_m"]
+                ),
+                "wheel_pair_symmetry_error_rms_m": _summary(
+                    selected["wheel_pair_symmetry_error_rms_m"]
+                ),
+                "wheel_contact_force_cv": _summary(selected["wheel_contact_force_cv"]),
             }
 
+        settled_wheel_nominal_deviation = torch.sqrt(
+            torch.mean(
+                torch.sum(
+                    torch.square(settled_wheel_position_b - nominal_wheel_position_b), dim=-1
+                ),
+                dim=-1,
+            )
+        )
         report = {
             "task": args_cli.task,
             "checkpoint": str(Path(args_cli.checkpoint).expanduser().resolve()),
@@ -345,6 +473,24 @@ def main() -> dict:
                         )
                     )
                 ),
+                "wheel_nominal_deviation_rms_m": _summary(settled_wheel_nominal_deviation),
+                "wheel_pair_symmetry_error_rms_m": _summary(
+                    _wheel_pair_symmetry_error(settled_wheel_position_b)
+                ),
+                "nominal_wheel_position_b_m": {
+                    name: [
+                        _as_float(value)
+                        for value in torch.mean(nominal_wheel_position_b[:, index], dim=0)
+                    ]
+                    for index, name in enumerate(wheel_body_names)
+                },
+                "settled_wheel_position_b_m": {
+                    name: [
+                        _as_float(value)
+                        for value in torch.mean(settled_wheel_position_b[:, index], dim=0)
+                    ]
+                    for index, name in enumerate(wheel_body_names)
+                },
                 "hip_change_from_default_rad": {
                     name: {
                         "mean": _as_float(torch.mean(delta)),

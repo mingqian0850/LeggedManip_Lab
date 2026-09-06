@@ -234,6 +234,126 @@ gym.register(
 )
 
 gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter50-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter50EnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35EnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Smooth-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingSmoothFilter35EnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Stance-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingStanceFilter35EnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Balanced-Stance-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingBalancedStanceFilter35EnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter50-Medium-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter50MediumEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter35-Medium-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35MediumEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter35-Slow-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35SlowEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter35-Fast-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35FastEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Stage5-Filter35-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1EEWBCStage5Filter35EnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Stage6-Filter35-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1EEWBCStage6Filter35EnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Stage10-Filter35-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1EEWBCStage10Filter35EnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
     id="B2W-Z1-EE-WBC-Dynamic-Fast-Play-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
@@ -249,6 +369,16 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingSixDEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Filter35-SixD-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35SixDEnvCfg_PLAY",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
     },
 )

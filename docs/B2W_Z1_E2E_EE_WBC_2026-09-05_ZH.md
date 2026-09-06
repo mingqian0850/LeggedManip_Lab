@@ -431,3 +431,19 @@ Windows/WSL 本地镜像：implementation/e2e_ee_wbc/artifacts/stage15_complete_
 - Stage16d 默认模型将落地最大髋偏差从约 16.5° 降到约 12°，仍不是完全对称的官方站姿；继续压到约 9° 的 `model_724` 已出现 2/768 边界失败，因此不能只追求外观。
 - 极端低位 Stage10 已通过条件 settling 门控达到三 seed 384/384；当前中心距 barrier 仍只是针对 gripper/lidar 的标定代理。扩展到未知自碰撞对时仍需精确 mesh distance 或安全 critic。
 - 不同应用使用不同 checkpoint：通用动态 EE tracking 用 `model_700`，当前脚本化开门仍用 `model_625`。不能把门成功与通用 WBC 质量混成单一指标。
+
+## 9. 2026-09-06 Stage 18：自然腿部动作与滤波适配
+
+已完成低通腿部 PD 目标、自然性 benchmark、三个困难课程回归、两轮奖励消融和近距离 6D 视频验收。完整方法、数据、失败实验和复现命令见：
+
+```text
+docs/STAGE18_NATURAL_LEG_RESULTS_2026-09-06_ZH.md
+```
+
+当前不再把 Stage16d `model_700` 作为最优动态控制器：
+
+- 精度/稳健基线更新为 Filter35 `model_725`；
+- 自然姿态演示候选为平衡姿态 `model_736`；
+- 标准加速度惩罚版本和强制对称版本均已通过确定性实验拒绝，而不是覆盖现有模型。
+
+Stage18 的关键结论是：B2W 的四轮持续接地动作不应套用足式步态模仿；同时，由于 Z1 和传感器载荷不完全对称，也不能把左右几何完全一致当作唯一目标。后续应转向“语义机身/支撑动作 + 四腿 IK + 小 residual”的新控制架构，并把四轮承载均衡与 TCP 精度共同作为约束。

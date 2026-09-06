@@ -177,6 +177,34 @@ class B2WZ1EEWBCActionsCfg:
 
 
 @configclass
+class B2WZ1LegFilter50ActionsCfg(B2WZ1EEWBCActionsCfg):
+    """Shape-compatible leg-target smoothing for zero-shot and fine-tune tests."""
+
+    leg_position = mdp.LowPassJointPositionActionCfg(
+        asset_name="robot",
+        joint_names=LEG_JOINTS,
+        scale=0.35,
+        use_default_offset=True,
+        preserve_order=True,
+        alpha=0.50,
+    )
+
+
+@configclass
+class B2WZ1LegFilter35ActionsCfg(B2WZ1EEWBCActionsCfg):
+    """Stronger diagnostic filter used to measure the tracking/smoothness trade-off."""
+
+    leg_position = mdp.LowPassJointPositionActionCfg(
+        asset_name="robot",
+        joint_names=LEG_JOINTS,
+        scale=0.35,
+        use_default_offset=True,
+        preserve_order=True,
+        alpha=0.35,
+    )
+
+
+@configclass
 class B2WZ1EEWBCPolicyObsCfg(ObsGroup):
     """Deployable observations; two frames provide velocity-free short memory."""
 
@@ -806,6 +834,59 @@ class B2WZ1DynamicTrackingRewardsCfg(B2WZ1EEWBCRewardsCfg):
 
 
 @configclass
+class B2WZ1DynamicTrackingSmoothRewardsCfg(B2WZ1DynamicTrackingRewardsCfg):
+    """Natural-posture rewards with a conservative leg acceleration cost.
+
+    The coefficient matches Isaac Lab's standard locomotion regularizer.  It is
+    intentionally small: the low-pass action term provides the main smoothing,
+    while this term only discourages the residual high-frequency compensation
+    observed after adapting the policy to the filtered actuator target.
+    """
+
+    leg_joint_acceleration = RewTerm(
+        func=mdp.joint_acc_l2,
+        weight=-2.5e-7,
+        params={"asset_cfg": LEG_CFG},
+    )
+
+
+@configclass
+class B2WZ1DynamicTrackingStanceRewardsCfg(B2WZ1DynamicTrackingRewardsCfg):
+    """Stronger geometric stance prior for the continuously grounded B2W."""
+
+    # Hip ab/adduction is the most visually obvious source of a splayed stance.
+    # Pitching and lowering remain available through the thigh/calf joints.
+    hip_posture = RewTerm(
+        func=mdp.joint_default_deviation_l2,
+        weight=-2.0,
+        params={"asset_cfg": HIP_CFG},
+    )
+    # This is a soft mirror prior, not a hard constraint: asymmetric arm loads
+    # can still produce the small leg differences needed for balance.
+    leg_left_right_symmetry = RewTerm(
+        func=mdp.leg_left_right_symmetry_l2,
+        weight=-2.0,
+        params={"asset_cfg": LEG_CFG},
+    )
+
+
+@configclass
+class B2WZ1DynamicTrackingBalancedStanceRewardsCfg(B2WZ1DynamicTrackingRewardsCfg):
+    """Moderate stance prior that leaves room for asymmetric payload support."""
+
+    hip_posture = RewTerm(
+        func=mdp.joint_default_deviation_l2,
+        weight=-1.25,
+        params={"asset_cfg": HIP_CFG},
+    )
+    leg_left_right_symmetry = RewTerm(
+        func=mdp.leg_left_right_symmetry_l2,
+        weight=-1.0,
+        params={"asset_cfg": LEG_CFG},
+    )
+
+
+@configclass
 class B2WZ1DynamicTrackingEnvCfg(B2WZ1EEWBCStage6EnvCfg):
     """Training distribution for continuous general-purpose 6D EE tracking."""
 
@@ -849,10 +930,80 @@ class B2WZ1DynamicTrackingMediumEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg_PLAY):
 
 
 @configclass
+class B2WZ1DynamicTrackingFilter50EnvCfg(B2WZ1DynamicTrackingEnvCfg):
+    """Mixed training distribution with a 0.50 leg-target low-pass filter."""
+
+    actions: B2WZ1LegFilter50ActionsCfg = B2WZ1LegFilter50ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
+    """Mixed training distribution with the selected 0.35 leg-target filter."""
+
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingSmoothFilter35EnvCfg(B2WZ1DynamicTrackingFilter35EnvCfg):
+    """Stage-18b fine-tuning task: filtered leg targets plus acceleration cost."""
+
+    rewards: B2WZ1DynamicTrackingSmoothRewardsCfg = B2WZ1DynamicTrackingSmoothRewardsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingStanceFilter35EnvCfg(B2WZ1DynamicTrackingFilter35EnvCfg):
+    """Stage-18c fine-tuning task with a stronger natural-stance prior."""
+
+    rewards: B2WZ1DynamicTrackingStanceRewardsCfg = B2WZ1DynamicTrackingStanceRewardsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingBalancedStanceFilter35EnvCfg(B2WZ1DynamicTrackingFilter35EnvCfg):
+    """Stage-18d short fine-tune with a payload-aware soft stance prior."""
+
+    rewards: B2WZ1DynamicTrackingBalancedStanceRewardsCfg = B2WZ1DynamicTrackingBalancedStanceRewardsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingFilter50MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
+    actions: B2WZ1LegFilter50ActionsCfg = B2WZ1LegFilter50ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingFilter35MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingFilter35SlowEnvCfg_PLAY(B2WZ1DynamicTrackingSlowEnvCfg_PLAY):
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1EEWBCStage5Filter35EnvCfg_PLAY(B2WZ1EEWBCStage5EnvCfg_PLAY):
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1EEWBCStage6Filter35EnvCfg_PLAY(B2WZ1EEWBCStage6EnvCfg_PLAY):
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1EEWBCStage10Filter35EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg_PLAY):
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
 class B2WZ1DynamicTrackingFastEnvCfg_PLAY(B2WZ1DynamicTrackingEnvCfg_PLAY):
     def __post_init__(self) -> None:
         super().__post_init__()
         self.commands.tcp_pose.frequency_range_hz = (0.35, 0.35)
+
+
+@configclass
+class B2WZ1DynamicTrackingFilter35FastEnvCfg_PLAY(B2WZ1DynamicTrackingFastEnvCfg_PLAY):
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
 
 
 @configclass
@@ -863,6 +1014,17 @@ class B2WZ1DynamicTrackingSixDEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY)
         super().__post_init__()
         self.commands.tcp_pose.trajectory_types = ("six_d",)
         self.commands.tcp_pose.trajectory_weights = None
+        # The default Isaac Lab camera is intended for large multi-environment
+        # scenes and makes a single B2W almost invisible in recorded demos.
+        self.viewer.eye = (2.6, 2.6, 1.8)
+        self.viewer.lookat = (0.10, 0.0, 0.55)
+
+
+@configclass
+class B2WZ1DynamicTrackingFilter35SixDEnvCfg_PLAY(B2WZ1DynamicTrackingSixDEnvCfg_PLAY):
+    """Six-dimensional demonstration using the selected filtered leg action."""
+
+    actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
 
 
 @configclass

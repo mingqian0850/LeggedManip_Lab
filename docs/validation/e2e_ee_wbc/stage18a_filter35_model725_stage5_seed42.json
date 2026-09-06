@@ -1,0 +1,207 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_11-49-23_stage18a_filter35_from700_50/model_725.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 1.4432265488648048,
+    "mean": 0.8283237210738916,
+    "p95": 1.3220491745918466
+  },
+  "final_goal_position_error_m": {
+    "max": 0.009881523437798023,
+    "mean": 0.005710230208933353,
+    "p95": 0.008994107134640217
+  },
+  "final_root_height_m": {
+    "max": 0.5707395076751709,
+    "mean": 0.5433272123336792,
+    "min": 0.5102554559707642,
+    "p05": 0.5156515836715698,
+    "p95": 0.5655233263969421
+  },
+  "final_root_pitch_deg": {
+    "max": 2.3905916092704387,
+    "mean": 0.44482033856531167,
+    "min": -2.027448807234255,
+    "p05": -1.5198043886831663,
+    "p95": 1.948844855831633
+  },
+  "final_root_pitch_delta_by_target_type_deg": {
+    "planar_replay": {
+      "max": 1.2590986293847184,
+      "mean": -0.39263857376048694,
+      "min": -3.4114861106904932,
+      "p05": -2.090390281096392,
+      "p95": 0.9562970268493066
+    },
+    "spatial": {
+      "max": NaN,
+      "mean": NaN,
+      "min": NaN,
+      "p05": NaN,
+      "p95": NaN
+    }
+  },
+  "final_root_pitch_delta_deg": {
+    "max": 1.2590986293847184,
+    "mean": -0.39263857376048694,
+    "min": -3.4114861106904932,
+    "p05": -2.090390281096392,
+    "p95": 0.9562970268493066
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_completion_by_target_type": {
+    "planar_replay": {
+      "completed_envs": 128,
+      "completion_rate": 1.0,
+      "total_envs": 128
+    },
+    "spatial": {
+      "completed_envs": 0,
+      "completion_rate": NaN,
+      "total_envs": 0
+    }
+  },
+  "first_episode_survival": {
+    "completed_envs": 128,
+    "completion_rate": 1.0,
+    "maximum_tilt_deg": 15.793629125380782,
+    "minimum_root_height_m": 0.5102511644363403,
+    "terminated_envs": 0,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 0
+    },
+    "termination_step": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    },
+    "undesired_contact_by_body": {}
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.4735041558742523,
+    "legs": 0.26737403869628906,
+    "wheels": 0.06623419374227524
+  },
+  "minimum_monitored_body_pair_center_distance_m": {
+    "gripper_mover__lidar_link": {
+      "all_environments": {
+        "max": 0.3825518786907196,
+        "mean": 0.304958701133728,
+        "p95": 0.3700905740261078
+      },
+      "completed_environments": {
+        "max": 0.3825518786907196,
+        "mean": 0.304958701133728,
+        "p95": 0.3700905740261078
+      },
+      "terminated_environments": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN
+      }
+    },
+    "gripper_stator__lidar_link": {
+      "all_environments": {
+        "max": 0.3899434208869934,
+        "mean": 0.32721394300460815,
+        "p95": 0.3791106343269348
+      },
+      "completed_environments": {
+        "max": 0.3899434208869934,
+        "mean": 0.32721394300460815,
+        "p95": 0.3791106343269348
+      },
+      "terminated_environments": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN
+      }
+    },
+    "link2__lidar_link": {
+      "all_environments": {
+        "max": 0.13576608896255493,
+        "mean": 0.1357647180557251,
+        "p95": 0.13576598465442657
+      },
+      "completed_environments": {
+        "max": 0.13576608896255493,
+        "mean": 0.1357647180557251,
+        "p95": 0.13576598465442657
+      },
+      "terminated_environments": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN
+      }
+    },
+    "link3__lidar_link": {
+      "all_environments": {
+        "max": 0.41170015931129456,
+        "mean": 0.3883947730064392,
+        "p95": 0.40779954195022583
+      },
+      "completed_environments": {
+        "max": 0.41170015931129456,
+        "mean": 0.3883947730064392,
+        "p95": 0.40779954195022583
+      },
+      "terminated_environments": {
+        "max": NaN,
+        "mean": NaN,
+        "p95": NaN
+      }
+    }
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 4.30240147187497,
+    "mean": 0.8886870653286132,
+    "p95": 1.6244946467950656
+  },
+  "motion_reference_position_error_by_target_type_m": {
+    "planar_replay": {
+      "max": 0.025267379358410835,
+      "mean": 0.006254841573536396,
+      "p95": 0.010975485667586327
+    },
+    "spatial": {
+      "max": NaN,
+      "mean": NaN,
+      "p95": NaN
+    }
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.025267379358410835,
+    "mean": 0.006254841573536396,
+    "p95": 0.010975485667586327
+  },
+  "num_envs": 128,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.5864439010620117,
+    "mean": 0.27052342891693115,
+    "p95": 0.5378996729850769
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7532455921173096,
+    "mean": 0.46755144000053406,
+    "p95": 0.6925228238105774
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7545551657676697,
+    "mean": 0.4677613377571106,
+    "p95": 0.6926742792129517
+  },
+  "sampled_target_vertical_translation_m": {
+    "max": 0.04443705081939697,
+    "mean": 0.010990213602781296,
+    "min": -0.005488336086273193,
+    "p05": -0.0034586996771395206,
+    "p95": 0.03112558089196682
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage5-Filter35-Play-v0"
+}

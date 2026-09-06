@@ -10,12 +10,58 @@ import torch
 import warp as wp
 
 from isaaclab.assets import Articulation
+from isaaclab.envs.mdp.actions import JointPositionAction, JointPositionActionCfg
 from isaaclab.managers import ActionTerm, ActionTermCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.math import quat_apply
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedEnv
+
+
+class LowPassJointPositionAction(JointPositionAction):
+    """Apply a first-order low-pass filter to joint-position targets.
+
+    The raw actor action is preserved for PPO bookkeeping.  Only the physical
+    PD target is filtered, so existing checkpoints remain shape-compatible and
+    can be evaluated before deciding whether retraining is worthwhile.
+    """
+
+    cfg: LowPassJointPositionActionCfg
+
+    def __init__(self, cfg: LowPassJointPositionActionCfg, env: ManagerBasedEnv) -> None:
+        super().__init__(cfg, env)
+        self._filtered_actions = torch.zeros_like(self._processed_actions)
+        if isinstance(self._offset, torch.Tensor):
+            self._filtered_actions.copy_(self._offset)
+        else:
+            self._filtered_actions.fill_(self._offset)
+
+    def process_actions(self, actions: torch.Tensor) -> None:
+        super().process_actions(actions)
+        self._filtered_actions.lerp_(self._processed_actions, self.cfg.alpha)
+        self._processed_actions = self._filtered_actions
+
+    def reset(self, env_ids: Sequence[int] | None = None) -> None:
+        if env_ids is None:
+            env_ids = slice(None)
+        super().reset(env_ids)
+        if isinstance(self._offset, torch.Tensor):
+            self._filtered_actions[env_ids] = self._offset[env_ids]
+        else:
+            self._filtered_actions[env_ids] = self._offset
+
+
+@configclass
+class LowPassJointPositionActionCfg(JointPositionActionCfg):
+    """Configuration for filtered joint targets; ``alpha=1`` is unfiltered."""
+
+    class_type: type = LowPassJointPositionAction
+    alpha: float = 0.5
+
+    def __post_init__(self) -> None:
+        if not 0.0 < self.alpha <= 1.0:
+            raise ValueError("alpha must lie in (0, 1]")
 
 
 class FixedJointPositionAction(ActionTerm):

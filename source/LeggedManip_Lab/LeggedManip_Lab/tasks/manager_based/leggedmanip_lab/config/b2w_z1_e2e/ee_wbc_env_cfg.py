@@ -205,6 +205,21 @@ class B2WZ1LegFilter35ActionsCfg(B2WZ1EEWBCActionsCfg):
 
 
 @configclass
+class B2WZ1MirroredLegFilter35ActionsCfg(B2WZ1EEWBCActionsCfg):
+    """Filtered leg action with a payload-aware soft mirror projection."""
+
+    leg_position = mdp.MirroredLowPassJointPositionActionCfg(
+        asset_name="robot",
+        joint_names=LEG_JOINTS,
+        scale=0.35,
+        use_default_offset=True,
+        preserve_order=True,
+        alpha=0.35,
+        asymmetric_residual_scale=0.25,
+    )
+
+
+@configclass
 class B2WZ1EEWBCPolicyObsCfg(ObsGroup):
     """Deployable observations; two frames provide velocity-free short memory."""
 
@@ -965,6 +980,13 @@ class B2WZ1DynamicTrackingBalancedStanceFilter35EnvCfg(B2WZ1DynamicTrackingFilte
 
 
 @configclass
+class B2WZ1DynamicTrackingMirroredFilter35EnvCfg(B2WZ1DynamicTrackingEnvCfg):
+    """Stage-19 task with a structured, softly mirrored leg action space."""
+
+    actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
+
+
+@configclass
 class B2WZ1DynamicTrackingFilter50MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
     actions: B2WZ1LegFilter50ActionsCfg = B2WZ1LegFilter50ActionsCfg()
 
@@ -972,6 +994,11 @@ class B2WZ1DynamicTrackingFilter50MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEn
 @configclass
 class B2WZ1DynamicTrackingFilter35MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
     actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingMirroredFilter35MediumEnvCfg_PLAY(B2WZ1DynamicTrackingMediumEnvCfg_PLAY):
+    actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
 
 
 @configclass
@@ -992,6 +1019,11 @@ class B2WZ1EEWBCStage6Filter35EnvCfg_PLAY(B2WZ1EEWBCStage6EnvCfg_PLAY):
 @configclass
 class B2WZ1EEWBCStage10Filter35EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg_PLAY):
     actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1EEWBCStage10MirroredFilter35EnvCfg_PLAY(B2WZ1EEWBCStage10EnvCfg_PLAY):
+    actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
 
 
 @configclass
@@ -1025,6 +1057,13 @@ class B2WZ1DynamicTrackingFilter35SixDEnvCfg_PLAY(B2WZ1DynamicTrackingSixDEnvCfg
     """Six-dimensional demonstration using the selected filtered leg action."""
 
     actions: B2WZ1LegFilter35ActionsCfg = B2WZ1LegFilter35ActionsCfg()
+
+
+@configclass
+class B2WZ1DynamicTrackingMirroredFilter35SixDEnvCfg_PLAY(B2WZ1DynamicTrackingSixDEnvCfg_PLAY):
+    """Six-dimensional demo using the structured mirrored leg action."""
+
+    actions: B2WZ1MirroredLegFilter35ActionsCfg = B2WZ1MirroredLegFilter35ActionsCfg()
 
 
 @configclass

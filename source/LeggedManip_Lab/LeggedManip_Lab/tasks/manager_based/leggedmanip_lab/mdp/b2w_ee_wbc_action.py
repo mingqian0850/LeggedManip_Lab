@@ -64,6 +64,56 @@ class LowPassJointPositionActionCfg(JointPositionActionCfg):
             raise ValueError("alpha must lie in (0, 1]")
 
 
+class MirroredLowPassJointPositionAction(LowPassJointPositionAction):
+    """Project four-leg residuals toward a left/right mirrored subspace.
+
+    The expected order is ``FR, FL, RR, RL`` with hip/thigh/calf per leg.
+    ``asymmetric_residual_scale`` retains part of the actor's asymmetric
+    component so the stance can compensate for an off-centre payload.
+    """
+
+    cfg: MirroredLowPassJointPositionActionCfg
+
+    def process_actions(self, actions: torch.Tensor) -> None:
+        # Bypass LowPassJointPositionAction.process_actions so projection occurs
+        # before temporal filtering while JointPositionAction still records the
+        # untouched actor action for PPO observations and action-rate rewards.
+        JointPositionAction.process_actions(self, actions)
+        if self.action_dim != 12:
+            raise ValueError("Mirrored leg projection requires exactly 12 actions")
+        offset = self._offset if isinstance(self._offset, torch.Tensor) else float(self._offset)
+        residual = self._processed_actions - offset
+        mirrored = torch.empty_like(residual)
+        for right, left in ((0, 3), (6, 9)):
+            hip = 0.5 * (residual[:, right] - residual[:, left])
+            thigh = 0.5 * (residual[:, right + 1] + residual[:, left + 1])
+            calf = 0.5 * (residual[:, right + 2] + residual[:, left + 2])
+            mirrored[:, right] = hip
+            mirrored[:, left] = -hip
+            mirrored[:, right + 1] = thigh
+            mirrored[:, left + 1] = thigh
+            mirrored[:, right + 2] = calf
+            mirrored[:, left + 2] = calf
+        beta = self.cfg.asymmetric_residual_scale
+        projected_residual = mirrored + beta * (residual - mirrored)
+        self._processed_actions = offset + projected_residual
+        self._filtered_actions.lerp_(self._processed_actions, self.cfg.alpha)
+        self._processed_actions = self._filtered_actions
+
+
+@configclass
+class MirroredLowPassJointPositionActionCfg(LowPassJointPositionActionCfg):
+    """Configuration for payload-aware mirrored leg residual projection."""
+
+    class_type: type = MirroredLowPassJointPositionAction
+    asymmetric_residual_scale: float = 0.25
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if not 0.0 <= self.asymmetric_residual_scale <= 1.0:
+            raise ValueError("asymmetric_residual_scale must lie in [0, 1]")
+
+
 class FixedJointPositionAction(ActionTerm):
     """Hold selected joints at their reset default without consuming actor output."""
 

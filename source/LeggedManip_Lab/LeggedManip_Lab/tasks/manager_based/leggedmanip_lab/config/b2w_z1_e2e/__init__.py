@@ -284,6 +284,16 @@ gym.register(
 )
 
 gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Mirrored-Filter35-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingMirroredFilter35EnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCPosturePPORunnerCfg",
+    },
+)
+
+gym.register(
     id="B2W-Z1-EE-WBC-Dynamic-Filter50-Medium-Play-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
@@ -299,6 +309,16 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35MediumEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Mirrored-Filter35-Medium-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingMirroredFilter35MediumEnvCfg_PLAY",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
     },
 )
@@ -354,6 +374,16 @@ gym.register(
 )
 
 gym.register(
+    id="B2W-Z1-EE-WBC-Stage10-Mirrored-Filter35-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1EEWBCStage10MirroredFilter35EnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
     id="B2W-Z1-EE-WBC-Dynamic-Fast-Play-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
@@ -379,6 +409,16 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingFilter35SixDEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="B2W-Z1-EE-WBC-Dynamic-Mirrored-Filter35-SixD-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.ee_wbc_env_cfg:B2WZ1DynamicTrackingMirroredFilter35SixDEnvCfg_PLAY",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:B2WZ1EEWBCFineTunePPORunnerCfg",
     },
 )

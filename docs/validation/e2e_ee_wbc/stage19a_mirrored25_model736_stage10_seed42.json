@@ -1,0 +1,216 @@
+{
+  "checkpoint": "/home/mingqian/LeggedManip_Lab-e2e-ee-wbc/logs/rsl_rl/b2w_z1_e2e_ee_wbc/2026-09-06_12-41-45_stage19a_mirrored25_from725_12/model_736.pt",
+  "final_goal_orientation_error_deg": {
+    "max": 5.0695239232211975,
+    "mean": 1.3931456808795672,
+    "p95": 3.0606210005742307
+  },
+  "final_goal_position_error_m": {
+    "max": 0.012715453281998634,
+    "mean": 0.0059372312389314175,
+    "p95": 0.011140781454741955
+  },
+  "final_root_height_m": {
+    "max": 0.5912687182426453,
+    "mean": 0.5292609930038452,
+    "min": 0.4599933922290802,
+    "p05": 0.4680865406990051,
+    "p95": 0.5813862681388855
+  },
+  "final_root_pitch_deg": {
+    "max": 5.7194531350146995,
+    "mean": 1.7892420112269467,
+    "min": -5.552563865947785,
+    "p05": -4.102760591964198,
+    "p95": 5.005760692224543
+  },
+  "final_root_pitch_delta_by_target_type_deg": {
+    "planar_replay": {
+      "max": 1.148748278884994,
+      "mean": -0.8944324817202104,
+      "min": -6.10778439404942,
+      "p05": -5.5139314622285465,
+      "p95": 0.7611164205491115
+    },
+    "spatial": {
+      "max": 4.890617363196468,
+      "mean": 3.381901146300583,
+      "min": 1.4406170964367426,
+      "p05": 2.3737865691478572,
+      "p95": 4.496839455185485
+    }
+  },
+  "final_root_pitch_delta_deg": {
+    "max": 4.890617363196468,
+    "mean": 1.052826596285216,
+    "min": -6.10778439404942,
+    "p05": -4.668592672715095,
+    "p95": 4.184556376143332
+  },
+  "final_success_rate_3cm_6deg_among_survivors": 1.0,
+  "first_episode_completion_by_target_type": {
+    "planar_replay": {
+      "completed_envs": 61,
+      "completion_rate": 0.7922077775001526,
+      "total_envs": 77
+    },
+    "spatial": {
+      "completed_envs": 51,
+      "completion_rate": 1.0,
+      "total_envs": 51
+    }
+  },
+  "first_episode_survival": {
+    "completed_envs": 112,
+    "completion_rate": 0.875,
+    "maximum_tilt_deg": 11.321346761582431,
+    "minimum_root_height_m": 0.4599398672580719,
+    "terminated_envs": 16,
+    "termination_counts": {
+      "bad_orientation": 0,
+      "low_base": 0,
+      "time_out": 0,
+      "undesired_contact": 16
+    },
+    "termination_step": {
+      "max": 186.0,
+      "mean": 174.0,
+      "p95": 185.25
+    },
+    "undesired_contact_by_body": {
+      "lidar_link": {
+        "peak_force_n": 440.1151428222656,
+        "terminated_env_count": 16
+      },
+      "link2": {
+        "peak_force_n": 440.1151428222656,
+        "terminated_env_count": 16
+      }
+    }
+  },
+  "mean_absolute_normalized_action": {
+    "arm": 0.4594828188419342,
+    "legs": 0.2956531345844269,
+    "wheels": 0.06914825737476349
+  },
+  "minimum_monitored_body_pair_center_distance_m": {
+    "gripper_mover__lidar_link": {
+      "all_environments": {
+        "max": 0.39514321088790894,
+        "mean": 0.3130398094654083,
+        "p95": 0.3683873116970062
+      },
+      "completed_environments": {
+        "max": 0.39514321088790894,
+        "mean": 0.31349286437034607,
+        "p95": 0.3764013648033142
+      },
+      "terminated_environments": {
+        "max": 0.3426080644130707,
+        "mean": 0.3098684549331665,
+        "p95": 0.3413074016571045
+      }
+    },
+    "gripper_stator__lidar_link": {
+      "all_environments": {
+        "max": 0.3947031497955322,
+        "mean": 0.32618677616119385,
+        "p95": 0.3737328052520752
+      },
+      "completed_environments": {
+        "max": 0.3947031497955322,
+        "mean": 0.32615676522254944,
+        "p95": 0.3801977038383484
+      },
+      "terminated_environments": {
+        "max": 0.35451874136924744,
+        "mean": 0.32639679312705994,
+        "p95": 0.35403937101364136
+      }
+    },
+    "link2__lidar_link": {
+      "all_environments": {
+        "max": 0.13576610386371613,
+        "mean": 0.13576477766036987,
+        "p95": 0.13576602935791016
+      },
+      "completed_environments": {
+        "max": 0.13576610386371613,
+        "mean": 0.1357647329568863,
+        "p95": 0.13576604425907135
+      },
+      "terminated_environments": {
+        "max": 0.13576599955558777,
+        "mean": 0.13576510548591614,
+        "p95": 0.1357656866312027
+      }
+    },
+    "link3__lidar_link": {
+      "all_environments": {
+        "max": 0.4092247188091278,
+        "mean": 0.37676340341567993,
+        "p95": 0.40335944294929504
+      },
+      "completed_environments": {
+        "max": 0.40461334586143494,
+        "mean": 0.37355363368988037,
+        "p95": 0.39566048979759216
+      },
+      "terminated_environments": {
+        "max": 0.4092247188091278,
+        "mean": 0.3992321491241455,
+        "p95": 0.40798771381378174
+      }
+    }
+  },
+  "motion_reference_orientation_error_deg": {
+    "max": 8.750770916502283,
+    "mean": 1.4983422267636937,
+    "p95": 3.765541346035975
+  },
+  "motion_reference_position_error_by_target_type_m": {
+    "planar_replay": {
+      "max": 0.03754325583577156,
+      "mean": 0.006921929307281971,
+      "p95": 0.014747942797839642
+    },
+    "spatial": {
+      "max": 0.0406029038131237,
+      "mean": 0.009763757698237896,
+      "p95": 0.03007720597088337
+    }
+  },
+  "motion_reference_position_error_m": {
+    "max": 0.0406029038131237,
+    "mean": 0.008189485408365726,
+    "p95": 0.024460626766085625
+  },
+  "num_envs": 128,
+  "requested_steps": 599,
+  "root_planar_displacement_m": {
+    "max": 0.770161509513855,
+    "mean": 0.3418324291706085,
+    "p95": 0.7025024890899658
+  },
+  "sampled_target_planar_translation_m": {
+    "max": 0.7538822293281555,
+    "mean": 0.45508265495300293,
+    "p95": 0.6826613545417786
+  },
+  "sampled_target_translation_m": {
+    "max": 0.7551725506782532,
+    "mean": 0.4658181965351105,
+    "p95": 0.6902679204940796
+  },
+  "sampled_target_vertical_translation_m": {
+    "max": 0.04412621259689331,
+    "mean": -0.05717356503009796,
+    "min": -0.17972636222839355,
+    "p05": -0.1715577393770218,
+    "p95": 0.021303964778780937
+  },
+  "seed": 42,
+  "settle_steps": 100,
+  "step_dt_s": 0.02,
+  "task": "B2W-Z1-EE-WBC-Stage10-Mirrored-Filter35-Play-v0"
+}
